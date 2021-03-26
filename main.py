@@ -2,15 +2,13 @@ import discord
 import json
 import os
 
+import embeds
+import keyword_functions
 
 # constants
-command_prefix = ("!robo")
-token = os.getenv("TOKEN")
+COMMAND_PREFIX = ("!robo")
+TOKEN = os.getenv("TOKEN")
 client = discord.Client()
-
-with open("keywords.json", "r") as keywords_file:
-    keywords_dictionary = {}
-    keywords_dictionary = json.loads(keywords_file.read())
 
 
 @client.event
@@ -20,27 +18,20 @@ async def on_ready():
 
 # command manager
 async def execute_command(message):
-    message_split = message.content.split(" ")[1]
-    
-    if message_split == "add":
+    first_parameter = message.content.split(" ")[1]
+
+    if first_parameter == "add":
         message_addition = message.content.split(" ")[2]
-        message_value = " ".join(message.content.split(" ")[3:])
-        keywords_dictionary[message_addition] = message_value
-        await message.channel.send("Keyword added.")
+        await keyword_functions.add(message, first_parameter, message_addition)
 
-        await save_keywords()
+    elif first_parameter == "remove":
+        await keyword_functions.remove(message, first_parameter)
 
-    elif message_split == "remove":
-        print ("done")
-        message_removal = message.content.split(" ")[2]
-        keywords_dictionary.pop(message_removal)
-        await message.channel.send("Keyword removed.")
+    elif first_parameter == "list":
+        await keyword_functions.list(message, first_parameter)
 
-# save keywords to file
-async def save_keywords():
-    keywords_json = json.dumps(keywords_dictionary)
-    with open ("keywords.json", "w") as keywords_file:
-        keywords_file.write(keywords_json)
+    else:
+        await message.channel.send(embed=await embeds.embed_error_message(":exclamation: Keyword not recognised. Did you make a typo? "))
 
 
 # recieve message
@@ -48,17 +39,14 @@ async def save_keywords():
 async def on_message(message):
     if message.author == client.user:
         return
-    
-    if message.content.startswith(command_prefix):
+
+    if message.content.startswith(COMMAND_PREFIX):
         await execute_command(message)
         return
 
-    for keyword in keywords_dictionary.keys():
-        if message.content.__contains__(keyword):
-            await message.channel.send(keywords_dictionary[keyword])
-            return
+    await keyword_functions.check_keywords(message)
 
 
 
-#keep at end
-client.run(token)
+# keep at end
+client.run(TOKEN)

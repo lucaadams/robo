@@ -1,0 +1,6 @@
+async def embed_warning(embed_title, embed_colour, embed_description):
+    return Embed(
+        title = embed_title,
+        colour = embed_colour,
+        description = embed_description,
+    )
