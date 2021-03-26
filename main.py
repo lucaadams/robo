@@ -1,14 +1,17 @@
 import discord
 import json
+import os
 
 
 # constants
-token = "ODI0MzQwOTI2MTAwNzk5NTM4.YFt9UA.VmABEAOFXUx9fEUnkpOz27Ix2eM"
-command_prefix = "!robo"
-
+command_prefix = ("!robo")
+token = os.getenv("TOKEN")
 client = discord.Client()
 
-keywords_dictionary = {}
+with open("keywords.json", "r") as keywords_file:
+    keywords_dictionary = {}
+    keywords_dictionary = json.loads(keywords_file.read())
+
 
 @client.event
 async def on_ready():
@@ -25,11 +28,19 @@ async def execute_command(message):
         keywords_dictionary[message_addition] = message_value
         await message.channel.send("Keyword added.")
 
+        await save_keywords()
+
     elif message_split == "remove":
         print ("done")
         message_removal = message.content.split(" ")[2]
         keywords_dictionary.pop(message_removal)
         await message.channel.send("Keyword removed.")
+
+# save keywords to file
+async def save_keywords():
+    keywords_json = json.dumps(keywords_dictionary)
+    with open ("keywords.json", "w") as keywords_file:
+        keywords_file.write(keywords_json)
 
 
 # recieve message
@@ -46,10 +57,6 @@ async def on_message(message):
         if message.content.__contains__(keyword):
             await message.channel.send(keywords_dictionary[keyword])
             return
-
-    if message.content.startswith("hey"):
-        name = message.content.split(" ") 
-        await message.channel.send(f"Hey {name[1]}!")
 
 
 
