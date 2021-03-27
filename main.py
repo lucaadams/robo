@@ -22,26 +22,29 @@ async def execute_command(message):
     try:
         first_parameter = message.content.split(" ")[1]
     except:
-        await message.channel.send(embed = await embeds.embed_error_message(":exclamation: Command not recognised. Type !robo help for a list of commands. "))
+        await message.channel.send(embed = await embeds.embed_error_message("Command not recognised. Type !robo help for a list of commands. "))
         return
 
     if first_parameter == "add":
         try:
             await keyword_functions.add(message, message.content.split(" ")[2], " ".join(message.content.split(" ")[3:]))
         except:
-            await message.channel.send(embed = await embeds.embed_error_message(":exclamation: No value specified. Unable to add keyword. "))
+            await message.channel.send(embed = await embeds.embed_error_message("No value specified. Unable to add keyword. "))
 
     elif first_parameter == "remove":
         try:
             await keyword_functions.remove(message, message.content.split(" ")[2])
         except:
-            await message.channel.send(embed = await embeds.embed_error_message(":exclamation: That keyword does not exist. Did you make a typo? "))
+            await message.channel.send(embed = await embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
 
     elif first_parameter == "edit":
         try:
-            await keyword_functions.edit(message, message.content.split(" ")[2], " ".join(message.content.split(" ")[3:]))
+            if message.content.split(" ")[3] == "":
+                await message.channel.send(embed = await embeds.embed_error_message("Name of new keyword must be specified. "))
+            else:
+                await keyword_functions.edit(message, message.content.split(" ")[2], " ".join(message.content.split(" ")[3:]))
         except:
-            await message.channel.send(embed = await embeds.embed_error_message(":exclamation: That keyword does not exist. Did you make a typo? "))
+            await message.channel.send(embed = await embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
 
     elif first_parameter == "list":
         await keyword_functions.list(message)
@@ -50,7 +53,7 @@ async def execute_command(message):
         await command_help(message)
 
     else:
-        await message.channel.send(embed = await embeds.embed_error_message(":exclamation: Command not recognised. Type !robo help for a list of commands. "))
+        await message.channel.send(embed = await embeds.embed_error_message("Command not recognised. Type !robo help for a list of commands. "))
 
 
 # command help list

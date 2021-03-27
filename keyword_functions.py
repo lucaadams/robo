@@ -10,18 +10,18 @@ with open("keywords.json", "r") as keywords_file:
 
 async def add(message, keyword, value):
     keywords_dictionary[keyword] = value
-    await message.channel.send(embed = await embeds.embed_successful_action("Keyword added. :white_check_mark:"))
+    await message.channel.send(embed = await embeds.embed_successful_action("Keyword added. "))
 
     await save_keywords()
 
 async def remove(message, keyword):
     message_removal = message.content.split(" ")[2]
     keywords_dictionary.pop(message_removal)
-    await message.channel.send(embed = await embeds.embed_successful_action("Keyword removed. :white_check_mark:"))
+    await message.channel.send(embed = await embeds.embed_successful_action("Keyword removed. "))
 
 async def edit(message, old_keyword, new_keyword):
     keywords_dictionary[new_keyword] = keywords_dictionary.pop(old_keyword)
-    await message.channel.send(embed = await embeds.embed_successful_action("Keyword edited. :white_check_mark:"))
+    await message.channel.send(embed = await embeds.embed_successful_action("Keyword edited. "))
 
     await save_keywords()
 
