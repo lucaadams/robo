@@ -9,7 +9,6 @@ with open("keywords.json", "r") as keywords_file:
 
 async def add(message, keyword, value):
     keywords_dictionary[keyword] = value
-    value = " ".join(message.content.split(" ")[3:])
     await message.channel.send(embed = await embeds.embed_successful_action("Keyword added. :white_check_mark:"))
 
     await save_keywords()
@@ -19,11 +18,11 @@ async def remove(message, keyword):
     keywords_dictionary.pop(message_removal)
     await message.channel.send(embed = await embeds.embed_successful_action("Keyword removed. :white_check_mark:"))
 
-async def list(message, keyword):
+async def list(message):
     keywords_list = ""
     for keyword in keywords_dictionary:
-        keywords_list += f"{keyword} - {keywords_dictionary[keyword]}\n"
-    await message.channel.send(f"`{keywords_list}`")
+        keywords_list += f"• `{keyword} - {keywords_dictionary[keyword]}`\n"
+    await message.channel.send(embed = await embeds.embed_response("Keywords:", f"{keywords_list}"))
 
 
 # save keywords to file

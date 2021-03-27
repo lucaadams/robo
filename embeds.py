@@ -15,3 +15,10 @@ async def embed_successful_action(embed_description):
         description = embed_description,
     )
 
+async def embed_response(embed_title, embed_description):
+    return discord.Embed(
+        title = embed_title,
+        colour = discord.Colour(0x9dacc4),
+        description = embed_description,
+    )
+
