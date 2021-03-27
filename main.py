@@ -19,13 +19,22 @@ async def on_ready():
 
 # command manager
 async def execute_command(message):
-    first_parameter = message.content.split(" ")[1]
+    try:
+        first_parameter = message.content.split(" ")[1]
+    except:
+        await message.channel.send(embed=await embeds.embed_error_message(":exclamation: Command not recognised. Type !robo help for a list of commands. "))
 
     if first_parameter == "add":
-        await keyword_functions.add(message, message.content.split(" ")[2], " ".join(message.content.split(" ")[3:]))
+        try:
+            await keyword_functions.add(message, message.content.split(" ")[2], " ".join(message.content.split(" ")[3:]))
+        except:
+            await message.channel.send(embed=await embeds.embed_error_message(":exclamation: No value specified. Unable to add keyword. "))
 
     elif first_parameter == "remove":
-        await keyword_functions.remove(message, message.content.split(" ")[2])
+        try:
+            await keyword_functions.remove(message, message.content.split(" ")[2])
+        except:
+            await message.channel.send(embed=await embeds.embed_error_message(":exclamation: That keyword does not exist. Did you make a typo? "))
 
     elif first_parameter == "list":
         await keyword_functions.list(message)
