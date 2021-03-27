@@ -1,5 +1,6 @@
 import discord
 import json
+
 import embeds
 
 
@@ -17,6 +18,12 @@ async def remove(message, keyword):
     message_removal = message.content.split(" ")[2]
     keywords_dictionary.pop(message_removal)
     await message.channel.send(embed = await embeds.embed_successful_action("Keyword removed. :white_check_mark:"))
+
+async def edit(message, old_keyword, new_keyword):
+    keywords_dictionary[new_keyword] = keywords_dictionary.pop(old_keyword)
+    await message.channel.send(embed = await embeds.embed_successful_action("Keyword edited. :white_check_mark:"))
+
+    await save_keywords()
 
 async def list(message):
     keywords_list = ""
