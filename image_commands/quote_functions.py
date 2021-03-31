@@ -38,7 +38,7 @@ async def quote_generator(message, image_options, image, font, quote_location_x,
     quote_message_wrap = await text_wrap(quote_message, max_chars_per_line)
 
     quote_person = message.content.split('"')[3]
-    quote = f'"{quote_message_wrap}" \n                      -{quote_person}'
+    quote = f'"{quote_message_wrap}" \n                    - {quote_person}'
 
     image_with_message = ImageDraw.Draw(image)
     image_with_message.text((quote_location_x, quote_location_y), quote, (font_colour, font_colour, font_colour), font=font)
@@ -52,7 +52,9 @@ async def text_wrap(quote_message, max_chars_per_line):
     quote_message = quote_message.strip(" ")
     quote_message_split = quote_message.split(" ")
     chars_on_this_line = 0
+    
     quote_message_wrap = ""
+
     for word in quote_message_split:
         quote_message_wrap += word + " "
         chars_on_this_line += len(word)

@@ -56,13 +56,24 @@ async def execute_command(message):
     elif first_parameter == "help":
         await command_help(message)
 
+    elif first_parameter == "echo":
+        await message.channel.send(embed = await text_commands.embeds.embed_response("Your message was: ", " ".join(message.content.split(" ")[2:])))
+
+    elif first_parameter == "ping":
+        await message.channel.send("Pong!")
+
     else:
         await message.channel.send(embed = await text_commands.embeds.embed_error_message("Command not recognised. Type !robo help for a list of commands. "))
 
 
 # command help list
 async def command_help(message):
-    await message.channel.send(embed = await text_commands.embeds.embed_response("Commands:", "Here is a list of the commands you can use: \n• `!robo add [keyword] [value]` \n• `!robo remove [keyword]` \n• `!robo edit [old keyword] [new keyword]` \n• `!robo list`"))
+    await message.channel.send(embed = await text_commands.embeds.embed_response("Commands:", '''Here is a list of the commands you can use: 
+    • `!robo add [keyword] [value]` 
+    • `!robo remove [keyword]` 
+    • `!robo edit [old keyword] [new keyword]` 
+    • `!robo list` 
+    • `!robo quote [image type] "[quote message]" "[quote author]"`'''))
 
 
 # recieve message
