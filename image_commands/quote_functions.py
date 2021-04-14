@@ -16,7 +16,7 @@ async def execute_quote_command(message):
         image = Image.open(f"image_commands/quote_images/colourful/{image_options[random.randint(0, 4)]}")
         font = ImageFont.truetype("image_commands/quote_images/fonts/Kiss_Boom.ttf", 130)
 
-        await quote_generator(message, image_options, image, font, 300, 200, 0, 20)
+        await quote_generator(message, image_options, image, font, 300, 200, 0, 25)
 
     elif image_type == "grey":
         image_options = ["alex.png", "einstein.png", "ghandi.png", "martinlutherking.png", "motherteresa.png"]
@@ -38,7 +38,11 @@ async def quote_generator(message, image_options, image, font, quote_location_x,
     quote_message_wrap = await text_wrap(quote_message, max_chars_per_line)
 
     quote_person = message.content.split('"')[3]
-    quote = f'"{quote_message_wrap}" \n                    - {quote_person}'
+
+    if quote_person == "":
+        quote = f'"{quote_message_wrap}"'
+    else:
+        quote = f'"{quote_message_wrap}" \n                    - {quote_person}'
 
     image_with_message = ImageDraw.Draw(image)
     image_with_message.text((quote_location_x, quote_location_y), quote, (font_colour, font_colour, font_colour), font=font)
@@ -59,8 +63,9 @@ async def text_wrap(quote_message, max_chars_per_line):
         quote_message_wrap += word + " "
         chars_on_this_line += len(word)
         if chars_on_this_line >= max_chars_per_line:
-            quote_message_wrap += "\n"
-            chars_on_this_line = 0
+            if len(quote_message_wrap) < len(quote_message):
+                quote_message_wrap += "\n"
+                chars_on_this_line = 0
 
     quote_message_wrap = quote_message_wrap.strip(" ")
 
