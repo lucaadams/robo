@@ -1,6 +1,7 @@
 import discord
 import json
 import os
+import time
 
 import image_commands.quote_functions
 import text_commands.keyword_functions
@@ -61,6 +62,13 @@ async def execute_command(message):
 
     elif first_parameter == "ping":
         await message.channel.send("Pong!")
+
+    elif first_parameter == "nuke":
+        await message.channel.send(embed = await text_commands.embeds.embed_response("Server nuke engaged. 20 second countdown initiated.", 'To cance, type "!robo cancel nuke"'))
+        for i in range (20, 0, -1):
+            time.sleep(1)
+            await message.channel.send(i)
+        await message.channel.send(embed = await text_commands.embeds.embed_error_message("Server nuke failed. Please try again later. "))
 
     else:
         await message.channel.send(embed = await text_commands.embeds.embed_error_message("Command not recognised. Type !robo help for a list of commands. "))
