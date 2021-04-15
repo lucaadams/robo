@@ -4,49 +4,58 @@ import json
 import text_commands.embeds
 
 
-with open("keywords.json", "r") as keywords_file:
-    keywords_dictionary = json.loads(keywords_file.read())
+with open("guild_data.json", "r") as guild_data_file:
+    guild_data_dictionary = json.loads(guild_data_file.read())
 
 
-async def add(message, keyword, value):
+async def add(guild_id, message, keyword, value):
+    if guild_id not in guild_data_dictionary:
+        guild_data_dictionary[guild_id] = {}
     if value == "":
         await message.channel.send(embed = await text_commands.embeds.embed_error_message("No value specified. "))
     else:
-        keywords_dictionary[keyword] = value
+        guild_data_dictionary[guild_id][keyword] = value
         await message.channel.send(embed = await text_commands.embeds.embed_successful_action("Keyword added. "))
 
     await save_keywords()
 
-async def remove(message, keyword):
+async def remove(guild_id, message, keyword):
+    if guild_id not in guild_data_dictionary:
+        guild_data_dictionary[guild_id] = {}
     message_removal = message.content.split(" ")[2]
-    keywords_dictionary.pop(message_removal)
+    guild_data_dictionary[guild_id].pop(message_removal)
     await message.channel.send(embed = await text_commands.embeds.embed_successful_action("Keyword removed. "))
 
     await save_keywords()
 
-async def edit(message, old_keyword, new_keyword):
-    keywords_dictionary[new_keyword] = keywords_dictionary.pop(old_keyword)
+async def edit(guild_id, message, old_keyword, new_keyword):
+    if guild_id not in guild_data_dictionary:
+        guild_data_dictionary[guild_id] = {}
+    guild_data_dictionary[guild_id][new_keyword] = guild_data_dictionary[guild_id].pop(old_keyword)
     await message.channel.send(embed = await text_commands.embeds.embed_successful_action("Keyword edited. "))
 
     await save_keywords()
 
-async def list(message):
+async def list(guild_id, message):
     keywords_list = ""
-    for keyword in keywords_dictionary:
-        keywords_list += f"• `{keyword} - {keywords_dictionary[keyword]}`\n"
+    if guild_id not in guild_data_dictionary:
+        guild_data_dictionary[guild_id] = {}
+    for keyword in guild_data_dictionary[guild_id]:
+        keywords_list += f"• `{keyword} - {guild_data_dictionary[guild_id][keyword]}`\n"
     await message.channel.send(embed = await text_commands.embeds.embed_response("Keywords:", f"{keywords_list}"))
 
 
-# save keywords to file
 async def save_keywords():
-    keywords_json = json.dumps(keywords_dictionary)
-    with open("keywords.json", "w") as keywords_file:
+    keywords_json = json.dumps(guild_data_dictionary)
+    with open("guild_data.json", "w") as keywords_file:
         keywords_file.write(keywords_json)
 
 
-async def check_keywords(message):
-    for keyword in keywords_dictionary.keys():
+async def check_keywords(guild_id, message):
+    if guild_id not in guild_data_dictionary:
+        guild_data_dictionary[guild_id] = {}
+    for keyword in guild_data_dictionary[guild_id].keys():
             if message.content.__contains__(keyword):
-                await message.channel.send(keywords_dictionary[keyword])
+                await message.channel.send(guild_data_dictionary[guild_id][keyword])
                 return
 

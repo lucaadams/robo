@@ -20,7 +20,7 @@ async def on_ready():
 
 
 # command manager
-async def execute_command(message):
+async def execute_command(guild_id, message):
     try:
         first_parameter = message.content.split(" ")[1]
     except:
@@ -28,14 +28,11 @@ async def execute_command(message):
         return
 
     if first_parameter == "add":
-        try:
-            await text_commands.keyword_functions.add(message, message.content.split(" ")[2], " ".join(message.content.split(" ")[3:]))
-        except:
-            await message.channel.send(embed = await text_commands.embeds.embed_error_message("No value specified. Unable to add keyword. "))
+            await text_commands.keyword_functions.add(guild_id, message, message.content.split(" ")[2], " ".join(message.content.split(" ")[3:]))
 
     elif first_parameter == "remove":
         try:
-            await text_commands.keyword_functions.remove(message, message.content.split(" ")[2])
+            await text_commands.keyword_functions.remove(guild_id, message, message.content.split(" ")[2])
         except:
             await message.channel.send(embed = await text_commands.embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
 
@@ -44,12 +41,12 @@ async def execute_command(message):
             if message.content.split(" ")[3] == "":
                 await message.channel.send(embed = await text_commands.embeds.embed_error_message("Name of new keyword must be specified. "))
             else:
-                await text_commands.keyword_functions.edit(message, message.content.split(" ")[2], " ".join(message.content.split(" ")[3:]))
+                await text_commands.keyword_functions.edit(guild_id, message, message.content.split(" ")[2], " ".join(message.content.split(" ")[3:]))
         except:
             await message.channel.send(embed = await text_commands.embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
 
     elif first_parameter == "list":
-        await text_commands.keyword_functions.list(message)
+        await text_commands.keyword_functions.list(guild_id, message)
 
     elif first_parameter == "quote":
         await image_commands.quote_functions.execute_quote_command(message)
@@ -90,11 +87,14 @@ async def on_message(message):
     if message.author == client.user:
         return
 
+    guild_id = message.guild.id
+    guild_id = str(guild_id)
+
     if message.content.startswith(COMMAND_PREFIX):
-        await execute_command(message)
+        await execute_command(guild_id, message)
         return
 
-    await text_commands.keyword_functions.check_keywords(message)
+    await text_commands.keyword_functions.check_keywords(guild_id, message)
 
 
 # keep at end
