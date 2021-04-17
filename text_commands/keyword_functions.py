@@ -38,7 +38,11 @@ async def list(guild_id, message):
     await init_new_guild(guild_id)
     for keyword in guild_data_dictionary[guild_id]["keywords"]:
         keywords_list += f"• `{keyword} - {guild_data_dictionary[guild_id]['keywords'][keyword]}`\n"
-    await message.channel.send(embed = await text_commands.embeds.embed_response("Keywords:", f"{keywords_list}"))
+    
+    if keywords_list == "":
+        await message.channel.send(embed = await text_commands.embeds.embed_response("No keywords set.", "Nothing to display."))
+    else:
+        await message.channel.send(embed = await text_commands.embeds.embed_response("Keywords:", f"{keywords_list}"))
 
 async def save_keywords():
     keywords_json = json.dumps(guild_data_dictionary)
