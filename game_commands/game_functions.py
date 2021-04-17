@@ -3,6 +3,7 @@ import discord
 import text_commands.embeds
 import game_commands.counting
 
+
 async def start_game(guild_id, message):
     try:
         game = message.content.split(" ")[2]
@@ -22,4 +23,3 @@ async def start_game(guild_id, message):
         await game_commands.counting.start_counting(guild_id, message, increment)
     else:
         await message.channel.send(embed=await text_commands.embeds.embed_error_message("That game does not exist."))
-

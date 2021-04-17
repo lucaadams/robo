@@ -54,4 +54,3 @@ def try_cast_float(message_content):
         return float(message_content)
     except:
         return None
-
