@@ -1,4 +1,5 @@
 guild_data.json
-*/__pycache__
-*.pyc
-__pycache__
+__pycache__/
+image_commands/__pycache__/
+text_commands/__pycache__/
+*/*.pyc
