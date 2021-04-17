@@ -30,6 +30,7 @@ async def check_message(message):
                 await message.channel.send(embed=await text_commands.embeds.embed_failed_counting("Counting twice in a row is no fun.", f"You counted up to {counting_data[guild_id]['next_number'] - counting_data[guild_id]['increment']}"))
                 await message.add_reaction("❌")
                 messages_list_for_guild = []
+                return
             else:
                 if message_float == counting_data[guild_id]["next_number"]:     # checks to see if you typed the right number
                     counting_data[guild_id]["next_number"] += counting_data[guild_id]["increment"]
