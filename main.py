@@ -85,7 +85,7 @@ async def command_help(message):
     • `!robo edit [old keyword] [new keyword]` 
     • `!robo list` 
     • `!robo quote [image type] "[quote message]" "[quote author]"`
-    • `!robo games [game (e.g. counting)]'''))
+    • `!robo games [game (e.g. counting)]`'''))
 
 
 # recieve message
@@ -107,3 +107,4 @@ async def on_message(message):
 
 # keep at end
 client.run(TOKEN)
+
