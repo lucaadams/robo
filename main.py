@@ -6,6 +6,8 @@ import time
 import image_commands.quote_functions
 import text_commands.keyword_functions
 import text_commands.embeds
+import game_commands.counting
+import game_commands.game_functions
 
 
 # constants
@@ -50,6 +52,9 @@ async def execute_command(guild_id, message):
 
     elif first_parameter == "quote":
         await image_commands.quote_functions.execute_quote_command(message)
+    
+    elif first_parameter == "games":
+        await game_commands.game_functions.start_game(guild_id, message)
 
     elif first_parameter == "help":
         await command_help(message)
@@ -87,8 +92,9 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    guild_id = message.guild.id
-    guild_id = str(guild_id)
+    await game_commands.counting.check_message(message)
+
+    guild_id = str(message.guild.id)
 
     if message.content.startswith(COMMAND_PREFIX):
         await execute_command(guild_id, message)
