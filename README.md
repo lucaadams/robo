@@ -1,6 +1,6 @@
 <p align="center"><img src="res/about/examples.png"></p>
 
-# wow2
+# Robo
 A Discord bot written in Python using the Discord.py library.
 
 ## Using the bot
