@@ -1,3 +1,4 @@
 guild_data.json
-dictionaries_experementation.py
-dict_test.json
+*/__pycache__
+*.pyc
+__pycache__
