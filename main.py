@@ -1,7 +1,7 @@
-import discord
-import json
 import os
 import time
+import discord
+import json
 
 import image_commands.quote_functions
 import text_commands.keyword_functions
