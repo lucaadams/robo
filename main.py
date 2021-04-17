@@ -12,13 +12,14 @@ import game_commands.game_functions
 
 # constants
 COMMAND_PREFIX = ("!robo")
-TOKEN = os.getenv("TOKEN")
+TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 client = discord.Client()
 
 
 @client.event
 async def on_ready():
     print("logged on")
+    await client.change_presence(activity=discord.Game(name="!robo help"))
 
 
 # command manager
