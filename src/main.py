@@ -9,6 +9,7 @@ import text_module.embeds
 import game_module.counting
 import game_module.game_functions
 import voice_module.vc_functions
+import help_module.help_functions
 
 
 # constants
@@ -62,7 +63,7 @@ async def execute_command(guild_id, message):
         await voice_module.vc_functions.vc_command_handler(message)
 
     elif first_parameter == "help":
-        await command_help(message)
+        await help_module.help_functions.help_message_handler(message, COMMAND_PREFIX)
 
     elif first_parameter == "echo":
         await message.channel.send(embed=await text_module.embeds.embed_response("Your message was: ", " ".join(message.content.split(" ")[2:])))
@@ -71,7 +72,7 @@ async def execute_command(guild_id, message):
         ping_start = time.time()
         await message.channel.send("Pong!")
         ping_end = time.time()
-        await message.channel.send(embed=await text_module.embeds.embed_response_without_title(f"That was about {int((ping_end - ping_start) * 1000)}ms."))
+        await message.channel.send(embed=await text_module.embeds.embed_response_without_title_custom_emote(f"That was about {int((ping_end - ping_start) * 1000)}ms.", ":stopwatch:"))
 
     elif first_parameter == "nuke":
         await message.channel.send(embed=await text_module.embeds.embed_response("Server nuke engaged. 20 second countdown initiated.", 'To cancel, type "!robo cancel nuke"'))
@@ -81,19 +82,7 @@ async def execute_command(guild_id, message):
         await message.channel.send(embed=await text_module.embeds.embed_error_message("Server nuke failed. Please try again later. "))
 
     else:
-        await message.channel.send(embed=await text_module.embeds.embed_error_message("Command not recognised. Type !robo help for a list of module. "))
-
-
-# command help list
-async def command_help(message):
-    await message.channel.send(embed=await text_module.embeds.embed_response("Commands:", '''Here is a list of the commands you can use: 
-    • `!robo add [keyword] [value]` 
-    • `!robo remove [keyword]` 
-    • `!robo edit [old keyword] [new keyword]` 
-    • `!robo list` 
-    • `!robo quote [image type] "[quote message]" "[quote author]"`
-    • `!robo games [game (e.g. counting)]`
-    • `!robo vc [second parameter]`'''))
+        await message.channel.send(embed=await text_module.embeds.embed_error_message("Command not recognised. Type !robo help for a list of commands. "))
 
 
 # recieve message
