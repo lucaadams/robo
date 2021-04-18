@@ -12,7 +12,7 @@ async def vc_command_handler(message):
 
     try:
         second_parameter = message.content.split(" ")[2]
-    # if no second parameter specified, reply on discord
+    # if no second parameter specified, send error message
     except:
         await message.channel.send(embed = await text_module.embeds.embed_error_message("Incomplete command."))
         return
@@ -29,6 +29,7 @@ async def vc_command_handler(message):
             if not guild_vc_dict[guild_id]["voice_client"].is_connected():
                 await message.channel.send(embed = await text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
             await guild_vc_dict[guild_id]["voice_client"].disconnect()
+        # catch error if there is no key "voice client" in guild_vc_dict. This only happens when user tries to get bot to leave before having asked them to join.
         except KeyError:
             await message.channel.send(embed = await text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
 
@@ -37,7 +38,7 @@ async def join_voice_channel(message):
         channel = message.author.voice.channel
     # if user not in a vc, catch error and reply on discord
     except:
-        await message.channel.send(embed = await text_module.embeds.embed_sorry_message( "You must be in a voice channel to use this command."))
+        await message.channel.send(embed = await text_module.embeds.embed_sorry_message("You must be in a voice channel to use this command."))
         return None
     try:
         return await channel.connect()
