@@ -3,7 +3,15 @@ import discord
 
 async def embed_error_message(embed_description):
     return discord.Embed(
-        title = ":exclamation: ERROR:",
+        title = ":exclamation: ERROR.",
+        colour = discord.Colour.dark_red(),
+        description = f"{embed_description}",
+    )
+
+
+async def embed_sorry_message(embed_description):
+    return discord.Embed(
+        title = ":exclamation: Sorry, I couldn't complete that.",
         colour = discord.Colour.dark_red(),
         description = f"{embed_description}",
     )
