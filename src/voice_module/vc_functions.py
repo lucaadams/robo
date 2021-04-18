@@ -14,7 +14,7 @@ async def vc_command_handler(message):
         second_parameter = message.content.split(" ")[2]
     # if no second parameter specified, reply on discord
     except:
-        message.channel.send(embed = text_module.embed_error_message("Invalid command."))
+        await message.channel.send(embed = await text_module.embeds.embed_error_message("Incomplete command."))
         return
     
     if second_parameter == "join":
@@ -25,22 +25,24 @@ async def vc_command_handler(message):
 
     elif second_parameter == "leave":
         # checks if bot is in a vc, if not then reply on discord
-        if not guild_vc_dict[guild_id]["voice_client"].is_connected():
-            await message.channel.send(embed = await text_module.embeds.embed_response("Sorry, I couldn't complete that.", "I am not currently in any voice channel."))
-        await guild_vc_dict[guild_id]["voice_client"].disconnect()
-
+        try:
+            if not guild_vc_dict[guild_id]["voice_client"].is_connected():
+                await message.channel.send(embed = await text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
+            await guild_vc_dict[guild_id]["voice_client"].disconnect()
+        except KeyError:
+            await message.channel.send(embed = await text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
 
 async def join_voice_channel(message):
     try:
         channel = message.author.voice.channel
     # if user not in a vc, catch error and reply on discord
     except:
-        await message.channel.send(embed = await text_module.embeds.embed_response("Sorry, I couldn't complete that.",  "You must be in a voice channel to use this command."))
+        await message.channel.send(embed = await text_module.embeds.embed_sorry_message( "You must be in a voice channel to use this command."))
         return None
     try:
         return await channel.connect()
     # if already in a channel, catch error and reply on discord
     except discord.errors.ClientException:
-        await message.channel.send(embed = await text_module.embeds.embed_response("Sorry, I couldn't complete that.", "I am already in a voice channel."))
+        await message.channel.send(embed = await text_module.embeds.embed_sorry_message("I am already in a voice channel."))
         return None
 
