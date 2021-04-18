@@ -68,10 +68,13 @@ async def execute_command(guild_id, message):
         await message.channel.send(embed=await text_module.embeds.embed_response("Your message was: ", " ".join(message.content.split(" ")[2:])))
 
     elif first_parameter == "ping":
+        ping_start = time.time()
         await message.channel.send("Pong!")
+        ping_end = time.time()
+        await message.channel.send(embed=await text_module.embeds.embed_response_without_title(f"That was about {int((ping_end - ping_start) * 1000)}ms."))
 
     elif first_parameter == "nuke":
-        await message.channel.send(embed=await text_module.embeds.embed_response("Server nuke engaged. 20 second countdown initiated.", 'To cance, type "!robo cancel nuke"'))
+        await message.channel.send(embed=await text_module.embeds.embed_response("Server nuke engaged. 20 second countdown initiated.", 'To cancel, type "!robo cancel nuke"'))
         for i in range(20, 0, -1):
             time.sleep(1)
             await message.channel.send(i)
@@ -83,13 +86,14 @@ async def execute_command(guild_id, message):
 
 # command help list
 async def command_help(message):
-    await message.channel.send(embed=await text_module.embeds.embed_response("module:", '''Here is a list of the module you can use: 
+    await message.channel.send(embed=await text_module.embeds.embed_response("Commands:", '''Here is a list of the commands you can use: 
     • `!robo add [keyword] [value]` 
     • `!robo remove [keyword]` 
     • `!robo edit [old keyword] [new keyword]` 
     • `!robo list` 
     • `!robo quote [image type] "[quote message]" "[quote author]"`
-    • `!robo games [game (e.g. counting)]`'''))
+    • `!robo games [game (e.g. counting)]`
+    • `!robo vc [second parameter]`'''))
 
 
 # recieve message
