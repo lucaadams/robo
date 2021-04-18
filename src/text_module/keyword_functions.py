@@ -4,7 +4,7 @@ import json
 import text_module.embeds
 
 
-with open("guild_data.json", "r") as guild_data_file:
+with open("src/guild_data.json", "r") as guild_data_file:
     guild_data_dictionary = json.loads(guild_data_file.read())
 
 
@@ -51,8 +51,8 @@ async def list(guild_id, message):
 
 async def save_keywords():
     keywords_json = json.dumps(guild_data_dictionary)
-    with open("guild_data.json", "w") as keywords_file:
-        keywords_file.write(keywords_json)
+    with open("src/guild_data.json", "w") as guild_data_file:
+        guild_data_file.write(keywords_json)
 
 
 async def check_keywords(guild_id, message):
