@@ -8,6 +8,7 @@ import text_module.keyword_functions
 import text_module.embeds
 import game_module.counting
 import game_module.game_functions
+import voice_module.vc_functions
 
 
 # constants
@@ -56,6 +57,9 @@ async def execute_command(guild_id, message):
 
     elif first_parameter == "games":
         await game_module.game_functions.start_game(guild_id, message)
+
+    elif first_parameter == "vc":
+        await voice_module.vc_functions.vc_command_handler(message)
 
     elif first_parameter == "help":
         await command_help(message)
