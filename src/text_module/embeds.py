@@ -20,15 +20,30 @@ async def embed_successful_action(embed_description):
 async def embed_response(embed_title, embed_description):
     return discord.Embed(
         title = f":information_source: {embed_title}",
-        colour = discord.Colour(0x9dacc4),
+        colour = discord.Colour(0x3f87a1),
         description = f"{embed_description}",
     )
 
 
 async def embed_response_without_title(embed_description):
     return discord.Embed(
-        colour = discord.Colour(0x9dacc4),
+        colour = discord.Colour(0x3f87a1),
         description = f":information_source: {embed_description}",
+    )
+
+
+async def embed_response_custom_emote(embed_title, embed_description, emote):
+    return discord.Embed(
+        title = f"{emote} {embed_title}",
+        colour = discord.Colour(0x3f87a1),
+        description = f"{embed_description}",
+    )
+
+
+async def embed_response_without_title_custom_emote(embed_description, emote):
+    return discord.Embed(
+        colour = discord.Colour(0x3f87a1),
+        description = f"{emote} {embed_description}",
     )
 
 
