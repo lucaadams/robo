@@ -1,4 +1,4 @@
-<p align="center"><img src="resources/about/examples.png"></p>
+<p align="center"><img src="res/about/examples.png"></p>
 
 # Robo
 A Discord bot written in Python using the Discord.py library.
