@@ -1,3 +1,4 @@
+import random
 import discord
 import json
 
@@ -13,7 +14,11 @@ async def add(guild_id, message, keyword, value):
     if value == "":
         await message.channel.send(embed=await text_module.embeds.embed_error_message("No value specified. "))
     else:
-        guild_data_dictionary[guild_id]["keywords"][keyword] = value
+        if keyword in guild_data_dictionary[guild_id]["keywords"]:
+            guild_data_dictionary[guild_id]["keywords"][keyword].append(value)
+        else:
+            guild_data_dictionary[guild_id]["keywords"][keyword] = [value]
+        
         await message.channel.send(embed=await text_module.embeds.embed_successful_action("Keyword added. "))
 
     await save_keywords()
@@ -41,7 +46,12 @@ async def list(guild_id, message):
     keywords_list = ""
     await init_new_guild(guild_id)
     for keyword in guild_data_dictionary[guild_id]["keywords"]:
-        keywords_list += f"• `{keyword} - {guild_data_dictionary[guild_id]['keywords'][keyword]}`\n"
+        keyword_values_str = ""
+        for value in guild_data_dictionary[guild_id]['keywords'][keyword]:
+            keyword_values_str += value + ", "
+        keyword_values_str = keyword_values_str.strip(", ")
+        print(keyword_values_str)
+        keywords_list += f"• `{keyword} - {keyword_values_str}`\n"
 
     if keywords_list == "":
         await message.channel.send(embed=await text_module.embeds.embed_response("No keywords set.", "Nothing to display."))
@@ -59,7 +69,7 @@ async def check_keywords(guild_id, message):
     await init_new_guild(guild_id)
     for keyword in guild_data_dictionary[guild_id]["keywords"].keys():
         if message.content.__contains__(keyword):
-            await message.channel.send(guild_data_dictionary[guild_id]["keywords"][keyword])
+            await message.channel.send(guild_data_dictionary[guild_id]["keywords"][keyword][random.randint(0, len(guild_data_dictionary[guild_id]["keywords"][keyword])-1)])
             return
 
 
@@ -68,3 +78,4 @@ async def init_new_guild(guild_id):
         guild_data_dictionary[guild_id] = {
             "keywords": {}
         }
+
