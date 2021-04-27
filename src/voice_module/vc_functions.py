@@ -47,7 +47,7 @@ async def vc_command_handler(message):
 
         with youtube_dl.YoutubeDL(youtube_dl_opts) as ytdl:
             file = ytdl.extract_info(
-                "https://www.youtube.com/watch?v=FUK7d3mE4ZE", download=True)
+                user_song_request, download=True)
             file_path = str(f"{file['title']}-{file['id']}.mp3")
 
         voice_client.play(discord.FFmpegPCMAudio(
