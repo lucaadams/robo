@@ -1,7 +1,9 @@
+import youtube_dl
 import discord
 from discord.ext import commands
 
 import text_module.embeds
+
 
 guild_vc_dict = {}
 
@@ -9,6 +11,8 @@ async def vc_command_handler(message):
     guild_id = message.guild.id
     if guild_id not in guild_vc_dict:
         guild_vc_dict[guild_id] = {}
+    if "guild_queue" not in guild_vc_dict[guild_id]:
+        guild_vc_dict[guild_id]["guild_queue"] = []
 
     try:
         second_parameter = message.content.split(" ")[2]
@@ -23,6 +27,9 @@ async def vc_command_handler(message):
         if try_join_vc != None:
             guild_vc_dict[guild_id]["voice_client"] = try_join_vc
 
+        await continue_to_next_request(message, guild_vc_dict)
+
+
     elif second_parameter == "leave":
         # checks if bot is in a vc, if not then reply on discord
         try:
@@ -32,6 +39,7 @@ async def vc_command_handler(message):
         # catch error if there is no key "voice client" in guild_vc_dict. This only happens when user tries to get bot to leave before having asked them to join.
         except KeyError:
             await message.channel.send(embed = await text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
+
 
 async def join_voice_channel(message):
     try:
@@ -46,4 +54,18 @@ async def join_voice_channel(message):
     except discord.errors.ClientException:
         await message.channel.send(embed = await text_module.embeds.embed_sorry_message("I am already in a voice channel."))
         return None
+
+
+async def continue_to_next_request(message, guild_vc_dict):
+    guild_id = message.guild.id
+    guild_vc_data = guild_vc_dict[guild_id]
+
+    try:
+        check_if_connected = guild_vc_data["voice_client"].is_connected()
+    except:
+        check_if_connected = False
+
+    if len(guild_vc_data["guild_queue"]) != 0 and check_if_connected:
+        guild_player = await guild_vc_data["voice_client"].create_ytdl_player(guild_vc_data["guild_queue"][0])
+        guild_player.play()
 
