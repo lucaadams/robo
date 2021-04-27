@@ -1,10 +1,18 @@
 import discord
 from discord.ext import commands
+import youtube_dl
 
 import text_module.embeds
 
 guild_vc_dict = {}
 
+youtube_dl_opts = {
+    'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'mp3',
+        'preferredquality': '192',
+    }],
+}
 
 async def vc_command_handler(message):
     guild_id = message.guild.id
@@ -32,6 +40,18 @@ async def vc_command_handler(message):
         # catch error if there is no key "voice client" in guild_vc_dict. This only happens when user tries to get bot to leave before having asked them to join.
         except KeyError:
             await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
+
+    elif second_parameter == "play":
+        user_song_request = " ".join(message.content.split()[3:])
+        voice_client = guild_vc_dict[guild_id]["voice_client"]
+
+        with youtube_dl.YoutubeDL(youtube_dl_opts) as ytdl:
+            file = ytdl.extract_info(
+                "https://www.youtube.com/watch?v=FUK7d3mE4ZE", download=True)
+            file_path = str(f"{file['title']}-{file['id']}.mp3")
+
+        voice_client.play(discord.FFmpegPCMAudio(
+            executable="ffmpeg", source=file_path))
 
 
 async def join_voice_channel(message):
