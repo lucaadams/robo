@@ -1,20 +1,16 @@
+import time
+import tempfile
 import youtube_dl
 import discord
 from discord.ext import commands
 import youtube_dl
+import json
 
 import text_module.embeds
 
-
 guild_vc_dict = {}
 
-youtube_dl_opts = {
-    'postprocessors': [{
-        'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'mp3',
-        'preferredquality': '192',
-    }],
-}
+temp_file = tempfile.mkdtemp()
 
 async def vc_command_handler(message):
     guild_id = message.guild.id
@@ -37,7 +33,6 @@ async def vc_command_handler(message):
 
         await continue_to_next_request(message, guild_vc_dict)
 
-
     elif second_parameter == "leave":
         # checks if bot is in a vc, if not then reply on discord
         try:
@@ -49,17 +44,39 @@ async def vc_command_handler(message):
             await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
 
     elif second_parameter == "play":
-        user_song_request = " ".join(message.content.split()[3:])
-        voice_client = guild_vc_dict[guild_id]["voice_client"]
+        if len(message.content.split(" ")) >= 4:
+            user_song_request = " ".join(message.content.split()[3:])
+        else:
+            await message.channel.send(embed=await text_module.embeds.embed_error_message("No link specified."))
+            return
+            #user_song_request = "https://www.youtube.com/watch?v=_37GPQT_qpc"
+
+        try:
+            voice_client = guild_vc_dict[guild_id]["voice_client"]
+        except:
+            await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel. Please type `!robo vc join`."))
+            return
+        
+        timestamp = time.time()
+
+        youtube_dl_opts = {
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            'outtmpl': temp_file + '/' + str(timestamp) + '-%(title)s-%(id)s'
+        }
 
         with youtube_dl.YoutubeDL(youtube_dl_opts) as ytdl:
-            file = ytdl.extract_info(
+            metadata = ytdl.extract_info(
                 user_song_request, download=True)
-            file_path = str(f"{file['title']}-{file['id']}.mp3")
+            file_path = str(f"{temp_file}/{timestamp}-{metadata['title']}-{metadata['id']}.mp3")
+
+        #await message.channel.send(embed=await text_module.embeds.youtube_info(metadata))
 
         voice_client.play(discord.FFmpegPCMAudio(
             executable="ffmpeg", source=file_path))
-
 
 
 async def join_voice_channel(message):
