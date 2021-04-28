@@ -12,6 +12,7 @@ guild_vc_dict = {}
 
 temp_file = tempfile.mkdtemp()
 
+
 async def vc_command_handler(message):
     guild_id = message.guild.id
     if guild_id not in guild_vc_dict:
@@ -56,7 +57,7 @@ async def vc_command_handler(message):
         except:
             await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel. Please type `!robo vc join`."))
             return
-        
+
         timestamp = time.time()
 
         youtube_dl_opts = {
@@ -71,9 +72,10 @@ async def vc_command_handler(message):
         with youtube_dl.YoutubeDL(youtube_dl_opts) as ytdl:
             metadata = ytdl.extract_info(
                 user_song_request, download=True)
-            file_path = str(f"{temp_file}/{timestamp}-{metadata['title']}-{metadata['id']}.mp3")
+            file_path = str(
+                f"{temp_file}/{timestamp}-{metadata['title']}-{metadata['id']}.mp3")
 
-        #await message.channel.send(embed=await text_module.embeds.youtube_info(metadata))
+        # await message.channel.send(embed=await text_module.embeds.youtube_info(metadata))
 
         voice_client.play(discord.FFmpegPCMAudio(
             executable="ffmpeg", source=file_path))
@@ -106,4 +108,3 @@ async def continue_to_next_request(message, guild_vc_dict):
     if len(guild_vc_data["guild_queue"]) != 0 and check_if_connected:
         guild_player = await guild_vc_data["voice_client"].create_ytdl_player(guild_vc_data["guild_queue"][0])
         guild_player.play()
-
