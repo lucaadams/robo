@@ -1,15 +1,18 @@
 import time
 import tempfile
 import youtube_dl
+import pafy
 import discord
 from discord.ext import commands
 import json
 
 import text_module.embeds
 
+ffmpeg_options = {
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
+
 guild_vc_dict = {}
 
-temp_file = tempfile.mkdtemp()
 
 async def vc_command_handler(message):
     guild_id = message.guild.id
@@ -56,26 +59,18 @@ async def vc_command_handler(message):
             await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel. Please type `!robo vc join`."))
             return
 
-        await message.channel.send(embed=await text_module.embeds.embed_loading()
-
         youtube_dl_opts = {
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
-            'outtmpl': temp_file + '/' + str(guild_id) + '-%(title)s-%(id)s'
         }
 
-        with youtube_dl.YoutubeDL(youtube_dl_opts) as ytdl:
-            metadata = ytdl.extract_info(
-                user_song_request, download=True)
-            file_path = str(f"{temp_file}/{guild_id}-{metadata['title']}-{metadata['id']}.mp3")
-
-        await message.channel.send(embed=await text_module.embeds.youtube_info(metadata))
-
+        audio = pafy.new(user_song_request,
+                         ydl_opts=youtube_dl_opts).getbestaudio()
         voice_client.play(discord.FFmpegPCMAudio(
-            executable="ffmpeg", source=file_path))
+            audio.url, options=ffmpeg_options))
 
 
 async def join_voice_channel(message):
@@ -105,4 +100,3 @@ async def continue_to_next_request(message, guild_vc_dict):
     if len(guild_vc_data["guild_queue"]) != 0 and check_if_connected:
         guild_player = await guild_vc_data["voice_client"].create_ytdl_player(guild_vc_data["guild_queue"][0])
         guild_player.play()
-
