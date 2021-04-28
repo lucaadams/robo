@@ -53,7 +53,8 @@ async def image_help_message(message, COMMAND_PREFIX):
 
 async def voice_help_message(message, COMMAND_PREFIX):
     await message.channel.send(embed=await text_module.embeds.embed_response_custom_emote("Text Commands:", f'''
-    • `{COMMAND_PREFIX} vc join` \n    _Get Robo to join the vc that you are currently in. If there are any songs in the queue, they will automatically start playing._\n
+    • `{COMMAND_PREFIX} vc join` \n    _Get Robo to join the vc that you are currently in._\n
+    • `{COMMAND_PREFIX} vc play [youtube url]` \n    _Specify a youtube video which Robo will start playing._\n
     • `{COMMAND_PREFIX} vc leave` \n    _Robo will leave the vc that it is currently in._\n
     ''', ":page_with_curl:"))
 
