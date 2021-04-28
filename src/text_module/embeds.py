@@ -61,3 +61,15 @@ async def embed_failed_counting(embed_title, embed_description):
         colour = discord.Colour.dark_red(),
         description = f"{embed_description}",
     )
+
+
+async def youtube_info(metadata):
+    youtube_info_embed = discord.Embed(
+        title = f"{metadata['title']} - {metadata['uploader']}"
+    )
+
+    youtube_info_embed.set_author(icon_url="https://www.iconpacks.net/icons/2/free-youtube-logo-icon-2431-thumb.png", name=" Now playing:")
+    youtube_info_embed.set_footer(text=f":eye: {metadata['view_count']}  |  :thumbsup: {metadata['like_count']}  |  :thumbsdown: {metadata['dislike_count']}  |  :stopwatch: {metadata['duration']} s")
+
+    return youtube_info
+
