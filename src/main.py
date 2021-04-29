@@ -13,7 +13,7 @@ import help_module.help_functions
 
 
 # constants
-COMMAND_PREFIX = ("!test")
+COMMAND_PREFIX = ("!robo")
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 client = discord.Client()
 

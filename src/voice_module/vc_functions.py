@@ -13,13 +13,17 @@ ffmpeg_options = {
 
 guild_vc_dict = {}
 
-
 async def vc_command_handler(message):
     guild_id = message.guild.id
     if guild_id not in guild_vc_dict:
         guild_vc_dict[guild_id] = {}
     if "guild_queue" not in guild_vc_dict[guild_id]:
         guild_vc_dict[guild_id]["guild_queue"] = []
+    if "loop" not in guild_vc_dict[guild_id]:
+        guild_vc_dict[guild_id]["loop"] = False
+
+    guild_queue = guild_vc_dict[guild_id]["guild_queue"]
+    loop = guild_vc_dict[guild_id]["loop"]
 
     try:
         second_parameter = message.content.split(" ")[2]
@@ -33,7 +37,7 @@ async def vc_command_handler(message):
         if voice_client != None:
             guild_vc_dict[guild_id]["voice_client"] = voice_client
 
-        await continue_to_next_request(message, guild_vc_dict)
+        await play_from_yt(guild_vc_dict, message)
 
     elif second_parameter == "leave":
         # checks if bot is in a vc, if not then reply on discord
@@ -45,6 +49,17 @@ async def vc_command_handler(message):
         except KeyError:
             await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
 
+    elif second_parameter == "add":
+        try:
+            addition = " ".join(message.content.split(" ")[3:])
+        except:
+            await message.channel.send(embed=await text_module.embeds.embed_error_message("No link specified."))
+            return
+
+        guild_queue.append(addition)
+
+        await play_from_yt(guild_vc_dict, message)
+
     elif second_parameter == "play":
         if len(message.content.split(" ")) >= 4:
             user_song_request = " ".join(message.content.split()[3:])
@@ -53,24 +68,36 @@ async def vc_command_handler(message):
             return
             #user_song_request = "https://www.youtube.com/watch?v=_37GPQT_qpc"
 
+        await play_from_yt(guild_vc_dict)
+
+    elif second_parameter == "skip":
         try:
-            voice_client = guild_vc_dict[guild_id]["voice_client"]
+            guild_vc_dict[guild_id]["voice_client"].stop()
         except:
-            await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel. Please type `!robo vc join`."))
-            return
+            await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
 
-        youtube_dl_opts = {
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-        }
+        guild_queue = guild_vc_dict[guild_id]["guild_queue"]
+        print(guild_queue)
 
-        audio = pafy.new(user_song_request,
-                         ydl_opts=youtube_dl_opts).getbestaudio()
-        voice_client.play(discord.FFmpegPCMAudio(
-            audio.url, options=ffmpeg_options))
+        try:
+            guild_queue.pop(0)
+        except:
+            await message.channel.send(embed=await text_module.embeds.embed_error_message("Queue is currently empty."))
+
+        print(guild_queue)
+
+        await play_from_yt(guild_vc_dict, message)
+
+    elif second_parameter == "loop":
+        if loop:
+            loop = False
+            await message.channel.send(embed=await text_module.embeds.embed_response_without_title_custom_emote("Loop disabled.", ":repeat:"))
+        else:
+            loop = True
+            await message.channel.send(embed=await text_module.embeds.embed_response_without_title_custom_emote("Loop enabled.", ":repeat:"))
+
+    else:
+        await message.channel.send(embed=await text_module.embeds.embed_error_message("Invalid command."))
 
 
 async def join_voice_channel(message):
@@ -88,6 +115,40 @@ async def join_voice_channel(message):
         return None
 
 
+async def play_from_yt(guild_vc_dict, message):
+    guild_id = message.guild.id
+    guild_queue = guild_vc_dict[guild_id]["guild_queue"]
+    loop = guild_vc_dict[guild_id]["loop"]
+
+    try:
+        user_song_request = guild_queue[0]
+    except IndexError:
+        await message.channel.send(embed=await text_module.embeds.embed_response("The queue is empty.", "I will stay in the voice channel... in silence..."))
+        return
+    
+    try:
+        voice_client = guild_vc_dict[guild_id]["voice_client"]
+    except:
+        #await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel. Please type `!robo vc join`."))
+        return
+
+    youtube_dl_opts = {
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+    }
+
+    with youtube_dl.YoutubeDL(youtube_dl_opts) as ytdl:
+        metadata = ytdl.extract_info(user_song_request, download=False)
+
+    audio = pafy.new(user_song_request, ydl_opts=youtube_dl_opts).getbestaudio()
+    voice_client.play(discord.FFmpegPCMAudio(audio.url, options=ffmpeg_options))
+
+    await message.channel.send(embed=await text_module.embeds.embed_youtube_info(metadata))
+
+
 async def continue_to_next_request(message, guild_vc_dict):
     guild_id = message.guild.id
     guild_vc_data = guild_vc_dict[guild_id]
@@ -100,3 +161,4 @@ async def continue_to_next_request(message, guild_vc_dict):
     if len(guild_vc_data["guild_queue"]) != 0 and check_if_connected:
         guild_player = await guild_vc_data["voice_client"].create_ytdl_player(guild_vc_data["guild_queue"][0])
         guild_player.play()
+
