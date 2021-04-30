@@ -71,7 +71,11 @@ async def vc_command_handler(message):
         with youtube_dl.YoutubeDL() as ytdl:
             user_song_request_dict = ytdl.extract_info(
                 f"ytsearch:{user_song_request}", download=False)
-        guild_queue.append(user_song_request_dict['entries'][0]['webpage_url'])
+
+        video_to_add = user_song_request_dict['entries'][0]
+        guild_queue.append(video_to_add['webpage_url'])
+        await message.channel.send(embed=await text_module.embeds.embed_successful_action(
+            f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the queue"))
 
         if len(guild_queue) == 1:
             await play_from_yt(guild_vc_dict, message)
@@ -165,7 +169,8 @@ async def play_from_yt(guild_vc_dict, message):
             user_user_song_request_url, download=False)
 
     audio = pafy.new(metadata['id'], ydl_opts=youtube_dl_opts).getbestaudio()
-    voice_client.play(discord.FFmpegPCMAudio(audio.url, options=ffmpeg_options))
+    voice_client.play(discord.FFmpegPCMAudio(
+        audio.url, options=ffmpeg_options))
     # , after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(guild_vc_dict, message), loop=None)
 
     await message.channel.send(embed=await text_module.embeds.embed_youtube_info(metadata))
