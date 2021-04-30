@@ -39,7 +39,7 @@ async def vc_command_handler(message):
         second_parameter = message.content.split(" ")[2]
     # if no second parameter specified, send error message
     except:
-        await message.channel.send(embed=await text_module.embeds.embed_error_message("Incomplete command."))
+        await message.channel.send(embed=text_module.embeds.embed_error_message("Incomplete command."))
         return
 
     if second_parameter == "join":
@@ -53,18 +53,18 @@ async def vc_command_handler(message):
         # checks if bot is in a vc, if not then reply on discord
         try:
             if not guild_vc_dict[guild_id]["voice_client"].is_connected():
-                await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
+                await message.channel.send(embed=text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
             await guild_vc_dict[guild_id]["voice_client"].disconnect()
         # catch error if there is no key "voice client" in guild_vc_dict. This only happens when user tries to get bot to leave before having asked them to join.
         except KeyError:
-            await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
+            await message.channel.send(embed=text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
 
     elif second_parameter == "add":
         try:
             user_song_request_list = message.content.split(" ")[3:]
             user_song_request = " ".join(user_song_request_list)
         except:
-            await message.channel.send(embed=await text_module.embeds.embed_error_message("No request specified."))
+            await message.channel.send(embed=text_module.embeds.embed_error_message("No request specified."))
             return
 
         # Add the video URL to queue
@@ -74,7 +74,7 @@ async def vc_command_handler(message):
 
         video_to_add = user_song_request_dict['entries'][0]
         guild_queue.append(video_to_add['webpage_url'])
-        await message.channel.send(embed=await text_module.embeds.embed_successful_action(
+        await message.channel.send(embed=text_module.embeds.embed_successful_action(
             f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the queue"))
 
         if len(guild_queue) == 1:
@@ -85,7 +85,7 @@ async def vc_command_handler(message):
             user_song_request_list = message.content.split(" ")[3:]
             user_song_request = " ".join(user_song_request_list)
         except:
-            await message.channel.send(embed=await text_module.embeds.embed_error_message("No request specified."))
+            await message.channel.send(embed=text_module.embeds.embed_error_message("No request specified."))
             return
 
         guild_queue.append(user_song_request)
@@ -96,14 +96,14 @@ async def vc_command_handler(message):
         try:
             guild_vc_dict[guild_id]["voice_client"].stop()
         except:
-            await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
+            await message.channel.send(embed=text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
 
         guild_queue = guild_vc_dict[guild_id]["guild_queue"]
 
         try:
             guild_queue.pop(0)
         except:
-            await message.channel.send(embed=await text_module.embeds.embed_error_message("Queue is currently empty."))
+            await message.channel.send(embed=text_module.embeds.embed_error_message("Queue is currently empty."))
 
         print(guild_queue)
 
@@ -112,17 +112,17 @@ async def vc_command_handler(message):
     elif second_parameter == "loop":
         if loop:
             loop = False
-            await message.channel.send(embed=await text_module.embeds.embed_response_without_title_custom_emote("Loop disabled.", ":repeat:"))
+            await message.channel.send(embed=text_module.embeds.embed_response_without_title_custom_emote("Loop disabled.", ":repeat:"))
         else:
             loop = True
-            await message.channel.send(embed=await text_module.embeds.embed_response_without_title_custom_emote("Loop enabled.", ":repeat:"))
+            await message.channel.send(embed=text_module.embeds.embed_response_without_title_custom_emote("Loop enabled.", ":repeat:"))
 
     elif second_parameter == "queue":
         queue = guild_vc_dict[guild_id]["guild_queue"]
-        await message.channel.send(embed=await text_module.embeds.embed_response("Up next", "\n".join(queue)))
+        await message.channel.send(embed=text_module.embeds.embed_response("Up next", "\n".join(queue)))
 
     else:
-        await message.channel.send(embed=await text_module.embeds.embed_error_message("Invalid command."))
+        await message.channel.send(embed=text_module.embeds.embed_error_message("Invalid command."))
 
 
 async def join_voice_channel(message):
@@ -130,13 +130,13 @@ async def join_voice_channel(message):
         channel = message.author.voice.channel
     # if user not in a vc, catch error and reply on discord
     except:
-        await message.channel.send(embed=await text_module.embeds.embed_sorry_message("You must be in a voice channel to use this command."))
+        await message.channel.send(embed=text_module.embeds.embed_sorry_message("You must be in a voice channel to use this command."))
         return None
     try:
         return await channel.connect()
     # if already in a channel, catch error and reply on discord
     except discord.errors.ClientException:
-        await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am already in a voice channel."))
+        await message.channel.send(embed=text_module.embeds.embed_sorry_message("I am already in a voice channel."))
         return None
 
 
@@ -147,13 +147,13 @@ async def play_from_yt(guild_vc_dict, message):
     try:
         user_user_song_request_url = guild_queue[0]
     except IndexError:
-        await message.channel.send(embed=await text_module.embeds.embed_response("The queue is empty.", "I will stay in the voice channel... in silence..."))
+        await message.channel.send(embed=text_module.embeds.embed_response("The queue is empty.", "I will stay in the voice channel... in silence..."))
         return
 
     try:
         voice_client = guild_vc_dict[guild_id]["voice_client"]
     except:
-        # await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel. Please type `!robo vc join`."))
+        # await message.channel.send(embed=text_module.embeds.embed_sorry_message("I am not currently in any voice channel. Please type `!robo vc join`."))
         return
 
     youtube_dl_opts = {
@@ -173,7 +173,7 @@ async def play_from_yt(guild_vc_dict, message):
         audio.url, options=ffmpeg_options))
     # , after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(guild_vc_dict, message), loop=None)
 
-    await message.channel.send(embed=await text_module.embeds.embed_youtube_info(metadata))
+    await message.channel.send(embed=text_module.embeds.embed_youtube_info(metadata))
 
 
 async def on_playback_finished(guild_vc_dict, message):
@@ -187,6 +187,6 @@ async def on_playback_finished(guild_vc_dict, message):
         try:
             guild_queue.pop(0)
         except:
-            await message.channel.send(embed=await text_module.embeds.embed_response("Your queue has finished playing.", "I will stay in the voice channel... in silence..."))
+            await message.channel.send(embed=text_module.embeds.embed_response("Your queue has finished playing.", "I will stay in the voice channel... in silence..."))
 
     await play_from_yt(guild_vc_dict, message)

@@ -29,7 +29,7 @@ async def execute_command(guild_id, message):
     try:
         first_parameter = message.content.split(" ")[1]
     except:
-        await message.channel.send(embed=await text_module.embeds.embed_error_message("Command not recognised. Type !robo help for a list of module. "))
+        await message.channel.send(embed=text_module.embeds.embed_error_message("Command not recognised. Type !robo help for a list of module. "))
         return
 
     if first_parameter == "add":
@@ -39,16 +39,16 @@ async def execute_command(guild_id, message):
         try:
             await text_module.keyword_functions.remove(guild_id, message, message.content.split(" ")[2])
         except:
-            await message.channel.send(embed=await text_module.embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
+            await message.channel.send(embed=text_module.embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
 
     elif first_parameter == "edit":
         try:
             if message.content.split(" ")[3] == "":
-                await message.channel.send(embed=await text_module.embeds.embed_error_message("Name of new keyword must be specified. "))
+                await message.channel.send(embed=text_module.embeds.embed_error_message("Name of new keyword must be specified. "))
             else:
                 await text_module.keyword_functions.edit(guild_id, message, message.content.split(" ")[2], " ".join(message.content.split(" ")[3:]))
         except:
-            await message.channel.send(embed=await text_module.embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
+            await message.channel.send(embed=text_module.embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
 
     elif first_parameter == "list":
         await text_module.keyword_functions.list(guild_id, message)
@@ -66,23 +66,23 @@ async def execute_command(guild_id, message):
         await help_module.help_functions.help_message_handler(message, COMMAND_PREFIX)
 
     elif first_parameter == "echo":
-        await message.channel.send(embed=await text_module.embeds.embed_response("Your message was: ", " ".join(message.content.split(" ")[2:])))
+        await message.channel.send(embed=text_module.embeds.embed_response("Your message was: ", " ".join(message.content.split(" ")[2:])))
 
     elif first_parameter == "ping":
         ping_start = time.time()
         await message.channel.send("Pong!")
         ping_end = time.time()
-        await message.channel.send(embed=await text_module.embeds.embed_response_without_title_custom_emote(f"That was about {int((ping_end - ping_start) * 1000)}ms.", ":stopwatch:"))
+        await message.channel.send(embed=text_module.embeds.embed_response_without_title_custom_emote(f"That was about {int((ping_end - ping_start) * 1000)}ms.", ":stopwatch:"))
 
     elif first_parameter == "nuke":
-        await message.channel.send(embed=await text_module.embeds.embed_response("Server nuke engaged. 20 second countdown initiated.", 'To cancel, type "!robo cancel nuke"'))
+        await message.channel.send(embed=text_module.embeds.embed_response("Server nuke engaged. 20 second countdown initiated.", 'To cancel, type "!robo cancel nuke"'))
         for i in range(20, 0, -1):
             time.sleep(1)
             await message.channel.send(i)
-        await message.channel.send(embed=await text_module.embeds.embed_error_message("Server nuke failed. Please try again later. "))
+        await message.channel.send(embed=text_module.embeds.embed_error_message("Server nuke failed. Please try again later. "))
 
     else:
-        await message.channel.send(embed=await text_module.embeds.embed_error_message("Command not recognised. Type !robo help for a list of commands. "))
+        await message.channel.send(embed=text_module.embeds.embed_error_message("Command not recognised. Type !robo help for a list of commands. "))
 
 
 # recieve message

@@ -12,14 +12,14 @@ with open("guild_data.json", "r") as guild_data_file:
 async def add(guild_id, message, keyword, value):
     await init_new_guild(guild_id)
     if value == "":
-        await message.channel.send(embed=await text_module.embeds.embed_error_message("No value specified. "))
+        await message.channel.send(embed=text_module.embeds.embed_error_message("No value specified. "))
     else:
         if keyword in guild_data_dictionary[guild_id]["keywords"]:
             guild_data_dictionary[guild_id]["keywords"][keyword].append(value)
         else:
             guild_data_dictionary[guild_id]["keywords"][keyword] = [value]
         
-        await message.channel.send(embed=await text_module.embeds.embed_successful_action("Keyword added. "))
+        await message.channel.send(embed=text_module.embeds.embed_successful_action("Keyword added. "))
 
     await save_keywords()
 
@@ -28,7 +28,7 @@ async def remove(guild_id, message, keyword):
     await init_new_guild(guild_id)
     message_removal = message.content.split(" ")[2]
     guild_data_dictionary[guild_id]["keywords"].pop(message_removal)
-    await message.channel.send(embed=await text_module.embeds.embed_successful_action("Keyword removed. "))
+    await message.channel.send(embed=text_module.embeds.embed_successful_action("Keyword removed. "))
 
     await save_keywords()
 
@@ -37,7 +37,7 @@ async def edit(guild_id, message, old_keyword, new_keyword):
     await init_new_guild(guild_id)
     guild_data_dictionary[guild_id]["keywords"][new_keyword] = guild_data_dictionary[guild_id]["keywords"].pop(
         old_keyword)
-    await message.channel.send(embed=await text_module.embeds.embed_successful_action("Keyword edited. "))
+    await message.channel.send(embed=text_module.embeds.embed_successful_action("Keyword edited. "))
 
     await save_keywords()
 
@@ -54,9 +54,9 @@ async def list(guild_id, message):
         keywords_list += f"• `{keyword} - {keyword_values_str}`\n"
 
     if keywords_list == "":
-        await message.channel.send(embed=await text_module.embeds.embed_response("No keywords set.", "Nothing to display."))
+        await message.channel.send(embed=text_module.embeds.embed_response("No keywords set.", "Nothing to display."))
     else:
-        await message.channel.send(embed=await text_module.embeds.embed_response("Keywords:", f"{keywords_list}"))
+        await message.channel.send(embed=text_module.embeds.embed_response("Keywords:", f"{keywords_list}"))
 
 
 async def save_keywords():
