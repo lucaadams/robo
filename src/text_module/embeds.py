@@ -55,7 +55,7 @@ def embed_response_without_title_custom_emote(embed_description, emote):
     )
 
 
-async def embed_failed_counting(embed_title, embed_description):
+def embed_failed_counting(embed_title, embed_description):
     return discord.Embed(
         title = f":x: {embed_title}",
         colour = discord.Colour.dark_red(),
@@ -63,7 +63,7 @@ async def embed_failed_counting(embed_title, embed_description):
     )
 
 
-async def embed_youtube_info(metadata):
+def embed_youtube_info(metadata):
     youtube_info_embed = discord.Embed(
         title = f"{metadata['title']} - {metadata['uploader']}",
         colour = discord.Color(0xeb4034)
