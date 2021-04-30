@@ -4,7 +4,6 @@ import asyncio
 import tempfile
 import youtube_dl
 import pafy
-from youtube_search import YoutubeSearch
 import discord
 from discord.ext import commands
 import json
@@ -67,9 +66,10 @@ async def vc_command_handler(message):
             await message.channel.send(embed=await text_module.embeds.embed_error_message("No request specified."))
             return
 
-        user_song_request_dict = YoutubeSearch(user_song_request, max_results=1).to_dict()
-
-        guild_queue.append(f"https://www.youtube.com{user_song_request_dict[0]['url_suffix']}")
+        # Add the video URL to queue 
+        with youtube_dl.YoutubeDL() as ytdl:
+            user_song_request_dict = ytdl.extract_info(f"ytsearch:{user_song_request}", download=False)
+        guild_queue.append(user_song_request_dict['entries'][0]['webpage_url'])
 
         if len(guild_queue) == 1:
             await play_from_yt(guild_vc_dict, message)
@@ -157,7 +157,7 @@ async def play_from_yt(guild_vc_dict, message):
     with youtube_dl.YoutubeDL(youtube_dl_opts) as ytdl:
         metadata = ytdl.extract_info(user_user_song_request_url, download=False)
 
-    audio = pafy.new(user_user_song_request_url, ydl_opts=youtube_dl_opts).getbestaudio()
+    audio = pafy.new(metadata['id'], ydl_opts=youtube_dl_opts).getbestaudio()
     voice_client.play(discord.FFmpegPCMAudio(audio.url, options=ffmpeg_options))
     #, after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(guild_vc_dict, message), loop=None)
 
