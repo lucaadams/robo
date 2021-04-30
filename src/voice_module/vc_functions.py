@@ -111,6 +111,10 @@ async def vc_command_handler(message):
             loop = True
             await message.channel.send(embed=await text_module.embeds.embed_response_without_title_custom_emote("Loop enabled.", ":repeat:"))
 
+    elif second_parameter == "queue":
+        queue = guild_vc_dict[guild_id]["guild_queue"]
+        await message.channel.send(embed=await text_module.embeds.embed_response("Up next", "\n".join(queue)))
+
     else:
         await message.channel.send(embed=await text_module.embeds.embed_error_message("Invalid command."))
 
