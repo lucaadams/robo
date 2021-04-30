@@ -56,6 +56,10 @@ async def voice_help_message(message, COMMAND_PREFIX):
     • `{COMMAND_PREFIX} vc join` \n    _Get Robo to join the vc that you are currently in._\n
     • `{COMMAND_PREFIX} vc play [youtube url]` \n    _Specify a youtube video which Robo will start playing._\n
     • `{COMMAND_PREFIX} vc leave` \n    _Robo will leave the vc that it is currently in._\n
+    • `{COMMAND_PREFIX} vc add` \n    _Add a youtube video to the queue._\n
+    • `{COMMAND_PREFIX} vc skip` \n    _Robo will play the next song in the queue._\n
+    • `{COMMAND_PREFIX} vc loop` \n    _Loops the currently playing song request._\n
+    • `{COMMAND_PREFIX} vc queue` \n    _Shows a list of all song requests in the queue._\n
     ''', ":page_with_curl:"))
 
 
