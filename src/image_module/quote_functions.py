@@ -32,14 +32,14 @@ async def execute_quote_command(message):
         await quote_generator(message, image_options, image, font, 800, 200, 180, 20)
 
     else:
-        await message.channel.send(embed=await text_module.embeds.embed_error_message("You must specify a valid image type ('grey' or 'colour')"))
+        await message.channel.send(embed=text_module.embeds.embed_error_message("You must specify a valid image type ('grey' or 'colour')"))
 
 
 async def quote_generator(message, image_options, image, font, quote_location_x, quote_location_y, font_colour, max_chars_per_line):
     try:
         quote_message = message.content.split('"')[1]
     except:
-        await message.channel.send(embed=await text_module.embeds.embed_error_message("Must specify a quote author."))
+        await message.channel.send(embed=text_module.embeds.embed_error_message("Must specify a quote author."))
 
     quote_message_wrap = await text_wrap(quote_message, max_chars_per_line)
 
