@@ -67,13 +67,13 @@ async def vc_command_handler(message):
             await message.channel.send(embed=text_module.embeds.embed_error_message("No request specified."))
             return
 
-        # Add the video URL to queue
+        # Add the video metadata to queue
         with youtube_dl.YoutubeDL() as ytdl:
             user_song_request_dict = ytdl.extract_info(
                 f"ytsearch:{user_song_request}", download=False)
 
         video_to_add = user_song_request_dict['entries'][0]
-        guild_queue.append(video_to_add['webpage_url'])
+        guild_queue.append(video_to_add)
         await message.channel.send(embed=text_module.embeds.embed_successful_action(
             f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the queue"))
 
@@ -104,8 +104,6 @@ async def vc_command_handler(message):
             guild_queue.pop(0)
         except:
             await message.channel.send(embed=text_module.embeds.embed_error_message("Queue is currently empty."))
-
-        print(guild_queue)
 
         await play_from_yt(guild_vc_dict, message)
 
@@ -145,7 +143,7 @@ async def play_from_yt(guild_vc_dict, message):
     guild_queue = guild_vc_dict[guild_id]["guild_queue"]
 
     try:
-        user_user_song_request_url = guild_queue[0]
+        song_request_metadata = guild_queue[0]
     except IndexError:
         await message.channel.send(embed=text_module.embeds.embed_response("The queue is empty.", "I will stay in the voice channel... in silence..."))
         return
@@ -164,16 +162,12 @@ async def play_from_yt(guild_vc_dict, message):
         }],
     }
 
-    with youtube_dl.YoutubeDL(youtube_dl_opts) as ytdl:
-        metadata = ytdl.extract_info(
-            user_user_song_request_url, download=False)
-
-    audio = pafy.new(metadata['id'], ydl_opts=youtube_dl_opts).getbestaudio()
+    audio = pafy.new(song_request_metadata['id'], ydl_opts=youtube_dl_opts).getbestaudio()
     voice_client.play(discord.FFmpegPCMAudio(
         audio.url, options=ffmpeg_options))
     # , after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(guild_vc_dict, message), loop=None)
 
-    await message.channel.send(embed=text_module.embeds.embed_youtube_info(metadata))
+    await message.channel.send(embed=text_module.embeds.embed_youtube_info(song_request_metadata))
 
 
 async def on_playback_finished(guild_vc_dict, message):
