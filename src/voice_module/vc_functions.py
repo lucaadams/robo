@@ -1,7 +1,10 @@
 import time
+import threading
+import asyncio
 import tempfile
 import youtube_dl
 import pafy
+from youtube_search import YoutubeSearch
 import discord
 from discord.ext import commands
 import json
@@ -12,6 +15,13 @@ ffmpeg_options = {
     'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
 
 guild_vc_dict = {}
+
+# def check_if_playing(some_args):
+#     while True:
+#         for item in guild_vc_dict.keys():
+#             item.""
+#     download_thread = threading.Thread(target=function_that_downloads, name="Downloader", args=some_args)
+#     download_thread.start()
 
 async def vc_command_handler(message):
     guild_id = message.guild.id
@@ -51,33 +61,38 @@ async def vc_command_handler(message):
 
     elif second_parameter == "add":
         try:
-            addition = " ".join(message.content.split(" ")[3:])
+            user_song_request_list = message.content.split(" ")[3:]
+            user_song_request = " ".join(user_song_request_list)
         except:
-            await message.channel.send(embed=await text_module.embeds.embed_error_message("No link specified."))
+            await message.channel.send(embed=await text_module.embeds.embed_error_message("No request specified."))
             return
 
-        guild_queue.append(addition)
+        user_song_request_dict = YoutubeSearch(user_song_request, max_results=1).to_dict()
+
+        guild_queue.append(f"https://www.youtube.com{user_song_request_dict[0]['url_suffix']}")
+
+        if len(guild_queue) == 1:
+            await play_from_yt(guild_vc_dict, message)
+
+    elif second_parameter == "play":
+        try:
+            user_song_request_list = message.content.split(" ")[3:]
+            user_song_request = " ".join(user_song_request_list)
+        except:
+            await message.channel.send(embed=await text_module.embeds.embed_error_message("No request specified."))
+            return
+
+        guild_queue.append(user_song_request)
 
         await play_from_yt(guild_vc_dict, message)
 
-    elif second_parameter == "play":
-        if len(message.content.split(" ")) >= 4:
-            user_song_request = " ".join(message.content.split()[3:])
-        else:
-            await message.channel.send(embed=await text_module.embeds.embed_error_message("No link specified."))
-            return
-            #user_song_request = "https://www.youtube.com/watch?v=_37GPQT_qpc"
-
-        await play_from_yt(guild_vc_dict)
-
-    elif second_parameter == "skip":
+    elif second_parameter == "skip" or second_parameter == "next":
         try:
             guild_vc_dict[guild_id]["voice_client"].stop()
         except:
             await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
 
         guild_queue = guild_vc_dict[guild_id]["guild_queue"]
-        print(guild_queue)
 
         try:
             guild_queue.pop(0)
@@ -118,10 +133,9 @@ async def join_voice_channel(message):
 async def play_from_yt(guild_vc_dict, message):
     guild_id = message.guild.id
     guild_queue = guild_vc_dict[guild_id]["guild_queue"]
-    loop = guild_vc_dict[guild_id]["loop"]
 
     try:
-        user_song_request = guild_queue[0]
+        user_user_song_request_url = guild_queue[0]
     except IndexError:
         await message.channel.send(embed=await text_module.embeds.embed_response("The queue is empty.", "I will stay in the voice channel... in silence..."))
         return
@@ -141,24 +155,27 @@ async def play_from_yt(guild_vc_dict, message):
     }
 
     with youtube_dl.YoutubeDL(youtube_dl_opts) as ytdl:
-        metadata = ytdl.extract_info(user_song_request, download=False)
+        metadata = ytdl.extract_info(user_user_song_request_url, download=False)
 
-    audio = pafy.new(user_song_request, ydl_opts=youtube_dl_opts).getbestaudio()
+    audio = pafy.new(user_user_song_request_url, ydl_opts=youtube_dl_opts).getbestaudio()
     voice_client.play(discord.FFmpegPCMAudio(audio.url, options=ffmpeg_options))
+    #, after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(guild_vc_dict, message), loop=None)
 
     await message.channel.send(embed=await text_module.embeds.embed_youtube_info(metadata))
 
 
-async def continue_to_next_request(message, guild_vc_dict):
+async def on_playback_finished(guild_vc_dict, message):
     guild_id = message.guild.id
-    guild_vc_data = guild_vc_dict[guild_id]
+    guild_queue = guild_vc_dict[guild_id]["guild_queue"]
+    loop = guild_vc_dict[guild_id]["loop"]
 
-    try:
-        check_if_connected = guild_vc_data["voice_client"].is_connected()
-    except:
-        check_if_connected = False
+    print("func")
 
-    if len(guild_vc_data["guild_queue"]) != 0 and check_if_connected:
-        guild_player = await guild_vc_data["voice_client"].create_ytdl_player(guild_vc_data["guild_queue"][0])
-        guild_player.play()
+    if not loop:
+        try:
+            guild_queue.pop(0)
+        except:
+            await message.channel.send(embed=await text_module.embeds.embed_response("Your queue has finished playing.", "I will stay in the voice channel... in silence..."))
+
+    await play_from_yt(guild_vc_dict, message)
 
