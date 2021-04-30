@@ -22,6 +22,7 @@ guild_vc_dict = {}
 #     download_thread = threading.Thread(target=function_that_downloads, name="Downloader", args=some_args)
 #     download_thread.start()
 
+
 async def vc_command_handler(message):
     guild_id = message.guild.id
     if guild_id not in guild_vc_dict:
@@ -66,9 +67,10 @@ async def vc_command_handler(message):
             await message.channel.send(embed=await text_module.embeds.embed_error_message("No request specified."))
             return
 
-        # Add the video URL to queue 
+        # Add the video URL to queue
         with youtube_dl.YoutubeDL() as ytdl:
-            user_song_request_dict = ytdl.extract_info(f"ytsearch:{user_song_request}", download=False)
+            user_song_request_dict = ytdl.extract_info(
+                f"ytsearch:{user_song_request}", download=False)
         guild_queue.append(user_song_request_dict['entries'][0]['webpage_url'])
 
         if len(guild_queue) == 1:
@@ -143,11 +145,11 @@ async def play_from_yt(guild_vc_dict, message):
     except IndexError:
         await message.channel.send(embed=await text_module.embeds.embed_response("The queue is empty.", "I will stay in the voice channel... in silence..."))
         return
-    
+
     try:
         voice_client = guild_vc_dict[guild_id]["voice_client"]
     except:
-        #await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel. Please type `!robo vc join`."))
+        # await message.channel.send(embed=await text_module.embeds.embed_sorry_message("I am not currently in any voice channel. Please type `!robo vc join`."))
         return
 
     youtube_dl_opts = {
@@ -159,11 +161,12 @@ async def play_from_yt(guild_vc_dict, message):
     }
 
     with youtube_dl.YoutubeDL(youtube_dl_opts) as ytdl:
-        metadata = ytdl.extract_info(user_user_song_request_url, download=False)
+        metadata = ytdl.extract_info(
+            user_user_song_request_url, download=False)
 
     audio = pafy.new(metadata['id'], ydl_opts=youtube_dl_opts).getbestaudio()
     voice_client.play(discord.FFmpegPCMAudio(audio.url, options=ffmpeg_options))
-    #, after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(guild_vc_dict, message), loop=None)
+    # , after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(guild_vc_dict, message), loop=None)
 
     await message.channel.send(embed=await text_module.embeds.embed_youtube_info(metadata))
 
@@ -182,4 +185,3 @@ async def on_playback_finished(guild_vc_dict, message):
             await message.channel.send(embed=await text_module.embeds.embed_response("Your queue has finished playing.", "I will stay in the voice channel... in silence..."))
 
     await play_from_yt(guild_vc_dict, message)
-
