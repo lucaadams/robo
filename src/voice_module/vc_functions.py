@@ -130,7 +130,7 @@ async def vc_command_handler(message):
     elif second_parameter == "queue":
         desc = ""
         for metadata in guild_vc_dict[guild_id]["guild_queue"]:
-            desc += f"[{metadata['title']}]({metadata['webpage_url']})"
+            desc += f"[{metadata['title']}]({metadata['webpage_url']})\n"
         await message.channel.send(embed=text_module.embeds.embed_response("Up next", desc))
 
     else:
