@@ -69,8 +69,8 @@ async def vc_command_handler(message):
 
         # Add the video metadata to queue
         with youtube_dl.YoutubeDL() as ytdl:
-            user_song_request_dict = ytdl.extract_info(
-                f"ytsearch:{user_song_request}", download=False)
+            ytdl_input = f"{'ytsearch:' if check_if_url(user_song_request) else ''}{user_song_request}"
+            user_song_request_dict = ytdl.extract_info(ytdl_input, download=False)
 
         video_to_add = user_song_request_dict['entries'][0]
         guild_queue.append(video_to_add)
@@ -186,3 +186,7 @@ async def on_playback_finished(guild_vc_dict, message):
             await message.channel.send(embed=text_module.embeds.embed_response("Your queue has finished playing.", "I will stay in the voice channel... in silence..."))
 
     await play_from_yt(guild_vc_dict, message)
+
+
+def check_if_url(string):
+    return string.startswith("http") or string.startswith("www")
