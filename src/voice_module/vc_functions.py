@@ -7,6 +7,7 @@ import pafy
 import discord
 from discord.ext import commands
 import json
+import bot
 
 import text_module.embeds
 
@@ -169,7 +170,7 @@ async def play_from_yt(guild_vc_dict, message):
 
     audio = pafy.new(song_request_metadata['id'], ydl_opts=youtube_dl_options).getbestaudio()
     voice_client.play(discord.FFmpegPCMAudio(
-        audio.url, options=ffmpeg_options))
+        audio.url, options=ffmpeg_options), after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(guild_vc_dict, message), bot.CLIENT.loop))
     # , after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(guild_vc_dict, message), loop=None)
 
     await message.channel.send(embed=text_module.embeds.embed_youtube_info(song_request_metadata))
