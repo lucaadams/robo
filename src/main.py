@@ -2,6 +2,7 @@ import os
 import time
 import discord
 import json
+import logging
 
 import image_module.quote_functions
 import text_module.keyword_functions
@@ -11,7 +12,6 @@ import games_module.game_functions
 import voice_module.vc_functions
 import help_module.help_functions
 
-
 # constants
 COMMAND_PREFIX = ("!robo")
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
@@ -20,7 +20,7 @@ client = discord.Client()
 
 @client.event
 async def on_ready():
-    print("logged on")
+    logging.log(logging.INFO, "Client ready")
     await client.change_presence(activity=discord.Game(name="!robo help"))
 
 
@@ -103,5 +103,5 @@ async def on_message(message):
 
 
 # keep at end
+logging.basicConfig(level=logging.INFO)
 client.run(TOKEN)
-
