@@ -77,10 +77,13 @@ async def vc_command_handler(message):
 
         # Add the video metadata to queue
         with youtube_dl.YoutubeDL() as ytdl:
-            ytdl_input = f"{'ytsearch:' if check_if_url(user_song_request) else ''}{user_song_request}"
-            user_song_request_dict = ytdl.extract_info(ytdl_input, download=False)
-
-        video_to_add = user_song_request_dict['entries'][0]
+            if check_if_url(user_song_request):
+                user_song_request_dict = ytdl.extract_info(user_song_request, download=False)
+                video_to_add = user_song_request_dict
+            else:
+                user_song_request_dict = ytdl.extract_info(f"ytsearch:{user_song_request}", download=False)
+                video_to_add = user_song_request_dict['entries'][0]
+        
         guild_queue.append(video_to_add)
         await message.channel.send(embed=text_module.embeds.embed_successful_action(
             f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the queue"))
