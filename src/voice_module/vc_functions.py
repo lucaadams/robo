@@ -42,7 +42,6 @@ async def vc_command_handler(message):
         guild_vc_dict[guild_id]["loop"] = False
 
     guild_queue = guild_vc_dict[guild_id]["guild_queue"]
-    loop = guild_vc_dict[guild_id]["loop"]
 
     try:
         second_parameter = message.content.split(" ")[2]
@@ -120,11 +119,12 @@ async def vc_command_handler(message):
         await play_from_yt(guild_vc_dict, message)
 
     elif second_parameter == "loop":
-        if loop:
-            loop = False
+        guild_vc_dict[guild_id]["loop"]
+        if guild_vc_dict[guild_id]["loop"]:
+            guild_vc_dict[guild_id]["loop"] = False
             await message.channel.send(embed=text_module.embeds.embed_response_without_title_custom_emote("Loop disabled.", ":repeat:"))
         else:
-            loop = True
+            guild_vc_dict[guild_id]["loop"] = True
             await message.channel.send(embed=text_module.embeds.embed_response_without_title_custom_emote("Loop enabled.", ":repeat:"))
 
     elif second_parameter == "queue":
