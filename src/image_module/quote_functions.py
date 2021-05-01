@@ -53,10 +53,12 @@ async def quote_generator(message, image_options, image, font, quote_location_x,
     image_with_message = ImageDraw.Draw(image)
     image_with_message.text((quote_location_x, quote_location_y),
                             quote, (font_colour, font_colour, font_colour), font=font)
+    
+    image_file = io.BytesIO()
+    image.save(image_file, "PNG")
+    image_file.seek(0)
 
-    image.save("res/quote_images/temp/temp_image.png")
-    await message.channel.send(file=discord.File("res/quote_images/temp/temp_image.png"))
-    os.remove("res/quote_images/temp/temp_image.png")
+    await message.channel.send(file=discord.File(image_file, "image.png"))
 
 
 async def text_wrap(quote_message, max_chars_per_line):
