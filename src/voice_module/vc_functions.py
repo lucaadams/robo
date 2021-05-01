@@ -13,6 +13,14 @@ import text_module.embeds
 ffmpeg_options = {
     'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
 
+youtube_dl_options = {
+    'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'mp3',
+        'preferredquality': '192',
+    }],
+}
+
 guild_vc_dict = {}
 
 # def check_if_playing(some_args):
@@ -156,15 +164,7 @@ async def play_from_yt(guild_vc_dict, message):
         # await message.channel.send(embed=text_module.embeds.embed_sorry_message("I am not currently in any voice channel. Please type `!robo vc join`."))
         return
 
-    youtube_dl_opts = {
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-    }
-
-    audio = pafy.new(song_request_metadata['id'], ydl_opts=youtube_dl_opts).getbestaudio()
+    audio = pafy.new(song_request_metadata['id'], ydl_opts=youtube_dl_options).getbestaudio()
     voice_client.play(discord.FFmpegPCMAudio(
         audio.url, options=ffmpeg_options))
     # , after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(guild_vc_dict, message), loop=None)
