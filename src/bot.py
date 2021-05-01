@@ -24,7 +24,7 @@ def run_client():
 @CLIENT.event
 async def on_ready():
     logging.log(logging.INFO, "Client ready")
-    await CLIENT.change_presence(activity=discord.Game(name="!robo help"))
+    await CLIENT.change_presence(activity=discord.Game(name=f"{COMMAND_PREFIX} help"))
 
 
 # recieve message
@@ -49,7 +49,7 @@ async def execute_command(guild_id, message):
     try:
         first_parameter = message.content.split(" ")[1]
     except:
-        await message.channel.send(embed=text_module.embeds.embed_error_message("Command not recognised. Type !robo help for a list of module. "))
+        await message.channel.send(embed=text_module.embeds.embed_error_message(f"Command not recognised. Type {COMMAND_PREFIX} help for a list of module. "))
         return
 
     if first_parameter == "add":
@@ -95,11 +95,11 @@ async def execute_command(guild_id, message):
         await message.channel.send(embed=text_module.embeds.embed_response_without_title_custom_emote(f"That was about {int((ping_end - ping_start) * 1000)}ms.", ":stopwatch:"))
 
     elif first_parameter == "nuke":
-        await message.channel.send(embed=text_module.embeds.embed_response("Server nuke engaged. 20 second countdown initiated.", 'To cancel, type "!robo cancel nuke"'))
+        await message.channel.send(embed=text_module.embeds.embed_response("Server nuke engaged. 20 second countdown initiated.", f'To cancel, type "{COMMAND_PREFIX} cancel nuke"'))
         for i in range(20, 0, -1):
             time.sleep(1)
             await message.channel.send(i)
         await message.channel.send(embed=text_module.embeds.embed_error_message("Server nuke failed. Please try again later. "))
 
     else:
-        await message.channel.send(embed=text_module.embeds.embed_error_message("Command not recognised. Type !robo help for a list of commands. "))
+        await message.channel.send(embed=text_module.embeds.embed_error_message(f"Command not recognised. Type {COMMAND_PREFIX} help for a list of commands. "))
