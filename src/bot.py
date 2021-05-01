@@ -12,7 +12,7 @@ import games_module.game_functions
 import voice_module.vc_functions
 import help_module.help_functions
 
-COMMAND_PREFIX = ("!robo")
+COMMAND_PREFIX = "!robo"
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 CLIENT = discord.Client()
 
