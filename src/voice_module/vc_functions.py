@@ -7,12 +7,13 @@ import pafy
 import discord
 from discord.ext import commands
 import json
-import bot
 
+import bot
 import text_module.embeds
 
 ffmpeg_options = {
-    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'
+}
 
 youtube_dl_options = {
     'postprocessors': [{
@@ -23,13 +24,6 @@ youtube_dl_options = {
 }
 
 guild_vc_dict = {}
-
-# def check_if_playing(some_args):
-#     while True:
-#         for item in guild_vc_dict.keys():
-#             item.""
-#     download_thread = threading.Thread(target=function_that_downloads, name="Downloader", args=some_args)
-#     download_thread.start()
 
 
 async def vc_command_handler(message):
@@ -67,6 +61,9 @@ async def vc_command_handler(message):
         except KeyError:
             await message.channel.send(embed=text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
 
+    elif second_parameter == "reload" or second_parameter == "retry":
+        pass
+
     elif second_parameter == "add":
         try:
             user_song_request_list = message.content.split(" ")[3:]
@@ -88,20 +85,13 @@ async def vc_command_handler(message):
         await message.channel.send(embed=text_module.embeds.embed_successful_action(
             f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the queue"))
 
+        try:
+            await play_from_yt(guild_vc_dict, message)
+        except:
+            pass
+
         if len(guild_queue) == 1:
             await play_from_yt(guild_vc_dict, message)
-
-    elif second_parameter == "play":
-        try:
-            user_song_request_list = message.content.split(" ")[3:]
-            user_song_request = " ".join(user_song_request_list)
-        except:
-            await message.channel.send(embed=text_module.embeds.embed_error_message("No request specified."))
-            return
-
-        guild_queue.append(user_song_request)
-
-        await play_from_yt(guild_vc_dict, message)
 
     elif second_parameter == "skip" or second_parameter == "next":
         try:
@@ -109,10 +99,9 @@ async def vc_command_handler(message):
         except:
             await message.channel.send(embed=text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
 
-        guild_queue = guild_vc_dict[guild_id]["guild_queue"]
-
         try:
-            guild_queue.pop(0)
+            guild_vc_dict[guild_id]["guild_queue"].pop(0)
+            guild_vc_dict[guild_id]["already_skipped"] = True
         except:
             await message.channel.send(embed=text_module.embeds.embed_error_message("Queue is currently empty."))
 
@@ -129,9 +118,26 @@ async def vc_command_handler(message):
 
     elif second_parameter == "queue":
         desc = ""
+        num = 1
         for metadata in guild_vc_dict[guild_id]["guild_queue"]:
-            desc += f"[{metadata['title']}]({metadata['webpage_url']})\n"
-        await message.channel.send(embed=text_module.embeds.embed_response("Up next", desc))
+            desc += f"{num} - [{metadata['title']}]({metadata['webpage_url']})\n"
+            num += 1
+        if desc == "":
+            await message.channel.send(embed=text_module.embeds.embed_response_without_title("Your queue is currently empty."))
+        else:
+            await message.channel.send(embed=text_module.embeds.embed_response("Up next", desc))
+
+    elif second_parameter == "remove":
+        try:
+            index_to_remove = int(message.content.split(" ")[3])
+        except:
+            await message.channel.send(embed=text_module.embeds.embed_error_message("Must specify valid queue index."))
+
+        try:
+            guild_queue.pop(index_to_remove - 1)
+            await message.channel.send(embed=text_module.embeds.embed_successful_action(f"[{guild_queue[index_to_remove - 1]['title']}]({guild_queue[index_to_remove - 1]['webpage_url']}) has been removed from the queue"))
+        except:
+            await message.channel.send(embed=text_module.embeds.embed_error_message("That queue index does not exist."))
 
     else:
         await message.channel.send(embed=text_module.embeds.embed_error_message("Invalid command."))
@@ -165,32 +171,30 @@ async def play_from_yt(guild_vc_dict, message):
     try:
         voice_client = guild_vc_dict[guild_id]["voice_client"]
     except:
-        # await message.channel.send(embed=text_module.embeds.embed_sorry_message("I am not currently in any voice channel. Please type `!robo vc join`."))
         return
 
     audio = pafy.new(song_request_metadata['id'], ydl_opts=youtube_dl_options).getbestaudio()
     voice_client.play(discord.FFmpegPCMAudio(
         audio.url, options=ffmpeg_options), after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(guild_vc_dict, message), bot.CLIENT.loop))
-    # , after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(guild_vc_dict, message), loop=None)
 
     await message.channel.send(embed=text_module.embeds.embed_youtube_info(song_request_metadata))
 
 
 async def on_playback_finished(guild_vc_dict, message):
     guild_id = message.guild.id
-    guild_queue = guild_vc_dict[guild_id]["guild_queue"]
-    loop = guild_vc_dict[guild_id]["loop"]
 
-    print("func")
-
-    if not loop:
+    if not guild_vc_dict[guild_id]["loop"] and not guild_vc_dict[guild_id]["already_skipped"]:
         try:
-            guild_queue.pop(0)
+            guild_vc_dict[guild_id]["guild_queue"].pop(0)
+            print("popped")
         except:
             await message.channel.send(embed=text_module.embeds.embed_response("Your queue has finished playing.", "I will stay in the voice channel... in silence..."))
+    
+    guild_vc_dict[guild_id]["already_skipped"] = False
 
     await play_from_yt(guild_vc_dict, message)
 
 
 def check_if_url(string):
     return string.startswith("http") or string.startswith("www")
+
