@@ -132,12 +132,29 @@ async def vc_command_handler(message):
             index_to_remove = int(message.content.split(" ")[3])
         except:
             await message.channel.send(embed=text_module.embeds.embed_error_message("Must specify valid queue index."))
+            return
 
         try:
+            await message.channel.send(
+                embed=text_module.embeds.embed_successful_action(f"[{guild_vc_dict[guild_id]['guild_queue'][index_to_remove - 1]['title']}]({guild_vc_dict[guild_id]['guild_queue'][index_to_remove - 1]['webpage_url']}) \
+                    has been removed from the queue"))
             guild_queue.pop(index_to_remove - 1)
-            await message.channel.send(embed=text_module.embeds.embed_successful_action(f"[{guild_queue[index_to_remove - 1]['title']}]({guild_queue[index_to_remove - 1]['webpage_url']}) has been removed from the queue"))
         except:
             await message.channel.send(embed=text_module.embeds.embed_error_message("That queue index does not exist."))
+            return
+
+        if index_to_remove == 1:
+            try:
+                guild_vc_dict[guild_id]["voice_client"].stop()
+            except:
+                return
+
+            guild_vc_dict[guild_id]["already_skipped"] = True
+            
+            try:
+                await play_from_yt(guild_vc_dict, message)
+            except:
+                return
 
     else:
         await message.channel.send(embed=text_module.embeds.embed_error_message("Invalid command."))
