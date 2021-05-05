@@ -20,6 +20,15 @@ CLIENT = discord.Client()
 def run_client():
     CLIENT.run(TOKEN)
 
+@CLIENT.event
+async def on_guild_join(guild):
+    for channel in guild.text_channels:
+        if channel.permissions_for(guild.me).send_messages:
+            await channel.send(embed=text_module.embeds.embed_response_custom_emote("Hey, I'm Robo!", "_I'm a Discord bot written in Python using the Discord.py rewrite._\n \
+                - [link to github](https://github.com/lucaadams/robo) - \n \
+                    To get started, type `!robo help`.", ":wave:"))
+        break
+
 
 @CLIENT.event
 async def on_ready():
@@ -49,7 +58,9 @@ async def execute_command(guild_id, message):
     try:
         first_parameter = message.content.split(" ")[1]
     except:
-        await message.channel.send(embed=text_module.embeds.embed_error_message(f"Command not recognised. Type {COMMAND_PREFIX} help for a list of module. "))
+        await message.channel.send(embed=text_module.embeds.embed_response_custom_emote("Hi, I'm Robo!", "_I'm a Discord bot written in Python using the Discord.py rewrite._\n \
+            - [link to github](https://github.com/lucaadams/robo) - \n \
+                To view a list of commands, type `!robo help`.", ":wave:"))
         return
 
     if first_parameter == "add":
@@ -102,4 +113,5 @@ async def execute_command(guild_id, message):
         await message.channel.send(embed=text_module.embeds.embed_error_message("Server nuke failed. Please try again later. "))
 
     else:
-        await message.channel.send(embed=text_module.embeds.embed_error_message(f"Command not recognised. Type {COMMAND_PREFIX} help for a list of commands. "))
+        await message.channel.send(embed=text_module.embeds.embed_error_message(f"Command not recognised. Type `{COMMAND_PREFIX} help` for a list of commands. "))
+
