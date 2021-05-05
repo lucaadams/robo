@@ -50,9 +50,6 @@ async def check_message(message):
                     counting_data[guild_id]["counting_has_started"] = False
                     return
 
-        else:
-            return
-
 
 def try_cast_float(message_content):
     try:
