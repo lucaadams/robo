@@ -34,6 +34,8 @@ async def vc_command_handler(message):
         guild_vc_dict[guild_id]["guild_queue"] = []
     if "loop" not in guild_vc_dict[guild_id]:
         guild_vc_dict[guild_id]["loop"] = False
+    if "already_skipped" not in guild_vc_dict[guild_id]:
+        guild_vc_dict[guild_id]["already_skipped"] = False
 
     guild_queue = guild_vc_dict[guild_id]["guild_queue"]
 
@@ -182,7 +184,7 @@ async def play_from_yt(guild_vc_dict, message):
     try:
         song_request_metadata = guild_queue[0]
     except IndexError:
-        await message.channel.send(embed=text_module.embeds.embed_response("The queue is empty.", "I will stay in the voice channel... in silence..."))
+        #await message.channel.send(embed=text_module.embeds.embed_response("The queue is empty.", "I will stay in the voice channel... in silence..."))
         return
 
     try:
@@ -203,7 +205,6 @@ async def on_playback_finished(guild_vc_dict, message):
     if not guild_vc_dict[guild_id]["loop"] and not guild_vc_dict[guild_id]["already_skipped"]:
         try:
             guild_vc_dict[guild_id]["guild_queue"].pop(0)
-            print("popped")
         except:
             await message.channel.send(embed=text_module.embeds.embed_response("Your queue has finished playing.", "I will stay in the voice channel... in silence..."))
     
