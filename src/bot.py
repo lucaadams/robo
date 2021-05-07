@@ -27,7 +27,7 @@ async def on_guild_join(guild):
             await channel.send(embed=text_module.embeds.embed_response_custom_emote("Hey, I'm Robo!", "_I'm a Discord bot written in Python using the Discord.py rewrite._\n \
                 - [link to github](https://github.com/lucaadams/robo) - \n \
                     To get started, type `!robo help`.", ":wave:"))
-        break
+            break
 
 
 @CLIENT.event
