@@ -63,9 +63,6 @@ async def vc_command_handler(message):
         except KeyError:
             await message.channel.send(embed=text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
 
-    elif second_parameter == "reload" or second_parameter == "retry":
-        pass
-
     elif second_parameter == "add":
         try:
             user_song_request_list = message.content.split(" ")[3:]

@@ -8,6 +8,58 @@ from PIL import Image, ImageDraw, ImageFont
 import text_module.embeds
 
 
+class MissingQuoteMessageError(Exception):
+    # raised if user has not specified a message for their quote
+    pass
+
+
+class Quote:
+    def __init__(self, message, image_options, image, font, quote_location_x, quote_location_y, font_colour, max_chars_per_line):
+        self.message = message
+
+        # example message.content: !robo quote colour "testing" "tester"
+
+        try:
+            self.quote_message = message.content.split('"')[1]
+        except:
+            raise MissingQuoteMessageError("Need to specify a quote message.")
+
+        try:
+            self.quote_author = message.content.split('"')[3]
+        except:
+            self.quote_author = ""
+
+        self.image_options = image_options
+        self.image = image
+        self.font = font
+        self.quote_location_x = quote_location_x
+        self.quote_location_y = quote_location_y
+        self.font_colour = font_colour
+        self.max_chars_per_line = max_chars_per_line
+        self.quote_message_wrap = text_wrap(
+            self.quote_message, self.max_chars_per_line)
+        self.image_file = io.BytesIO()
+        self.quote = self.get_quote_content()
+
+    def get_quote_content(self):
+        if self.quote_author == "":
+            return f'"{self.quote_message_wrap}"'
+        else:
+            return f'"{self.quote_message_wrap}" \n                    - {self.quote_author}'
+
+    async def send_quote(self):
+        await self.message.channel.send(file=discord.File(self.image_file, "image.png"))
+
+    async def generate_quote(self):
+        image_with_message = ImageDraw.Draw(self.image)
+        image_with_message.text((self.quote_location_x, self.quote_location_y), self.quote, (
+            self.font_colour, self.font_colour, self.font_colour), font=self.font)
+        self.image.save(self.image_file, "PNG")
+        self.image_file.seek(0)
+
+        await self.send_quote()
+
+
 async def execute_quote_command(message):
     image_type = message.content.split(" ")[2]
 
@@ -19,7 +71,12 @@ async def execute_quote_command(message):
         font = ImageFont.truetype(
             "res/quote_images/fonts/Kiss_Boom.ttf", 130)
 
-        await quote_generator(message, image_options, image, font, 300, 200, 0, 25)
+        try:
+            new_quote = Quote(message, image_options, image, font, 300, 200, 0, 25)
+        except MissingQuoteMessageError:
+            await message.channel.send(embed=text_module.embeds.embed_error_message("Must specify a quote message."))
+
+        await new_quote.generate_quote()
 
     elif image_type == "grey":
         image_options = ["alex.png", "einstein.png", "ghandi.png",
@@ -29,39 +86,18 @@ async def execute_quote_command(message):
         font = ImageFont.truetype(
             "res/quote_images/fonts/CaviarDreams.ttf", 50)
 
-        await quote_generator(message, image_options, image, font, 800, 200, 180, 20)
+        try:
+            new_quote = Quote(message, image_options, image, font, 800, 200, 180, 20)
+        except MissingQuoteMessageError:
+            await message.channel.send(embed=text_module.embeds.embed_error_message("Must specify a quote message."))
+
+        await new_quote.generate_quote()
 
     else:
         await message.channel.send(embed=text_module.embeds.embed_error_message("You must specify a valid image type ('grey' or 'colour')"))
 
 
-async def quote_generator(message, image_options, image, font, quote_location_x, quote_location_y, font_colour, max_chars_per_line):
-    try:
-        quote_message = message.content.split('"')[1]
-    except:
-        await message.channel.send(embed=text_module.embeds.embed_error_message("Must specify a quote author."))
-
-    quote_message_wrap = await text_wrap(quote_message, max_chars_per_line)
-
-    quote_person = message.content.split('"')[3]
-
-    if quote_person == "":
-        quote = f'"{quote_message_wrap}"'
-    else:
-        quote = f'"{quote_message_wrap}" \n                    - {quote_person}'
-
-    image_with_message = ImageDraw.Draw(image)
-    image_with_message.text((quote_location_x, quote_location_y),
-                            quote, (font_colour, font_colour, font_colour), font=font)
-    
-    image_file = io.BytesIO()
-    image.save(image_file, "PNG")
-    image_file.seek(0)
-
-    await message.channel.send(file=discord.File(image_file, "image.png"))
-
-
-async def text_wrap(quote_message, max_chars_per_line):
+def text_wrap(quote_message, max_chars_per_line):
     quote_message = quote_message.strip(" ")
     quote_message_split = quote_message.split(" ")
     chars_on_this_line = 0
