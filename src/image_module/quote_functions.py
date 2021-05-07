@@ -61,7 +61,10 @@ class Quote:
 
 
 async def execute_quote_command(message):
-    image_type = message.content.split(" ")[2]
+    try:
+        image_type = message.content.split(" ")[2]
+    except:
+        await message.channel.send(embed=text_module.embeds.embed_error_message("Incomplete command."))
 
     if image_type == "colour":
         image_options = ["flowerfield1.png", "flowerfield2.png",
