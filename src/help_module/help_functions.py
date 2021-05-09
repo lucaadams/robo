@@ -47,7 +47,7 @@ async def text_help_message(message, COMMAND_PREFIX):
 
 async def image_help_message(message, COMMAND_PREFIX):
     await message.channel.send(embed=text_module.embeds.embed_response_custom_emote("Image Commands:", f'''
-    • `{COMMAND_PREFIX} quote [image type] "[quote message]" "[quote author]"` \n    _Robo will make a custom image with the image type of your choice, the quote message of your choice and the author of your choice._\n
+    • `{COMMAND_PREFIX} quote [image type] "[quote message]" "[OPTIONAL: quote author]"` \n    _Robo will make a custom image with the image type of your choice, the quote message of your choice and the author of your choice._\n
     ''', ":page_with_curl:"))
 
 
