@@ -36,6 +36,8 @@ async def vc_command_handler(message):
         guild_vc_dict[guild_id]["loop"] = False
     if "already_skipped" not in guild_vc_dict[guild_id]:
         guild_vc_dict[guild_id]["already_skipped"] = False
+    if "enable_np" not in guild_vc_dict[guild_id]:
+        guild_vc_dict[guild_id]["enable_np"] = True
 
     guild_queue = guild_vc_dict[guild_id]["guild_queue"]
 
@@ -155,6 +157,14 @@ async def vc_command_handler(message):
             except:
                 return
 
+    elif second_parameter == "toggle-np":
+        if guild_vc_dict[guild_id]["enable_np"]:
+            guild_vc_dict[guild_id]["enable_np"] = False
+            await message.channel.send(embed=text_module.embeds.embed_response_without_title_custom_emote("'Now playing' message disabled.", ":ok_hand:"))
+        else:
+            guild_vc_dict[guild_id]["ensable_np"] = True
+            await message.channel.send(embed=text_module.embeds.embed_response_without_title_custom_emote("'Now playing' message enabled.", ":ok_hand:"))
+
     else:
         await message.channel.send(embed=text_module.embeds.embed_error_message("Invalid command."))
 
@@ -193,7 +203,8 @@ async def play_from_yt(guild_vc_dict, message):
     voice_client.play(discord.FFmpegPCMAudio(
         audio.url, options=ffmpeg_options), after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(guild_vc_dict, message), bot.CLIENT.loop))
 
-    await message.channel.send(embed=text_module.embeds.embed_youtube_info(song_request_metadata))
+    if guild_vc_dict[guild_id]["enable_np"]:
+        await message.channel.send(embed=text_module.embeds.embed_youtube_info(song_request_metadata))
 
 
 async def on_playback_finished(guild_vc_dict, message):
