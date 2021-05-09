@@ -9,15 +9,14 @@ import text_module.embeds
 
 
 class MissingQuoteMessageError(Exception):
-    # raised if user has not specified a message for their quote
+    """ raised if user has not specified a message for their quote """
     pass
 
 
 class Quote:
+    """ used to initialize all of the quote-related fields, put all the fields together in a BytesIO object (which acts like a file but is stored in memory) and send it on discord """
     def __init__(self, message, image_options, image, font, quote_location_x, quote_location_y, font_colour, max_chars_per_line):
         self.message = message
-
-        # example message.content: !robo quote colour "testing" "tester"
 
         try:
             self.quote_message = message.content.split('"')[1]
@@ -39,9 +38,10 @@ class Quote:
         self.quote_message_wrap = text_wrap(
             self.quote_message, self.max_chars_per_line)
         self.image_file = io.BytesIO()
-        self.quote = self.get_quote_content()
+        self.quote_content = self.get_quote_content()
 
     def get_quote_content(self):
+        """ gets the message that will go inside the quote """
         if self.quote_author == "":
             return f'"{self.quote_message_wrap}"'
         else:
@@ -51,8 +51,9 @@ class Quote:
         await self.message.channel.send(file=discord.File(self.image_file, "image.png"))
 
     async def generate_quote(self):
+        """ puts together all the pieces of the quote like the image, content, font etc., puts them together and saves it in a BytesIO object stored in memory. """
         image_with_message = ImageDraw.Draw(self.image)
-        image_with_message.text((self.quote_location_x, self.quote_location_y), self.quote, (
+        image_with_message.text((self.quote_location_x, self.quote_location_y), self.quote_content, (
             self.font_colour, self.font_colour, self.font_colour), font=self.font)
         self.image.save(self.image_file, "PNG")
         self.image_file.seek(0)
