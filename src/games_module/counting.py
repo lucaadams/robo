@@ -8,14 +8,12 @@ counting_data = {}
 
 async def start_counting(guild_id, message, increment=1):
     await message.channel.send(embed=text_module.embeds.embed_response("Your counting game has started.", f"Type `{increment}` to start"))
-
-    # sets all the required keys in the counting_data dictionary
-    counting_data[guild_id] = {}
-    counting_data_for_guild = counting_data[guild_id]
-    counting_data_for_guild["increment"] = increment
-    counting_data_for_guild["messages"] = []
-    counting_data_for_guild["counting_has_started"] = True
-    counting_data_for_guild["next_number"] = float(increment)
+    counting_data[guild_id] = {
+        "increment": increment,
+        "messages": [],
+        "counting_has_started": True,
+        "next_number": float(increment)
+    }
 
 
 async def check_message(message):
@@ -69,9 +67,8 @@ async def send_stats(message, messages_list_for_guild):
         else:
             final_stats[user] += 1
             total_messages += 1
-    
+
     stats_message = ""
     for user in final_stats.keys():
         stats_message += f"{user} - {final_stats[user]} messages, {int((final_stats[user] / total_messages) * 100)}% helpful.\n"
-    await message.channel.send(embed = text_module.embeds.embed_response("Counting Stats:", stats_message))
-
+    await message.channel.send(embed=text_module.embeds.embed_response("Counting Stats:", stats_message))
