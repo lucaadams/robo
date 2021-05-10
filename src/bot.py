@@ -38,7 +38,7 @@ async def on_guild_join(guild):
 
 @CLIENT.event
 async def on_ready():
-    logging.log(logging.INFO, " Test client ready")
+    logging.log(logging.INFO, " Client ready")
     await CLIENT.change_presence(activity=discord.Game(name=f"{COMMAND_PREFIX} help"))
 
 
