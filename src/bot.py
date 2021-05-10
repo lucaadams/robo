@@ -13,14 +13,18 @@ import voice_module.vc_functions
 import help_module.help_functions
 
 COMMAND_PREFIX = os.getenv("ROBO_COMMAND_PREFIX", "!robo")
-TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 CLIENT = discord.Client()
 
 
 def run_client():
-    if TOKEN == None:
-        raise discord.LoginFailure("The DISCORD_BOT_TOKEN environment variable is empty.")
-    CLIENT.run(TOKEN)
+    token = os.getenv("DISCORD_BOT_TOKEN")
+    if token == None:
+        logging.log(
+            logging.WARN, "The DISCORD_BOT_TOKEN environment variable has no value.")
+        while not token:
+            token = input("Enter token > ")
+    CLIENT.run(token)
+
 
 @CLIENT.event
 async def on_guild_join(guild):
@@ -116,4 +120,3 @@ async def execute_command(guild_id, message):
 
     else:
         await message.channel.send(embed=text_module.embeds.embed_error_message(f"Command not recognised. Type `{COMMAND_PREFIX} help` for a list of commands. "))
-
