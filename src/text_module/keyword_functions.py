@@ -10,7 +10,7 @@ with open("guild_data.json", "r") as guild_data_file:
 
 
 async def command_handler(message):
-    guild_id = message.guild.id
+    guild_id = str(message.guild.id)
     second_parameter = message.content.split(" ")[2]
 
     if second_parameter == "add":
@@ -50,9 +50,8 @@ async def add(guild_id, message, keyword, value):
     await save_keywords()
 
 
-async def remove(guild_id, message, keyword):
+async def remove(guild_id, message, message_removal):
     await init_new_guild(guild_id)
-    message_removal = message.content.split(" ")[2]
     guild_data_dictionary[guild_id]["keywords"].pop(message_removal)
     await message.channel.send(embed=text_module.embeds.embed_successful_action("Keyword removed. "))
 
