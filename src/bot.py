@@ -12,21 +12,27 @@ import games_module.game_functions
 import voice_module.vc_functions
 import help_module.help_functions
 
-COMMAND_PREFIX = "!robo"
-TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+COMMAND_PREFIX = os.getenv("ROBO_COMMAND_PREFIX", "!robo")
 CLIENT = discord.Client()
 
 
 def run_client():
-    CLIENT.run(TOKEN)
+    token = os.getenv("DISCORD_BOT_TOKEN")
+    if token == None:
+        logging.log(
+            logging.WARN, "The DISCORD_BOT_TOKEN environment variable has no value.")
+        while not token:
+            token = input("Enter token > ")
+    CLIENT.run(token)
+
 
 @CLIENT.event
 async def on_guild_join(guild):
     for channel in guild.text_channels:
         if channel.permissions_for(guild.me).send_messages:
-            await channel.send(embed=text_module.embeds.embed_response_custom_emote("Hey, I'm Robo!", "_I'm a Discord bot written in Python using the Discord.py rewrite._\n \
+            await channel.send(embed=text_module.embeds.embed_response_custom_emote("Hey, I'm Robo!", f"_I'm a Discord bot written in Python using the Discord.py rewrite._\n \
                 - [link to github](https://github.com/lucaadams/robo) - \n \
-                    To get started, type `!robo help`.", ":wave:"))
+                    To get started, type `{COMMAND_PREFIX} help`.", ":wave:"))
             break
 
 
@@ -58,9 +64,9 @@ async def execute_command(guild_id, message):
     try:
         first_parameter = message.content.split(" ")[1]
     except:
-        await message.channel.send(embed=text_module.embeds.embed_response_custom_emote("Hi, I'm Robo!", "_I'm a Discord bot written in Python using the Discord.py rewrite._\n \
+        await message.channel.send(embed=text_module.embeds.embed_response_custom_emote("Hi, I'm Robo!", f"_I'm a Discord bot written in Python using the Discord.py rewrite._\n \
             - [link to github](https://github.com/lucaadams/robo) - \n \
-                To view a list of commands, type `!robo help`.", ":wave:"))
+                To view a list of commands, type `{COMMAND_PREFIX} help`.", ":wave:"))
         return
 
     if first_parameter == "add":
@@ -114,4 +120,3 @@ async def execute_command(guild_id, message):
 
     else:
         await message.channel.send(embed=text_module.embeds.embed_error_message(f"Command not recognised. Type `{COMMAND_PREFIX} help` for a list of commands. "))
-
