@@ -12,7 +12,7 @@ import games_module.game_functions
 import voice_module.vc_functions
 import help_module.help_functions
 
-COMMAND_PREFIX = os.getenv("ROBO_COMMAND_PREFIX", "!robo")
+COMMAND_PREFIX = os.getenv("ROBO_COMMAND_PREFIX") or "!robo"
 CLIENT = discord.Client()
 
 
@@ -38,7 +38,7 @@ async def on_guild_join(guild):
 
 @CLIENT.event
 async def on_ready():
-    logging.log(logging.INFO, "Client ready")
+    logging.log(logging.INFO, " Test client ready")
     await CLIENT.change_presence(activity=discord.Game(name=f"{COMMAND_PREFIX} help"))
 
 
@@ -69,26 +69,8 @@ async def execute_command(guild_id, message):
                 To view a list of commands, type `{COMMAND_PREFIX} help`.", ":wave:"))
         return
 
-    if first_parameter == "add":
-        await text_module.keyword_functions.add(guild_id, message, message.content.split(" ")[2], " ".join(message.content.split(" ")[3:]))
-
-    elif first_parameter == "remove":
-        try:
-            await text_module.keyword_functions.remove(guild_id, message, message.content.split(" ")[2])
-        except:
-            await message.channel.send(embed=text_module.embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
-
-    elif first_parameter == "edit":
-        try:
-            if message.content.split(" ")[3] == "":
-                await message.channel.send(embed=text_module.embeds.embed_error_message("Name of new keyword must be specified. "))
-            else:
-                await text_module.keyword_functions.edit(guild_id, message, message.content.split(" ")[2], " ".join(message.content.split(" ")[3:]))
-        except:
-            await message.channel.send(embed=text_module.embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
-
-    elif first_parameter == "list":
-        await text_module.keyword_functions.list(guild_id, message)
+    if first_parameter == "keyword" or first_parameter == "k":
+        await text_module.keyword_functions.command_handler(message)
 
     elif first_parameter == "quote":
         await image_module.quote_functions.execute_quote_command(message)

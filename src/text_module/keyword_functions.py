@@ -9,6 +9,32 @@ with open("guild_data.json", "r") as guild_data_file:
     guild_data_dictionary = json.loads(guild_data_file.read())
 
 
+async def command_handler(message):
+    guild_id = str(message.guild.id)
+    second_parameter = message.content.split(" ")[2]
+
+    if second_parameter == "add":
+        await add(guild_id, message, message.content.split(" ")[3], " ".join(message.content.split(" ")[4:]))
+
+    elif second_parameter == "remove":
+        try:
+            await remove(guild_id, message, message.content.split(" ")[3])
+        except:
+            await message.channel.send(embed=text_module.embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
+
+    elif second_parameter == "edit":
+        try:
+            if message.content.split(" ")[3] == "":
+                await message.channel.send(embed=text_module.embeds.embed_error_message("Name of new keyword must be specified. "))
+            else:
+                await edit(guild_id, message, message.content.split(" ")[3], " ".join(message.content.split(" ")[4:]))
+        except:
+            await message.channel.send(embed=text_module.embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
+
+    elif second_parameter == "list":
+        await list_keywords(guild_id, message)
+
+
 async def add(guild_id, message, keyword, value):
     await init_new_guild(guild_id)
     if value == "":
@@ -24,9 +50,8 @@ async def add(guild_id, message, keyword, value):
     await save_keywords()
 
 
-async def remove(guild_id, message, keyword):
+async def remove(guild_id, message, message_removal):
     await init_new_guild(guild_id)
-    message_removal = message.content.split(" ")[2]
     guild_data_dictionary[guild_id]["keywords"].pop(message_removal)
     await message.channel.send(embed=text_module.embeds.embed_successful_action("Keyword removed. "))
 
@@ -42,7 +67,7 @@ async def edit(guild_id, message, old_keyword, new_keyword):
     await save_keywords()
 
 
-async def list(guild_id, message):
+async def list_keywords(guild_id, message):
     keywords_list = ""
     await init_new_guild(guild_id)
     for keyword in guild_data_dictionary[guild_id]["keywords"]:
