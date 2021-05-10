@@ -12,12 +12,14 @@ import games_module.game_functions
 import voice_module.vc_functions
 import help_module.help_functions
 
-COMMAND_PREFIX = "!robo"
+COMMAND_PREFIX = os.getenv("ROBO_COMMAND_PREFIX", "!robo")
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 CLIENT = discord.Client()
 
 
 def run_client():
+    if TOKEN == None:
+        raise discord.LoginFailure("The DISCORD_BOT_TOKEN environment variable is empty.")
     CLIENT.run(TOKEN)
 
 @CLIENT.event
