@@ -1,8 +1,9 @@
 import json
-from typing import Dict
+import os
+import logging
 
 
-guild_data_dictionary = {}
+guild_data_dictionary = None
 
 
 def get_guild_data(guild_id) -> dict:
@@ -36,5 +37,15 @@ def write_to_file():
 
 def load_from_file():
     global guild_data_dictionary
-    with open("guild_data.json", "r") as guild_data_file:
-        guild_data_dictionary = json.loads(guild_data_file.read())
+
+    if os.path.exists("guild_data.json"):
+        with open("guild_data.json", "r") as data_file:
+            guild_data_dictionary = json.loads(data_file.read())
+    else:
+        with open("guild_data.json", "w") as data_file:
+            data_file.write("{}")
+        guild_data_dictionary = {}
+
+
+if guild_data_dictionary == None:
+    load_from_file()
