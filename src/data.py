@@ -23,7 +23,7 @@ def get_guild_data(guild_id):
         guild_data_dictionary[guild_id] = {
             "keywords": {}
         }
-    return guild_data_dictionary[guild_id]
+    return guild_data_dictionary[guild_id].copy()
 
 
 def set_guild_data(guild_id, new_data: dict, also_save: bool = False):
