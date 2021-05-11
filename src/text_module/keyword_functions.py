@@ -1,7 +1,7 @@
 import random
 import discord
-import data
 
+import data
 import text_module.embeds
 
 
