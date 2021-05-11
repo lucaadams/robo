@@ -6,7 +6,7 @@ import text_module.embeds
 
 
 async def command_handler(message):
-    guild_id = str(message.guild.id)
+    guild_id = message.guild.id
     second_parameter = message.content.split(" ")[2]
 
     if second_parameter == "add":
