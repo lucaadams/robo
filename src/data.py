@@ -3,6 +3,7 @@ import os
 import logging
 
 
+GUILD_DATA_FILE_PATH = "guild_data.json"
 guild_data_dictionary = None
 
 
@@ -31,18 +32,19 @@ def set_guild_data(guild_id, new_data: dict, also_write_to_file: bool = True):
 
 def write_to_file():
     keywords_json = json.dumps(guild_data_dictionary)
-    with open("guild_data.json", "w") as guild_data_file:
+    with open(GUILD_DATA_FILE_PATH, "w") as guild_data_file:
         guild_data_file.write(keywords_json)
+    logging.log(logging.INFO, f"Data was written to {GUILD_DATA_FILE_PATH}")
 
 
 def load_from_file():
     global guild_data_dictionary
 
-    if os.path.exists("guild_data.json"):
-        with open("guild_data.json", "r") as data_file:
+    if os.path.exists(GUILD_DATA_FILE_PATH):
+        with open(GUILD_DATA_FILE_PATH, "r") as data_file:
             guild_data_dictionary = json.loads(data_file.read())
     else:
-        with open("guild_data.json", "w") as data_file:
+        with open(GUILD_DATA_FILE_PATH, "w") as data_file:
             data_file.write("{}")
         guild_data_dictionary = {}
 
