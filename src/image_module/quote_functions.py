@@ -8,7 +8,6 @@ import text_module.embeds
 
 class MissingQuoteMessageError(Exception):
     """ raised if user has not specified a message for their quote """
-    pass
 
 
 class Quote:

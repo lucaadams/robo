@@ -49,5 +49,5 @@ def load_from_file():
         __guild_data_dict = {}
 
 
-if __guild_data_dict == None:
+if __guild_data_dict is None:
     load_from_file()

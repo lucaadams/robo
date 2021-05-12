@@ -39,13 +39,13 @@ async def vc_command_handler(message):
     try:
         second_parameter = message.content.split(" ")[2]
     # if no second parameter specified, send error message
-    except:
+    except IndexError:
         await message.channel.send(embed=text_module.embeds.embed_error_message("Incomplete command."))
         return
 
     if second_parameter == "join":
         voice_client = await join_voice_channel(message)
-        if voice_client != None:
+        if voice_client is None:
             guild_vc_dict[guild_id]["voice_client"] = voice_client
 
         await play_from_yt(guild_vc_dict, message)
@@ -66,7 +66,7 @@ async def vc_command_handler(message):
             user_song_request = " ".join(user_song_request_list)
         except:
             await message.channel.send(embed=text_module.embeds.embed_error_message("No request specified."))
-            return
+            return  
 
         # Add the video metadata to queue
         with youtube_dl.YoutubeDL() as ytdl:
@@ -104,7 +104,6 @@ async def vc_command_handler(message):
         await play_from_yt(guild_vc_dict, message)
 
     elif second_parameter == "loop":
-        guild_vc_dict[guild_id]["loop"]
         if guild_vc_dict[guild_id]["loop"]:
             guild_vc_dict[guild_id]["loop"] = False
             await message.channel.send(embed=text_module.embeds.embed_response_without_title_custom_emote("Loop disabled.", ":repeat:"))
@@ -126,7 +125,7 @@ async def vc_command_handler(message):
     elif second_parameter == "remove":
         try:
             index_to_remove = int(message.content.split(" ")[3])
-        except:
+        except ValueError:
             await message.channel.send(embed=text_module.embeds.embed_error_message("Must specify valid queue index."))
             return
 
@@ -135,14 +134,14 @@ async def vc_command_handler(message):
                 embed=text_module.embeds.embed_successful_action(f"[{guild_vc_dict[guild_id]['guild_queue'][index_to_remove - 1]['title']}]({guild_vc_dict[guild_id]['guild_queue'][index_to_remove - 1]['webpage_url']}) \
                     has been removed from the queue"))
             guild_queue.pop(index_to_remove - 1)
-        except:
+        except IndexError:
             await message.channel.send(embed=text_module.embeds.embed_error_message("That queue index does not exist."))
             return
 
         if index_to_remove == 1:
             try:
                 guild_vc_dict[guild_id]["voice_client"].stop()
-            except:
+            except AttributeError:
                 return
 
             guild_vc_dict[guild_id]["already_skipped"] = True
@@ -168,7 +167,7 @@ async def join_voice_channel(message):
     try:
         channel = message.author.voice.channel
     # if user not in a vc, catch error and reply on discord
-    except:
+    except AttributeError:
         await message.channel.send(embed=text_module.embeds.embed_sorry_message("You must be in a voice channel to use this command."))
         return None
     try:
@@ -191,7 +190,7 @@ async def play_from_yt(guild_vc_dict, message):
 
     try:
         voice_client = guild_vc_dict[guild_id]["voice_client"]
-    except:
+    except KeyError:
         return
 
     audio = pafy.new(song_request_metadata['id'], ydl_opts=youtube_dl_options).getbestaudio()
@@ -218,4 +217,3 @@ async def on_playback_finished(guild_vc_dict, message):
 
 def check_if_url(string):
     return string.startswith("http") or string.startswith("www")
-

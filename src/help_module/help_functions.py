@@ -64,4 +64,3 @@ async def games_help_message(message, COMMAND_PREFIX):
     await message.channel.send(embed=text_module.embeds.embed_response_custom_emote("Text Commands:", f'''
     • `{COMMAND_PREFIX} games counting [OPTIONAL: increment]` \n    _Start a game of Counting (min 2 people). Count up to the highest number you can, without saying two numbers in a row or sending the wrong number._\n
     ''', ":page_with_curl:"))
-

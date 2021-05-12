@@ -18,7 +18,7 @@ async def check_message(message):
     guild_id = str(message.guild.id)
     if guild_id in counting_data.keys():
         message_float = try_cast_float(message.content)
-        if counting_data[guild_id]["counting_has_started"] and message_float != None:
+        if counting_data[guild_id]["counting_has_started"] and message_float is not None:
             messages_list_for_guild = counting_data[guild_id]["messages"]
             messages_list_for_guild.append(message)
 
@@ -57,8 +57,8 @@ def try_cast_float(message_content):
 async def send_stats(message, messages_list_for_guild):
     final_stats = {}
     total_messages = 0
-    for message in messages_list_for_guild:
-        user = message.author.mention
+    for msg in messages_list_for_guild:
+        user = msg.author.mention
         if user not in final_stats.keys():
             final_stats[user] = 1
             total_messages += 1

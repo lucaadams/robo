@@ -17,7 +17,7 @@ CLIENT = discord.Client()
 
 def run_client():
     token = os.getenv("DISCORD_BOT_TOKEN")
-    if token == None:
+    if token is None:
         logging.log(
             logging.WARN, "The DISCORD_BOT_TOKEN environment variable has no value.")
         while not token:

@@ -80,4 +80,3 @@ def embed_youtube_info(metadata):
     youtube_info_embed.set_footer(text=f"⠀     👁️ {metadata['view_count']}⠀         |⠀         👍 {metadata['like_count']}⠀         |⠀         👎 {metadata['dislike_count']}⠀         |⠀         ⏱️ {time_mins}:{time_secs}⠀     ")
 
     return youtube_info_embed
-
