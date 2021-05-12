@@ -1,12 +1,7 @@
-import time
-import threading
 import asyncio
-import tempfile
 import youtube_dl
 import pafy
 import discord
-from discord.ext import commands
-import json
 
 import bot
 import text_module.embeds

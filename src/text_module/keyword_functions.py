@@ -1,5 +1,4 @@
 import random
-import discord
 
 import data
 import text_module.embeds

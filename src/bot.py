@@ -1,7 +1,6 @@
 import os
 import time
 import discord
-import json
 import logging
 
 import image_module.quote_functions

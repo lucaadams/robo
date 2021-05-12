@@ -1,8 +1,6 @@
 import discord
 import random
-import os
 import io
-import textwrap
 from PIL import Image, ImageDraw, ImageFont
 
 import text_module.embeds

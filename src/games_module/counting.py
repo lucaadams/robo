@@ -1,5 +1,3 @@
-import discord
-
 import text_module.embeds
 
 
