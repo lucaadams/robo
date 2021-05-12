@@ -2,6 +2,7 @@
 
 # Robo
 A Discord bot written in Python using the Discord.py library.
+[![CodeFactor](https://www.codefactor.io/repository/github/lucaadams/robo/badge/master)](https://www.codefactor.io/repository/github/lucaadams/robo/overview/master)
 
 ## Using the bot
 Link to invite the bot to a server:
