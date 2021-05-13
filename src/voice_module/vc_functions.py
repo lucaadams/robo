@@ -46,7 +46,9 @@ async def vc_command_handler(message):
     if second_parameter == "join":
         voice_client = await join_voice_channel(message)
         if voice_client is None:
-            guild_vc_dict[guild_id]["voice_client"] = voice_client
+            return
+            
+        guild_vc_dict[guild_id]["voice_client"] = voice_client
 
         await play_from_yt(guild_vc_dict, message)
 
@@ -61,45 +63,39 @@ async def vc_command_handler(message):
             await message.channel.send(embed=text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
 
     elif second_parameter == "add":
-        try:
-            user_song_request_list = message.content.split(" ")[3:]
-            user_song_request = " ".join(user_song_request_list)
-        except:
+        user_song_request_list = message.content.split(" ")[3:]
+        user_song_request = " ".join(user_song_request_list)
+        if len(user_song_request) < 1:
             await message.channel.send(embed=text_module.embeds.embed_error_message("No request specified."))
-            return  
+            return
 
         # Add the video metadata to queue
-        with youtube_dl.YoutubeDL() as ytdl:
-            if check_if_url(user_song_request):
-                user_song_request_dict = ytdl.extract_info(user_song_request, download=False)
-                video_to_add = user_song_request_dict
-            else:
-                user_song_request_dict = ytdl.extract_info(f"ytsearch:{user_song_request}", download=False)
-                video_to_add = user_song_request_dict['entries'][0]
-        
-        guild_queue.append(video_to_add)
+        async with message.channel.typing():
+            with youtube_dl.YoutubeDL() as ytdl:
+                if check_if_url(user_song_request):
+                    user_song_request_dict = ytdl.extract_info(user_song_request, download=False)
+                    video_to_add = user_song_request_dict
+                else:
+                    user_song_request_dict = ytdl.extract_info(f"ytsearch:{user_song_request}", download=False)
+                    video_to_add = user_song_request_dict['entries'][0]
+            
+            guild_queue.append(video_to_add)
         await message.channel.send(embed=text_module.embeds.embed_successful_action(
             f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the queue"))
-
-        try:
-            await play_from_yt(guild_vc_dict, message)
-        except:
-            pass
-
-        if len(guild_queue) == 1:
-            await play_from_yt(guild_vc_dict, message)
 
     elif second_parameter == "skip" or second_parameter == "next":
         try:
             guild_vc_dict[guild_id]["voice_client"].stop()
-        except:
+        except KeyError:
             await message.channel.send(embed=text_module.embeds.embed_sorry_message("I am not currently in any voice channel."))
+            return
 
         try:
             guild_vc_dict[guild_id]["guild_queue"].pop(0)
             guild_vc_dict[guild_id]["already_skipped"] = True
-        except:
+        except IndexError:
             await message.channel.send(embed=text_module.embeds.embed_error_message("Queue is currently empty."))
+            return
 
         await play_from_yt(guild_vc_dict, message)
 
@@ -141,15 +137,13 @@ async def vc_command_handler(message):
         if index_to_remove == 1:
             try:
                 guild_vc_dict[guild_id]["voice_client"].stop()
-            except AttributeError:
+            except AttributeError or KeyError:
                 return
 
             guild_vc_dict[guild_id]["already_skipped"] = True
             
-            try:
-                await play_from_yt(guild_vc_dict, message)
-            except:
-                return
+            await play_from_yt(guild_vc_dict, message)
+
 
     elif second_parameter == "toggle-np":
         if guild_vc_dict[guild_id]["enable_np"]:
@@ -185,13 +179,9 @@ async def play_from_yt(guild_vc_dict, message):
     try:
         song_request_metadata = guild_queue[0]
     except IndexError:
-        #await message.channel.send(embed=text_module.embeds.embed_response("The queue is empty.", "I will stay in the voice channel... in silence..."))
-        return
+        await message.channel.send(embed=text_module.embeds.embed_response("The queue is empty.", "I will stay in the voice channel... in silence..."))
 
-    try:
-        voice_client = guild_vc_dict[guild_id]["voice_client"]
-    except KeyError:
-        return
+    voice_client = guild_vc_dict[guild_id]["voice_client"]
 
     audio = pafy.new(song_request_metadata['id'], ydl_opts=youtube_dl_options).getbestaudio()
     voice_client.play(discord.FFmpegPCMAudio(
