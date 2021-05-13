@@ -15,7 +15,8 @@ def get_guild_data(guild_id) -> dict:
     if guild_id not in __guild_data_dict:
         # Initialize data for this guild
         __guild_data_dict[guild_id] = {
-            "keywords": {}
+            "keywords": {},
+            "saved_queues": {}
         }
     return __guild_data_dict[guild_id].copy()
 
