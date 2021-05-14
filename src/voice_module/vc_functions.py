@@ -186,15 +186,6 @@ async def continue_to_next_req(message):
         await message.channel.send(embed=verbose.embeds.embed_sorry_message("I am not currently in any voice channel."))
         return
 
-    try:
-        guild_vc_dict[guild_id]["guild_queue"].pop(0)
-        guild_vc_dict[guild_id]["already_skipped"] = True
-    except IndexError:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("Queue is currently empty."))
-        return
-
-    await play_from_yt(message)
-
 
 async def add_song_to_queue(message):
     guild_id = str(message.guild.id)
