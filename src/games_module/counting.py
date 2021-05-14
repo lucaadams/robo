@@ -1,11 +1,11 @@
-import text_module.embeds
+import verbose.embeds
 
 
 counting_data = {}
 
 
 async def start_counting(guild_id, message, increment=1):
-    await message.channel.send(embed=text_module.embeds.embed_response("Your counting game has started.", f"Type `{increment}` to start"))
+    await message.channel.send(embed=verbose.embeds.embed_response("Your counting game has started.", f"Type `{increment}` to start"))
     counting_data[guild_id] = {
         "increment": increment,
         "messages": [],
@@ -26,7 +26,7 @@ async def check_message(message):
             if len(messages_list_for_guild) > 1 and messages_list_for_guild[len(messages_list_for_guild) - 1].author.id == \
                     messages_list_for_guild[len(messages_list_for_guild) - 2].author.id:
                 await message.add_reaction("❌")
-                await message.channel.send(embed=text_module.embeds.embed_failed_counting(
+                await message.channel.send(embed=verbose.embeds.embed_failed_counting(
                     "Counting twice in a row is no fun.", f"You counted up to {counting_data[guild_id]['next_number'] - counting_data[guild_id]['increment']}"))
                 await send_stats(message, messages_list_for_guild)
                 messages_list_for_guild = []
@@ -39,7 +39,7 @@ async def check_message(message):
                     await message.add_reaction("✅")
                 else:
                     await message.add_reaction("❌")
-                    await message.channel.send(embed=text_module.embeds.embed_failed_counting(
+                    await message.channel.send(embed=verbose.embeds.embed_failed_counting(
                         "That's the wrong number.", f"You counted up to {counting_data[guild_id]['next_number'] - counting_data[guild_id]['increment']}"))
                     await send_stats(message, messages_list_for_guild)
                     messages_list_for_guild = []
@@ -69,4 +69,4 @@ async def send_stats(message, messages_list_for_guild):
     stats_message = ""
     for user in final_stats.keys():
         stats_message += f"{user} - {final_stats[user]} messages, {int((final_stats[user] / total_messages) * 100)}% helpful.\n"
-    await message.channel.send(embed=text_module.embeds.embed_response("Counting Stats:", stats_message))
+    await message.channel.send(embed=verbose.embeds.embed_response("Counting Stats:", stats_message))

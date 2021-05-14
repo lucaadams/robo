@@ -3,7 +3,7 @@ import random
 import io
 from PIL import Image, ImageDraw, ImageFont
 
-import text_module.embeds
+import verbose.embeds
 
 
 class MissingQuoteMessageError(Exception):
@@ -62,7 +62,7 @@ async def execute_quote_command(message):
     try:
         image_type = message.content.split(" ")[2]
     except:
-        await message.channel.send(embed=text_module.embeds.embed_error_message("Incomplete command."))
+        await message.channel.send(embed=verbose.embeds.embed_error_message("Incomplete command."))
 
     if image_type == "colour":
         image_options = ["flowerfield1.png", "flowerfield2.png",
@@ -75,7 +75,7 @@ async def execute_quote_command(message):
         try:
             new_quote = Quote(message, image_options, image, font, 300, 200, 0, 25)
         except MissingQuoteMessageError:
-            await message.channel.send(embed=text_module.embeds.embed_error_message("Must specify a quote message."))
+            await message.channel.send(embed=verbose.embeds.embed_error_message("Must specify a quote message."))
 
         await new_quote.generate_quote()
 
@@ -90,12 +90,12 @@ async def execute_quote_command(message):
         try:
             new_quote = Quote(message, image_options, image, font, 800, 200, 180, 20)
         except MissingQuoteMessageError:
-            await message.channel.send(embed=text_module.embeds.embed_error_message("Must specify a quote message."))
+            await message.channel.send(embed=verbose.embeds.embed_error_message("Must specify a quote message."))
 
         await new_quote.generate_quote()
 
     else:
-        await message.channel.send(embed=text_module.embeds.embed_error_message("You must specify a valid image type ('grey' or 'colour')"))
+        await message.channel.send(embed=verbose.embeds.embed_error_message("You must specify a valid image type ('grey' or 'colour')"))
 
 
 def text_wrap(quote_message, max_chars_per_line):

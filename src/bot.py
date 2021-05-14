@@ -4,9 +4,9 @@ import discord
 import traceback
 import logging
 
+import verbose.embeds
 import image_module.quote_functions
 import text_module.keyword_functions
-import text_module.embeds
 import games_module.counting
 import games_module.game_functions
 import voice_module.vc_functions
@@ -30,7 +30,7 @@ def run_client():
 async def on_guild_join(guild):
     for channel in guild.text_channels:
         if channel.permissions_for(guild.me).send_messages:
-            await channel.send(embed=text_module.embeds.embed_response_custom_emote("Hey, I'm Robo!", f"_I'm a Discord bot written in Python using the Discord.py rewrite._\n \
+            await channel.send(embed=verbose.embeds.embed_response_custom_emote("Hey, I'm Robo!", f"_I'm a Discord bot written in Python using the Discord.py rewrite._\n \
                 - [link to github](https://github.com/lucaadams/robo) - \n \
                     To get started, type `{COMMAND_PREFIX} help`.", ":wave:"))
             break
@@ -48,7 +48,7 @@ async def on_ready():
 async def on_error(event, *args):
     err = traceback.format_exc()
     logging.warning(err)
-    await application_info.owner.send(embed=text_module.embeds.embed_error_message(f"```{err}```"))
+    await application_info.owner.send(embed=verbose.embeds.embed_error_message(f"```{err}```"))
 
 
 # recieve message
@@ -73,7 +73,7 @@ async def execute_command(guild_id, message):
     try:
         first_parameter = message.content.split(" ")[1]
     except:
-        await message.channel.send(embed=text_module.embeds.embed_response_custom_emote("Hi, I'm Robo!", f"_I'm a Discord bot written in Python using the Discord.py rewrite._\n \
+        await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Hi, I'm Robo!", f"_I'm a Discord bot written in Python using the Discord.py rewrite._\n \
             - [link to github](https://github.com/lucaadams/robo) - \n \
                 To view a list of commands, type `{COMMAND_PREFIX} help`.", ":wave:"))
         return
@@ -94,20 +94,20 @@ async def execute_command(guild_id, message):
         await help_module.help_functions.help_message_handler(message, COMMAND_PREFIX)
 
     elif first_parameter == "echo":
-        await message.channel.send(embed=text_module.embeds.embed_response("Your message was: ", " ".join(message.content.split(" ")[2:])))
+        await message.channel.send(embed=verbose.embeds.embed_response("Your message was: ", " ".join(message.content.split(" ")[2:])))
 
     elif first_parameter == "ping":
         ping_start = time.time()
         await message.channel.send("Pong!")
         ping_end = time.time()
-        await message.channel.send(embed=text_module.embeds.embed_response_without_title_custom_emote(f"That was about {int((ping_end - ping_start) * 1000)}ms.", ":stopwatch:"))
+        await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote(f"That was about {int((ping_end - ping_start) * 1000)}ms.", ":stopwatch:"))
 
     elif first_parameter == "nuke":
-        await message.channel.send(embed=text_module.embeds.embed_response("Server nuke engaged. 20 second countdown initiated.", f'To cancel, type "{COMMAND_PREFIX} cancel nuke"'))
+        await message.channel.send(embed=verbose.embeds.embed_response("Server nuke engaged. 20 second countdown initiated.", f'To cancel, type "{COMMAND_PREFIX} cancel nuke"'))
         for i in range(20, 0, -1):
             time.sleep(1)
             await message.channel.send(i)
-        await message.channel.send(embed=text_module.embeds.embed_error_message("Server nuke failed. Please try again later. "))
+        await message.channel.send(embed=verbose.embeds.embed_error_message("Server nuke failed. Please try again later. "))
 
     else:
-        await message.channel.send(embed=text_module.embeds.embed_error_message(f"Command not recognised. Type `{COMMAND_PREFIX} help` for a list of commands. "))
+        await message.channel.send(embed=verbose.embeds.embed_error_message(f"Command not recognised. Type `{COMMAND_PREFIX} help` for a list of commands. "))
