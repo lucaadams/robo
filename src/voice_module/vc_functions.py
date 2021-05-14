@@ -58,21 +58,6 @@ async def vc_command_handler(message):
     elif second_parameter == "skip" or second_parameter == "next":
         await continue_to_next_req(message)
 
-        # try:
-        #     guild_vc_dict[guild_id]["voice_client"].stop()
-        # except KeyError:
-        #     await message.channel.send(embed=verbose.embeds.embed_sorry_message("I am not currently in any voice channel."))
-        #     return
-
-        # try:
-        #     guild_vc_dict[guild_id]["guild_queue"].pop(0)
-        #     guild_vc_dict[guild_id]["already_skipped"] = True
-        # except IndexError:
-        #     await message.channel.send(embed=verbose.embeds.embed_error_message("Queue is currently empty."))
-        #     return
-
-        # await play_from_yt(message)
-
     elif second_parameter == "queue":
         await send_queue(message)
 
@@ -96,7 +81,7 @@ async def vc_command_handler(message):
         if guild_vc_dict[guild_id]["enable_np"]:
             guild_vc_dict[guild_id]["enable_np"] = False
             await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("'Now playing' message disabled.", ":ok_hand:"))
-            
+
         elif not guild_vc_dict[guild_id]["enable_np"]:
             guild_vc_dict[guild_id]["enable_np"] = True
             await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("'Now playing' message enabled.", ":ok_hand:"))
@@ -288,8 +273,13 @@ async def send_queue_list(message):
 
 async def play_queue(message):
     guild_id = str(message.guild.id)
-    queue_to_play = message.content.split(" ")[3]
     guild_data = data.get_guild_data(guild_id)
+
+    try:
+        queue_to_play = message.content.split(" ")[3]
+    except:
+        await message.channel.send(embed=verbose.embeds.embed_error_message("You must specify a queue to play."))
+        return
 
     if queue_to_play not in guild_data["saved_queues"]:
         return
@@ -318,9 +308,10 @@ async def save_queue(message):
 
 def shuffle_queue(guild_id):
     if guild_vc_dict[guild_id]["voice_client"] is not None:
-        guild_queue_to_shuffle = guild_vc_dict[guild_id]["guild_queue"].copy().pop(0)
+        guild_queue_to_shuffle = guild_vc_dict[guild_id]["guild_queue"].copy()
+        guild_queue_to_shuffle.pop(0)
         random.shuffle(guild_queue_to_shuffle)
-        guild_vc_dict[guild_id]["guild_queue"][1:] = guild_vc_dict[guild_id]["guild_queue"].copy()
+        guild_vc_dict[guild_id]["guild_queue"][1:] = guild_queue_to_shuffle
     else:
         random.shuffle(guild_vc_dict[guild_id]["guild_queue"])
 
