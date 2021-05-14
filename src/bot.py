@@ -1,6 +1,7 @@
 import os
 import time
 import discord
+import traceback
 import logging
 
 import image_module.quote_functions
@@ -13,6 +14,7 @@ import help_module.help_functions
 
 COMMAND_PREFIX = os.getenv("ROBO_COMMAND_PREFIX") or "!robo"
 CLIENT = discord.Client()
+application_info = None
 
 
 def run_client():
@@ -37,8 +39,17 @@ async def on_guild_join(guild):
 
 @CLIENT.event
 async def on_ready():
-    logging.log(logging.INFO, " Client ready")
+    global application_info
+    application_info = await CLIENT.application_info()
     await CLIENT.change_presence(activity=discord.Game(name=f"{COMMAND_PREFIX} help"))
+    logging.log(logging.INFO, " Client ready")
+
+
+@CLIENT.event
+async def on_error(event, *args):
+    err = traceback.format_exc()
+    logging.warning(err)
+    await application_info.owner.send(embed=text_module.embeds.embed_error_message(f"```{err}```"))
 
 
 # recieve message
