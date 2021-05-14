@@ -96,8 +96,9 @@ async def vc_command_handler(message):
         if guild_vc_dict[guild_id]["enable_np"]:
             guild_vc_dict[guild_id]["enable_np"] = False
             await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("'Now playing' message disabled.", ":ok_hand:"))
+            
         elif not guild_vc_dict[guild_id]["enable_np"]:
-            guild_vc_dict[guild_id]["ensable_np"] = True
+            guild_vc_dict[guild_id]["enable_np"] = True
             await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("'Now playing' message enabled.", ":ok_hand:"))
 
     elif second_parameter == "loop":
