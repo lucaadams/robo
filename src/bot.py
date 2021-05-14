@@ -20,8 +20,7 @@ application_info = None
 def run_client():
     token = os.getenv("DISCORD_BOT_TOKEN")
     if token is None:
-        logging.log(
-            logging.WARN, "The DISCORD_BOT_TOKEN environment variable has no value.")
+        logging.warn("The DISCORD_BOT_TOKEN environment variable has no value.")
         while not token:
             token = input("Enter token > ")
     CLIENT.run(token)
@@ -42,7 +41,7 @@ async def on_ready():
     global application_info
     application_info = await CLIENT.application_info()
     await CLIENT.change_presence(activity=discord.Game(name=f"{COMMAND_PREFIX} help"))
-    logging.log(logging.INFO, " Client ready")
+    logging.info("Client ready")
 
 
 @CLIENT.event

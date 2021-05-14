@@ -35,7 +35,7 @@ def write_to_file():
     keywords_json = json.dumps(__guild_data_dict)
     with open(GUILD_DATA_FILE_PATH, "w") as guild_data_file:
         guild_data_file.write(keywords_json)
-    logging.log(logging.INFO, f"Data was written to {GUILD_DATA_FILE_PATH}")
+    logging.info(f"Data was written to {GUILD_DATA_FILE_PATH}")
 
 
 def load_from_file():
