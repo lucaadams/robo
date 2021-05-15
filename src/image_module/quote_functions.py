@@ -17,12 +17,12 @@ class Quote:
 
         try:
             self.quote_message = message.content.split('"')[1]
-        except:
+        except IndexError:
             raise MissingQuoteMessageError("Need to specify a quote message.")
 
         try:
             self.quote_author = message.content.split('"')[3]
-        except:
+        except IndexError:
             self.quote_author = ""
 
         self.image_options = image_options

@@ -159,7 +159,7 @@ async def on_playback_finished(message):
     if not guild_vc_dict[guild_id]["loop"]:
         try:
             guild_vc_dict[guild_id]["guild_queue"].pop(0)
-        except:
+        except IndexError:
             await message.channel.send(embed=verbose.embeds.embed_response("Your queue has finished playing.", "I will stay in the voice channel... in silence..."))
 
     await play_from_yt(message)
@@ -170,7 +170,7 @@ async def continue_to_next_req(message):
 
     try:
         guild_vc_dict[guild_id]["voice_client"].stop()
-    except KeyError or AttributeError:
+    except (KeyError, AttributeError):
         await message.channel.send(embed=verbose.embeds.embed_sorry_message("I am not currently in any voice channel."))
         return
 
@@ -225,7 +225,7 @@ async def remove_from_queue(message):
     if index_to_remove == 1:
         try:
             guild_vc_dict[guild_id]["voice_client"].stop()
-        except AttributeError or KeyError:
+        except (AttributeError, KeyError):
             return
         
         await play_from_yt(message)
@@ -242,7 +242,7 @@ async def send_queue(message):
     # if no queue specified, send songs from the current queue
     try:
         specific_queue = message.content.split(" ")[3]
-    except:
+    except IndexError:
         for metadata in guild_vc_dict[guild_id]["guild_queue"]:
             desc += f"{num} - [{metadata['title']}]({metadata['webpage_url']})\n"
             num += 1
@@ -292,7 +292,7 @@ async def play_queue(message):
 
     try:
         queue_to_play = message.content.split(" ")[3]
-    except:
+    except IndexError:
         await message.channel.send(embed=verbose.embeds.embed_error_message("You must specify a queue to play."))
         return
 
@@ -304,7 +304,7 @@ async def play_queue(message):
 
     try:
         guild_vc_dict[guild_id]["voice_client"].stop()
-    except KeyError or AttributeError:
+    except (AttributeError, KeyError):
         await message.channel.send(embed=verbose.embeds.embed_response("Queue set.", "Type `!robo vc join` to start listening."))
         return
 

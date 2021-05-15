@@ -72,7 +72,7 @@ async def on_message(message):
 async def execute_command(guild_id, message):
     try:
         first_parameter = message.content.split(" ")[1]
-    except:
+    except IndexError:
         await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Hi, I'm Robo!", f"_I'm a Discord bot written in Python using the Discord.py rewrite._\n \
             - [link to github](https://github.com/lucaadams/robo) - \n \
                 To view a list of commands, type `{COMMAND_PREFIX} help`.", ":wave:"))
