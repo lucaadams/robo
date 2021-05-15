@@ -244,7 +244,7 @@ async def send_queue(message):
 
     # if no queue specified, send songs from the current queue
     try:
-        specific_queue = message.content.split(" ")[3]
+        specific_queue = " ".join(message.content.split(" ")[3:])
     except IndexError:
         for metadata in guild_vc_data[guild_id]["guild_queue"]:
             desc += f"{num} - [{metadata['title']}]({metadata['webpage_url']})\n"
@@ -294,7 +294,7 @@ async def play_queue(message):
     guild_data = data.get_guild_data(guild_id)
 
     try:
-        queue_to_play = message.content.split(" ")[3]
+        queue_to_play = " ".join(message.content.split(" ")[3:])
     except IndexError:
         await message.channel.send(embed=verbose.embeds.embed_error_message("You must specify a queue to play."))
         return
@@ -303,7 +303,7 @@ async def play_queue(message):
         await message.channel.send(embed=verbose.embeds.embed_error_message("That queue does not exist."))
         return
 
-    guild_vc_data[guild_id]["guild_queue"] = guild_data["saved_queues"][queue_to_play]
+    guild_vc_data[guild_id]["guild_queue"] = guild_data["saved_queues"][queue_to_play].copy()
 
     try:
         guild_vc_data[guild_id]["voice_client"].stop()
