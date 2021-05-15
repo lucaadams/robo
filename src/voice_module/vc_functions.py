@@ -25,13 +25,13 @@ DEFAULT_GUILD_VC_DATA = {
     'voice_client': None, 'guild_queue': [], 'loop': False, 'enable_np': True
 }
 
-guild_vc_dict = {}
+guild_vc_data = {}
 
 
 async def vc_command_handler(message):
     guild_id = str(message.guild.id)
-    if guild_id not in guild_vc_dict:
-        guild_vc_dict[guild_id] = DEFAULT_GUILD_VC_DATA.copy()
+    if guild_id not in guild_vc_data:
+        guild_vc_data[guild_id] = DEFAULT_GUILD_VC_DATA.copy()
 
     try:
         second_parameter = message.content.split(" ")[2]
@@ -72,20 +72,20 @@ async def vc_command_handler(message):
         await play_queue(message)
 
     elif second_parameter == "toggle-np":
-        if guild_vc_dict[guild_id]["enable_np"]:
-            guild_vc_dict[guild_id]["enable_np"] = False
+        if guild_vc_data[guild_id]["enable_np"]:
+            guild_vc_data[guild_id]["enable_np"] = False
             await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("'Now playing' message disabled.", ":ok_hand:"))
 
-        elif not guild_vc_dict[guild_id]["enable_np"]:
-            guild_vc_dict[guild_id]["enable_np"] = True
+        elif not guild_vc_data[guild_id]["enable_np"]:
+            guild_vc_data[guild_id]["enable_np"] = True
             await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("'Now playing' message enabled.", ":ok_hand:"))
 
     elif second_parameter == "loop":
-        if guild_vc_dict[guild_id]["loop"]:
-            guild_vc_dict[guild_id]["loop"] = False
+        if guild_vc_data[guild_id]["loop"]:
+            guild_vc_data[guild_id]["loop"] = False
             await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("Loop disabled.", ":repeat:"))
         else:
-            guild_vc_dict[guild_id]["loop"] = True
+            guild_vc_data[guild_id]["loop"] = True
             await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("Loop enabled.", ":repeat:"))
 
     else:
@@ -103,7 +103,7 @@ async def join_voice_channel(message):
         return
 
     try:
-        guild_vc_dict[guild_id]["voice_client"] = await channel.connect()
+        guild_vc_data[guild_id]["voice_client"] = await channel.connect()
     # if already in a channel, catch error and reply on discord
     except discord.errors.ClientException:
         await message.channel.send(embed=verbose.embeds.embed_sorry_message("I am already in a voice channel."))
@@ -117,11 +117,11 @@ async def leave_voice_channel(message):
 
     # checks if bot is in a vc, if not then reply on discord
     try:
-        if not guild_vc_dict[guild_id]["voice_client"].is_connected():
+        if not guild_vc_data[guild_id]["voice_client"].is_connected():
             await message.channel.send(embed=verbose.embeds.embed_sorry_message("I am not currently in any voice channel."))
-        await guild_vc_dict[guild_id]["voice_client"].disconnect()
-    # catch error if there is no key "voice client" in guild_vc_dict. This only happens when user tries to get bot to leave before having asked them to join.
-    except KeyError:
+        await guild_vc_data[guild_id]["voice_client"].disconnect()
+    # catch error if there is no key "voice client" in guild_vc_data. This only happens when user tries to get bot to leave before having asked them to join.
+    except AttributeError:
         await message.channel.send(embed=verbose.embeds.embed_sorry_message("I am not currently in any voice channel."))
 
 
@@ -130,7 +130,7 @@ async def play_from_yt(message):
     use pafy to play audio from youtube straight into the discord voice client (no download required)
     """
     guild_id = str(message.guild.id)
-    guild_queue = guild_vc_dict[guild_id]["guild_queue"]
+    guild_queue = guild_vc_data[guild_id]["guild_queue"]
 
     # get the metadata for the oldest song in the queue (the one that is going to be played)
     try:
@@ -139,7 +139,7 @@ async def play_from_yt(message):
         await message.channel.send(embed=verbose.embeds.embed_response("The queue is empty.", "I will stay in the voice channel... in silence..."))
         return
 
-    voice_client = guild_vc_dict[guild_id]["voice_client"]
+    voice_client = guild_vc_data[guild_id]["voice_client"]
 
     # use pafy to pipe youtube audio into the voice client
     audio = pafy.new(
@@ -147,7 +147,7 @@ async def play_from_yt(message):
     voice_client.play(discord.FFmpegPCMAudio(
         audio.url, options=FFMPEG_OPTIONS), after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(message), bot.CLIENT.loop))
 
-    if guild_vc_dict[guild_id]["enable_np"]:
+    if guild_vc_data[guild_id]["enable_np"]:
         await message.channel.send(embed=verbose.embeds.embed_youtube_info(song_request_metadata))
 
 
@@ -157,9 +157,9 @@ async def on_playback_finished(message):
     """
     guild_id = str(message.guild.id)
 
-    if not guild_vc_dict[guild_id]["loop"]:
+    if not guild_vc_data[guild_id]["loop"]:
         try:
-            guild_vc_dict[guild_id]["guild_queue"].pop(0)
+            guild_vc_data[guild_id]["guild_queue"].pop(0)
         except IndexError:
             await message.channel.send(embed=verbose.embeds.embed_response("Your queue has finished playing.", "I will stay in the voice channel... in silence..."))
 
@@ -170,8 +170,8 @@ async def continue_to_next_req(message):
     guild_id = str(message.guild.id)
 
     try:
-        guild_vc_dict[guild_id]["voice_client"].stop()
-    except (KeyError, AttributeError):
+        guild_vc_data[guild_id]["voice_client"].stop()
+    except AttributeError:
         await message.channel.send(embed=verbose.embeds.embed_sorry_message("I am not currently in any voice channel."))
         return
 
@@ -200,7 +200,7 @@ async def add_song_to_queue(message):
                     f"ytsearch:{user_song_request}", download=False)
                 video_to_add = user_song_request_dict['entries'][0]
 
-        guild_vc_dict[guild_id]["guild_queue"].append(video_to_add)
+        guild_vc_data[guild_id]["guild_queue"].append(video_to_add)
 
     await message.channel.send(embed=verbose.embeds.embed_successful_action(
         f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the queue"))
@@ -217,9 +217,9 @@ async def remove_from_queue(message):
 
     try:
         await message.channel.send(
-            embed=verbose.embeds.embed_successful_action(f"[{guild_vc_dict[guild_id]['guild_queue'][index_to_remove - 1]['title']}]({guild_vc_dict[guild_id]['guild_queue'][index_to_remove - 1]['webpage_url']}) \
+            embed=verbose.embeds.embed_successful_action(f"[{guild_vc_data[guild_id]['guild_queue'][index_to_remove - 1]['title']}]({guild_vc_data[guild_id]['guild_queue'][index_to_remove - 1]['webpage_url']}) \
                 has been removed from the queue"))
-        guild_vc_dict[guild_id]["guild_queue"].pop(index_to_remove - 1)
+        guild_vc_data[guild_id]["guild_queue"].pop(index_to_remove - 1)
     except IndexError:
         await message.channel.send(embed=verbose.embeds.embed_error_message("That queue index does not exist."))
         return
@@ -227,8 +227,8 @@ async def remove_from_queue(message):
     # if they want to remove currently playing song, then continue to next song
     if index_to_remove == 1:
         try:
-            guild_vc_dict[guild_id]["voice_client"].stop()
-        except (AttributeError, KeyError):
+            guild_vc_data[guild_id]["voice_client"].stop()
+        except AttributeError:
             return
 
         await play_from_yt(message)
@@ -246,7 +246,7 @@ async def send_queue(message):
     try:
         specific_queue = message.content.split(" ")[3]
     except IndexError:
-        for metadata in guild_vc_dict[guild_id]["guild_queue"]:
+        for metadata in guild_vc_data[guild_id]["guild_queue"]:
             desc += f"{num} - [{metadata['title']}]({metadata['webpage_url']})\n"
             num += 1
         if desc == "":
@@ -279,7 +279,7 @@ async def send_queue_list(message):
 
     desc = ""
     for queue_name in guild_data["saved_queues"]:
-        desc += f"- `{queue_name}`"
+        desc += f"• `{queue_name}` - {len(guild_data['saved_queues'][queue_name])} songs.\n"
     if desc == "":
         await message.channel.send(embed=verbose.embeds.embed_response_without_title("You don't currently have any saved queues."))
     else:
@@ -303,11 +303,11 @@ async def play_queue(message):
         await message.channel.send(embed=verbose.embeds.embed_error_message("That queue does not exist."))
         return
 
-    guild_vc_dict[guild_id]["guild_queue"] = guild_data["saved_queues"][queue_to_play]
+    guild_vc_data[guild_id]["guild_queue"] = guild_data["saved_queues"][queue_to_play]
 
     try:
-        guild_vc_dict[guild_id]["voice_client"].stop()
-    except (AttributeError, KeyError):
+        guild_vc_data[guild_id]["voice_client"].stop()
+    except AttributeError:
         await message.channel.send(embed=verbose.embeds.embed_response("Queue set.", "Type `!robo vc join` to start listening."))
         return
 
@@ -320,13 +320,13 @@ async def save_queue(message):
     """
     guild_id = str(message.guild.id)
 
-    if len(guild_vc_dict[guild_id]["guild_queue"]) < 1:
+    if len(guild_vc_data[guild_id]["guild_queue"]) < 1:
         await message.channel.send(embed=verbose.embeds.embed_sorry_message("Your current queue is empty."))
         return
 
     queue_name = " ".join(message.content.split(" ")[3:])
     guild_data = data.get_guild_data(guild_id)
-    guild_data["saved_queues"][queue_name] = guild_vc_dict[guild_id]["guild_queue"].copy()
+    guild_data["saved_queues"][queue_name] = guild_vc_data[guild_id]["guild_queue"].copy()
     data.set_guild_data(guild_id, guild_data)
 
     await message.channel.send(embed=verbose.embeds.embed_successful_action(
@@ -334,13 +334,13 @@ async def save_queue(message):
 
 
 def shuffle_queue(guild_id):
-    if guild_vc_dict[guild_id]["voice_client"] is not None:
-        guild_queue_to_shuffle = guild_vc_dict[guild_id]["guild_queue"].copy()
+    if guild_vc_data[guild_id]["voice_client"] is not None:
+        guild_queue_to_shuffle = guild_vc_data[guild_id]["guild_queue"].copy()
         guild_queue_to_shuffle.pop(0)
         random.shuffle(guild_queue_to_shuffle)
-        guild_vc_dict[guild_id]["guild_queue"][1:] = guild_queue_to_shuffle
+        guild_vc_data[guild_id]["guild_queue"][1:] = guild_queue_to_shuffle
     else:
-        random.shuffle(guild_vc_dict[guild_id]["guild_queue"])
+        random.shuffle(guild_vc_data[guild_id]["guild_queue"])
 
 
 def check_if_url(string):
