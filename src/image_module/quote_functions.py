@@ -3,6 +3,7 @@ import random
 import io
 from PIL import Image, ImageDraw, ImageFont
 
+import data
 import verbose.embeds
 
 
@@ -68,9 +69,9 @@ async def execute_quote_command(message):
         image_options = ["flowerfield1.png", "flowerfield2.png",
                          "flowerfield3.png", "rainbow.png", "sky.png"]
         image = Image.open(
-            f"res/quote_images/colourful/{image_options[random.randint(0, 4)]}")
+            f"{data.ROOT_FILE_PATH}/res/quote_images/colourful/{image_options[random.randint(0, 4)]}")
         font = ImageFont.truetype(
-            "res/quote_images/fonts/Kiss_Boom.ttf", 130)
+            f"{data.ROOT_FILE_PATH}/res/quote_images/fonts/Kiss_Boom.ttf", 130)
 
         try:
             new_quote = Quote(message, image_options, image, font, 300, 200, 0, 25)
@@ -83,9 +84,9 @@ async def execute_quote_command(message):
         image_options = ["alex.png", "einstein.png", "ghandi.png",
                          "martinlutherking.png", "motherteresa.png"]
         image = Image.open(
-            f"res/quote_images/greyscale/{image_options[random.randint(0, 4)]}")
+            f"{data.ROOT_FILE_PATH}/res/quote_images/greyscale/{image_options[random.randint(0, 4)]}")
         font = ImageFont.truetype(
-            "res/quote_images/fonts/CaviarDreams.ttf", 50)
+            f"{data.ROOT_FILE_PATH}/res/quote_images/fonts/CaviarDreams.ttf", 50)
 
         try:
             new_quote = Quote(message, image_options, image, font, 800, 200, 180, 20)
