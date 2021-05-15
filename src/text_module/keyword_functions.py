@@ -14,7 +14,7 @@ async def command_handler(message):
     elif second_parameter == "remove":
         try:
             await remove(guild_id, message, message.content.split(" ")[3])
-        except:
+        except IndexError:
             await message.channel.send(embed=verbose.embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
 
     elif second_parameter == "edit":
@@ -23,7 +23,7 @@ async def command_handler(message):
                 await message.channel.send(embed=verbose.embeds.embed_error_message("Name of new keyword must be specified. "))
             else:
                 await edit(guild_id, message, message.content.split(" ")[3], " ".join(message.content.split(" ")[4:]))
-        except:
+        except IndexError:
             await message.channel.send(embed=verbose.embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
 
     elif second_parameter == "list":

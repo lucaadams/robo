@@ -41,8 +41,8 @@ class Quote:
         """ gets the message that will go inside the quote """
         if self.quote_author == "":
             return f'"{self.quote_message_wrap}"'
-        else:
-            return f'"{self.quote_message_wrap}" \n                    - {self.quote_author}'
+
+        return f'"{self.quote_message_wrap}" \n                    - {self.quote_author}'
 
     async def send_quote(self):
         await self.message.channel.send(file=discord.File(self.image_file, "image.png"))
@@ -61,7 +61,7 @@ class Quote:
 async def execute_quote_command(message):
     try:
         image_type = message.content.split(" ")[2]
-    except:
+    except IndexError:
         await message.channel.send(embed=verbose.embeds.embed_error_message("Incomplete command."))
 
     if image_type == "colour":

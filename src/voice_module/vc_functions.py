@@ -114,7 +114,7 @@ async def join_voice_channel(message):
 
 async def leave_voice_channel(message):
     guild_id = str(message.guild.id)
-    
+
     # checks if bot is in a vc, if not then reply on discord
     try:
         if not guild_vc_dict[guild_id]["voice_client"].is_connected():
@@ -142,7 +142,8 @@ async def play_from_yt(message):
     voice_client = guild_vc_dict[guild_id]["voice_client"]
 
     # use pafy to pipe youtube audio into the voice client
-    audio = pafy.new(song_request_metadata['id'], ydl_opts=YOUTUBE_DL_OPTIONS).getbestaudio()
+    audio = pafy.new(
+        song_request_metadata['id'], ydl_opts=YOUTUBE_DL_OPTIONS).getbestaudio()
     voice_client.play(discord.FFmpegPCMAudio(
         audio.url, options=FFMPEG_OPTIONS), after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(message), bot.CLIENT.loop))
 
@@ -191,12 +192,14 @@ async def add_song_to_queue(message):
     async with message.channel.typing():
         with youtube_dl.YoutubeDL() as ytdl:
             if check_if_url(user_song_request):
-                user_song_request_dict = ytdl.extract_info(user_song_request, download=False)
+                user_song_request_dict = ytdl.extract_info(
+                    user_song_request, download=False)
                 video_to_add = user_song_request_dict
             else:
-                user_song_request_dict = ytdl.extract_info(f"ytsearch:{user_song_request}", download=False)
+                user_song_request_dict = ytdl.extract_info(
+                    f"ytsearch:{user_song_request}", download=False)
                 video_to_add = user_song_request_dict['entries'][0]
-        
+
         guild_vc_dict[guild_id]["guild_queue"].append(video_to_add)
 
     await message.channel.send(embed=verbose.embeds.embed_successful_action(
@@ -227,7 +230,7 @@ async def remove_from_queue(message):
             guild_vc_dict[guild_id]["voice_client"].stop()
         except (AttributeError, KeyError):
             return
-        
+
         await play_from_yt(message)
 
 

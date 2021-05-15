@@ -7,8 +7,6 @@ async def help_message_handler(message, COMMAND_PREFIX):
     except IndexError:
         await default_help_message(message, COMMAND_PREFIX)
         return
-    except:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("Something went wrong whilst trying to execute that command."))
 
     if second_parameter == "text":
         await text_help_message(message, COMMAND_PREFIX)

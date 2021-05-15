@@ -32,25 +32,25 @@ async def check_message(message):
                 messages_list_for_guild = []
                 counting_data[guild_id]["counting_has_started"] = False
                 return
+
+            # checks to see if you typed the right number
+            if message_float == counting_data[guild_id]["next_number"]:
+                counting_data[guild_id]["next_number"] += counting_data[guild_id]["increment"]
+                await message.add_reaction("✅")
             else:
-                # checks to see if you typed the right number
-                if message_float == counting_data[guild_id]["next_number"]:
-                    counting_data[guild_id]["next_number"] += counting_data[guild_id]["increment"]
-                    await message.add_reaction("✅")
-                else:
-                    await message.add_reaction("❌")
-                    await message.channel.send(embed=verbose.embeds.embed_failed_counting(
-                        "That's the wrong number.", f"You counted up to {counting_data[guild_id]['next_number'] - counting_data[guild_id]['increment']}"))
-                    await send_stats(message, messages_list_for_guild)
-                    messages_list_for_guild = []
-                    counting_data[guild_id]["counting_has_started"] = False
-                    return
+                await message.add_reaction("❌")
+                await message.channel.send(embed=verbose.embeds.embed_failed_counting(
+                    "That's the wrong number.", f"You counted up to {counting_data[guild_id]['next_number'] - counting_data[guild_id]['increment']}"))
+                await send_stats(message, messages_list_for_guild)
+                messages_list_for_guild = []
+                counting_data[guild_id]["counting_has_started"] = False
+                return
 
 
 def try_cast_float(message_content):
     try:
         return float(message_content)
-    except:
+    except ValueError:
         return None
 
 
