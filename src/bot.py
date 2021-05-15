@@ -30,7 +30,7 @@ def run_client():
 async def on_guild_join(guild):
     for channel in guild.text_channels:
         if channel.permissions_for(guild.me).send_messages:
-            await channel.send(embed=verbose.embeds.embed_response_custom_emote("Hey, I'm Robo!", f"_I'm a Discord bot written in Python using the Discord.py rewrite._\n \
+            await channel.send(embed=verbose.embeds.embed_response_custom_emote("Hey, I'm Robo!", f"_I'm a Discord bot written in Python using the Discord.py rewrite, currently in {len(CLIENT.guilds)} servers._\n \
                 - [link to github](https://github.com/lucaadams/robo) - \n \
                     To get started, type `{COMMAND_PREFIX} help`.", ":wave:"))
             break
@@ -73,7 +73,7 @@ async def execute_command(guild_id, message):
     try:
         first_parameter = message.content.split(" ")[1]
     except IndexError:
-        await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Hi, I'm Robo!", f"_I'm a Discord bot written in Python using the Discord.py rewrite._\n \
+        await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Hi, I'm Robo!", f"_I'm a Discord bot written in Python using the Discord.py rewrite, currently in {len(CLIENT.guilds)} servers._\n \
             - [link to github](https://github.com/lucaadams/robo) - \n \
                 To view a list of commands, type `{COMMAND_PREFIX} help`.", ":wave:"))
         return
