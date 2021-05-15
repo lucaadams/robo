@@ -8,6 +8,7 @@ import bot
 import data
 import verbose.embeds
 
+
 FFMPEG_OPTIONS = {
     'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'
 }
@@ -41,13 +42,6 @@ async def vc_command_handler(message):
 
     if second_parameter == "join":
         await join_voice_channel(message)
-
-        # if voice_client is None:
-        #     return
-            
-        # guild_vc_dict[guild_id]["voice_client"] = voice_client
-
-        # await play_from_yt(message)
 
     elif second_parameter == "leave":
         await leave_voice_channel(message)
@@ -132,9 +126,13 @@ async def leave_voice_channel(message):
 
 
 async def play_from_yt(message):
+    """
+    use pafy to play audio from youtube straight into the discord voice client (no download required)
+    """
     guild_id = str(message.guild.id)
     guild_queue = guild_vc_dict[guild_id]["guild_queue"]
 
+    # get the metadata for the oldest song in the queue (the one that is going to be played)
     try:
         song_request_metadata = guild_queue[0]
     except IndexError:
@@ -143,6 +141,7 @@ async def play_from_yt(message):
 
     voice_client = guild_vc_dict[guild_id]["voice_client"]
 
+    # use pafy to pipe youtube audio into the voice client
     audio = pafy.new(song_request_metadata['id'], ydl_opts=YOUTUBE_DL_OPTIONS).getbestaudio()
     voice_client.play(discord.FFmpegPCMAudio(
         audio.url, options=FFMPEG_OPTIONS), after=lambda e: asyncio.run_coroutine_threadsafe(on_playback_finished(message), bot.CLIENT.loop))
@@ -152,6 +151,9 @@ async def play_from_yt(message):
 
 
 async def on_playback_finished(message):
+    """
+    when current song stops playing, get the next song ready
+    """
     guild_id = str(message.guild.id)
 
     if not guild_vc_dict[guild_id]["loop"]:
@@ -172,16 +174,20 @@ async def continue_to_next_req(message):
         await message.channel.send(embed=verbose.embeds.embed_sorry_message("I am not currently in any voice channel."))
         return
 
+    # the "after" parameter in the voice_client.play method will take care of playing the next song
+
 
 async def add_song_to_queue(message):
     guild_id = str(message.guild.id)
     user_song_request_list = message.content.split(" ")[3:]
     user_song_request = " ".join(user_song_request_list)
+
     if len(user_song_request) < 1:
         await message.channel.send(embed=verbose.embeds.embed_error_message("No request specified."))
         return
 
     # Add the video metadata to queue
+    # use channel.typing so the user knows something is happening - it might take a while to download metadata depending on internet speed
     async with message.channel.typing():
         with youtube_dl.YoutubeDL() as ytdl:
             if check_if_url(user_song_request):
@@ -215,22 +221,25 @@ async def remove_from_queue(message):
         await message.channel.send(embed=verbose.embeds.embed_error_message("That queue index does not exist."))
         return
 
+    # if they want to remove currently playing song, then continue to next song
     if index_to_remove == 1:
         try:
             guild_vc_dict[guild_id]["voice_client"].stop()
         except AttributeError or KeyError:
             return
-
-        guild_vc_dict[guild_id]["already_skipped"] = True
         
         await play_from_yt(message)
 
 
 async def send_queue(message):
+    """
+    sends songs from a specified queue, or the current queue if no queue is specified
+    """
     guild_id = str(message.guild.id)
     desc = ""
     num = 1
 
+    # if no queue specified, send songs from the current queue
     try:
         specific_queue = message.content.split(" ")[3]
     except:
@@ -243,8 +252,8 @@ async def send_queue(message):
             await message.channel.send(embed=verbose.embeds.embed_response("Up next", desc))
         return
 
-    guild_data = data.get_guild_data(guild_id)        
-
+    # if the user specified a queue, then check if it exists in the guild_data json file and get queue info from there instead
+    guild_data = data.get_guild_data(guild_id)
     if specific_queue in guild_data["saved_queues"]:
         for metadata in guild_data["saved_queues"][specific_queue]:
             desc += f"{num} - [{metadata['title']}]({metadata['webpage_url']})\n"
@@ -259,6 +268,9 @@ async def send_queue(message):
 
 
 async def send_queue_list(message):
+    """
+    send a list of saved queues in the user's guild
+    """
     guild_id = str(message.guild.id)
     guild_data = data.get_guild_data(guild_id)
 
@@ -272,6 +284,9 @@ async def send_queue_list(message):
 
 
 async def play_queue(message):
+    """
+    replace current queue with a specified custom queue from the guild_data.json file
+    """
     guild_id = str(message.guild.id)
     guild_data = data.get_guild_data(guild_id)
 
@@ -282,8 +297,9 @@ async def play_queue(message):
         return
 
     if queue_to_play not in guild_data["saved_queues"]:
+        await message.channel.send(embed=verbose.embeds.embed_error_message("That queue does not exist."))
         return
-        
+
     guild_vc_dict[guild_id]["guild_queue"] = guild_data["saved_queues"][queue_to_play]
 
     try:
@@ -296,7 +312,15 @@ async def play_queue(message):
 
 
 async def save_queue(message):
+    """
+    save current queue as a preset with a name of the user's choice
+    """
     guild_id = str(message.guild.id)
+
+    if len(guild_vc_dict[guild_id]["guild_queue"]) < 1:
+        await message.channel.send(embed=verbose.embeds.embed_sorry_message("Your current queue is empty."))
+        return
+
     queue_name = " ".join(message.content.split(" ")[3:])
     guild_data = data.get_guild_data(guild_id)
     guild_data["saved_queues"][queue_name] = guild_vc_dict[guild_id]["guild_queue"].copy()
