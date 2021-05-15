@@ -3,7 +3,12 @@ import os
 import logging
 
 
-GUILD_DATA_FILE_PATH = "guild_data.json"
+APPDATA_FILE_PATH = os.getenv('APPDATA')
+
+if not os.path.exists(f"{APPDATA_FILE_PATH}/robo"):
+    os.mkdir(f"{APPDATA_FILE_PATH}/robo")
+
+GUILD_DATA_FILE_PATH = f"{APPDATA_FILE_PATH}/robo/guild_data.json"
 __guild_data_dict = None
 
 
