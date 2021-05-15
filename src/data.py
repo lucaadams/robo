@@ -3,7 +3,7 @@ import os
 import logging
 
 
-APPDATA_FILE_PATH = os.getenv('APPDATA')
+APPDATA_FILE_PATH = os.getenv("APPDATA") or "."
 ROOT_FILE_PATH = os.path.realpath(__file__).strip("src\data.py")
 
 if not os.path.exists(f"{APPDATA_FILE_PATH}/robo"):
