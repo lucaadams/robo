@@ -36,16 +36,16 @@ async def default_help_message(message, COMMAND_PREFIX):
 
 async def text_help_message(message, COMMAND_PREFIX):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Text Commands:", f'''
-    • `{COMMAND_PREFIX} add [keyword] [value]` \n    _Add a keyword that Robo will check for in your messages. Robo will reply with its value._\n
-    • `{COMMAND_PREFIX} remove [keyword]` \n    _Remove a keyword from Robo's list of keywords._\n
-    • `{COMMAND_PREFIX} edit [old keyword] [renamed keyword]` \n    _Edit the name of an existing keyword._\n
+    • `{COMMAND_PREFIX} add [KEYWORD] [VALUE]` \n    _Add a keyword that Robo will check for in your messages. Robo will reply with its value._\n
+    • `{COMMAND_PREFIX} remove [KEYWORD]` \n    _Remove a keyword from Robo's list of keywords._\n
+    • `{COMMAND_PREFIX} edit [OLD KEYWORD] [RENAMED KEYWORD]` \n    _Edit the name of an existing keyword._\n
     • `{COMMAND_PREFIX} list` \n    _Robo will display a list of all the current keywords and their values on your server._\n
     ''', ":page_with_curl:"))
 
 
 async def image_help_message(message, COMMAND_PREFIX):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Image Commands:", f'''
-    • `{COMMAND_PREFIX} quote [image type] "[quote message]" "[OPTIONAL: quote author]"` \n    _Robo will make a custom image with the image type of your choice, the quote message of your choice and the author of your choice._\n
+    • `{COMMAND_PREFIX} quote [TYPE] "[MESSAGE]" "[AUTHOR(optional)]"` \n    _Robo will make a custom image with the image type of your choice, the quote message of your choice and the author of your choice._\n
     ''', ":page_with_curl:"))
 
 
@@ -53,14 +53,19 @@ async def voice_help_message(message, COMMAND_PREFIX):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Voice Commands:", f'''
     • `{COMMAND_PREFIX} vc join` \n    _Get Robo to join the vc that you are currently in. Any songs in the queue will automatically start playing._\n
     • `{COMMAND_PREFIX} vc leave` \n    _Robo will leave the vc that he is currently in._\n
-    • `{COMMAND_PREFIX} vc add [request (youtube)]` \n    _Add a youtube video to the queue._\n
-    • `{COMMAND_PREFIX} vc skip` \n    _Robo will play the next song in the queue._\n
+    • `{COMMAND_PREFIX} vc add [REQUEST(from youtube)]` \n    _Add a youtube video to the queue._\n
+    • `{COMMAND_PREFIX} vc skip/next` \n    _Robo will play the next song in the queue._\n
+    • `{COMMAND_PREFIX} vc queue [NAME(optional)]` \n    _Shows a list of all songs in the queue specified. If no queue specified, use current queue._\n
+    • `{COMMAND_PREFIX} vc save-queue [NAME]` \n    _Saves current queue as a preset with the name [NAME]. Saving another with the same name will overwrite the old one._\n
+    • `{COMMAND_PREFIX} vc play-queue [NAME]` \n    _Plays the saved queue with the name [NAME]._\n
+    • `{COMMAND_PREFIX} vc queue-list` \n    _Shows a list of all saved queues in your server._\n
     • `{COMMAND_PREFIX} vc loop` \n    _Loops the currently playing song request._\n
-    • `{COMMAND_PREFIX} vc queue` \n    _Shows a list of all song requests in the queue._\n
+    • `{COMMAND_PREFIX} vc shuffle` \n    _Shuffles the queue._\n
+    • `{COMMAND_PREFIX} vc toggle-np` \n    _Toggles whether you recieve the `Now playing:` message when a new song starts playing._\n
     ''', ":page_with_curl:"))
 
 
 async def games_help_message(message, COMMAND_PREFIX):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Text Commands:", f'''
-    • `{COMMAND_PREFIX} games counting [OPTIONAL: increment]` \n    _Start a game of Counting (min 2 people). Count up to the highest number you can, without saying two numbers in a row or sending the wrong number._\n
+    • `{COMMAND_PREFIX} games counting [INCREMENT(optional)]` \n    _Start a game of Counting (min 2 people). Count up to the highest number you can, without saying two numbers in a row or sending the wrong number._\n
     ''', ":page_with_curl:"))
