@@ -16,8 +16,8 @@ async def help_message_handler(message, COMMAND_PREFIX):
     elif second_parameter == "image":
         await image_help_message(message, COMMAND_PREFIX)
 
-    elif second_parameter == "voice":
-        await voice_help_message(message, COMMAND_PREFIX)
+    elif second_parameter == "vc":
+        await vc_help_message(message, COMMAND_PREFIX)
 
     elif second_parameter == "games":
         await games_help_message(message, COMMAND_PREFIX)
@@ -25,11 +25,12 @@ async def help_message_handler(message, COMMAND_PREFIX):
     else:
         await message.channel.send(embed=verbose.embeds.embed_error_message("Must specify valid help message."))
 
+
 async def default_help_message(message, COMMAND_PREFIX):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Commands:", f'''
     • **Text Module**\n    `{COMMAND_PREFIX} help text`\n     _Commands used to add, edit, remove and list keywords._\n
     • **Image Module**\n    `{COMMAND_PREFIX} help image`\n    _Commands used to make images with custom text._\n
-    • **Voice Module**\n    `{COMMAND_PREFIX} help voice`\n    _Commands used to playing audio from Youtube or Twitch in a voice channel._\n
+    • **Voice Module**\n    `{COMMAND_PREFIX} help vc`\n    _Commands used to playing audio from Youtube or Twitch in a voice channel._\n
     • **Games Module**\n    `{COMMAND_PREFIX} help games`\n    _Commands used to play Robo's built-in games._\n
     ''', ":page_with_curl:"))
 
@@ -49,7 +50,7 @@ async def image_help_message(message, COMMAND_PREFIX):
     ''', ":page_with_curl:"))
 
 
-async def voice_help_message(message, COMMAND_PREFIX):
+async def vc_help_message(message, COMMAND_PREFIX):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Voice Commands:", f'''
     • `{COMMAND_PREFIX} vc join` \n    _Get Robo to join the vc that you are currently in. Any songs in the queue will automatically start playing._\n
     • `{COMMAND_PREFIX} vc leave` \n    _Robo will leave the vc that he is currently in._\n
