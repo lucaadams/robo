@@ -1,6 +1,7 @@
 import discord
 import random
 import io
+import os
 from PIL import Image, ImageDraw, ImageFont
 
 import data
@@ -66,10 +67,9 @@ async def execute_quote_command(message):
         await message.channel.send(embed=verbose.embeds.embed_error_message("Incomplete command."))
 
     if image_type == "colour":
-        image_options = ["flowerfield1.png", "flowerfield2.png",
-                         "flowerfield3.png", "rainbow.png", "sky.png"]
+        image_options = os.listdir(f"{data.ROOT_FILE_PATH}/res/quote_images/colourful")
         image = Image.open(
-            f"{data.ROOT_FILE_PATH}/res/quote_images/colourful/{image_options[random.randint(0, 4)]}")
+            f"{data.ROOT_FILE_PATH}/res/quote_images/colourful/{image_options[random.randint(0, len(image_options) - 1)]}")
         font = ImageFont.truetype(
             f"{data.ROOT_FILE_PATH}/res/quote_images/fonts/Kiss_Boom.ttf", 130)
 
@@ -78,13 +78,13 @@ async def execute_quote_command(message):
         except MissingQuoteMessageError:
             await message.channel.send(embed=verbose.embeds.embed_error_message("Must specify a quote message."))
 
-        await new_quote.generate_quote()
+        async with message.channel.typing():
+            await new_quote.generate_quote()
 
     elif image_type == "grey":
-        image_options = ["alex.png", "einstein.png", "ghandi.png",
-                         "martinlutherking.png", "motherteresa.png"]
+        image_options = os.listdir(f"{data.ROOT_FILE_PATH}/res/quote_images/greyscale")
         image = Image.open(
-            f"{data.ROOT_FILE_PATH}/res/quote_images/greyscale/{image_options[random.randint(0, 4)]}")
+            f"{data.ROOT_FILE_PATH}/res/quote_images/greyscale/{image_options[random.randint(0, len(image_options) - 1)]}")
         font = ImageFont.truetype(
             f"{data.ROOT_FILE_PATH}/res/quote_images/fonts/CaviarDreams.ttf", 50)
 
@@ -92,8 +92,9 @@ async def execute_quote_command(message):
             new_quote = Quote(message, image_options, image, font, 800, 200, 180, 20)
         except MissingQuoteMessageError:
             await message.channel.send(embed=verbose.embeds.embed_error_message("Must specify a quote message."))
-
-        await new_quote.generate_quote()
+        
+        async with message.channel.typing():
+            await new_quote.generate_quote()
 
     else:
         await message.channel.send(embed=verbose.embeds.embed_error_message("You must specify a valid image type ('grey' or 'colour')"))
