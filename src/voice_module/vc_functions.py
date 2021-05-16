@@ -243,9 +243,8 @@ async def send_queue(message):
     num = 1
 
     # if no queue specified, send songs from the current queue
-    try:
-        specific_queue = " ".join(message.content.split(" ")[3:])
-    except IndexError:
+    specific_queue = " ".join(message.content.split(" ")[3:])
+    if len(specific_queue) == 0:
         for metadata in guild_vc_data[guild_id]["guild_queue"]:
             desc += f"{num} - [{metadata['title']}]({metadata['webpage_url']})\n"
             num += 1
@@ -262,7 +261,7 @@ async def send_queue(message):
             desc += f"{num} - [{metadata['title']}]({metadata['webpage_url']})\n"
             num += 1
         if desc == "":
-            await message.channel.send(embed=verbose.embeds.embed_response_without_title("Your queue is currently empty."))
+            await message.channel.send(embed=verbose.embeds.embed_response_without_title("That queue is currently empty."))
         else:
             await message.channel.send(embed=verbose.embeds.embed_response(f"Queue `{specific_queue}`:", desc))
         return
