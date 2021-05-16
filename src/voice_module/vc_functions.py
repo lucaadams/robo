@@ -278,8 +278,21 @@ async def send_queue_list(message):
     guild_data = data.get_guild_data(guild_id)
 
     desc = ""
+
     for queue_name in guild_data["saved_queues"]:
-        desc += f"• `{queue_name}` - {len(guild_data['saved_queues'][queue_name])} songs.\n"
+        raw_queue_duration = 0
+        for song in guild_data['saved_queues'][queue_name]:
+            raw_queue_duration += song["duration"]
+
+        total_time_mins = raw_queue_duration // 60
+        time_secs = raw_queue_duration % 60
+        time_hours = total_time_mins // 60
+        time_mins = total_time_mins % 60
+
+        queue_duration = f"{time_hours}h {time_mins}m {time_secs}s" if time_hours != 0 else f"{time_mins}m {time_secs}s"
+
+        desc += f"• `{queue_name}` - {len(guild_data['saved_queues'][queue_name])} songs | {queue_duration}\n"
+
     if desc == "":
         await message.channel.send(embed=verbose.embeds.embed_response_without_title("You don't currently have any saved queues."))
     else:
