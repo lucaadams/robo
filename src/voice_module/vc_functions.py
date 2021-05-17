@@ -48,6 +48,8 @@ async def vc_command_handler(message):
 
     elif second_parameter == "add":
         await add_song_to_queue(message)
+        if len(guild_vc_data[guild_id]["guild_queue"]) == 1:
+            await play_from_yt(message)
 
     elif second_parameter == "skip" or second_parameter == "next":
         await continue_to_next_req(message)
