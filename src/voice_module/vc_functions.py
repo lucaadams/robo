@@ -5,7 +5,7 @@ import pafy
 import discord
 
 import bot
-import data
+from data import data
 import verbose.embeds
 
 

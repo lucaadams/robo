@@ -1,6 +1,6 @@
 import random
 
-import data
+from data import data
 import verbose.embeds
 
 

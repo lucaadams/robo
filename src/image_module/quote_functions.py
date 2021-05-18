@@ -4,7 +4,7 @@ import io
 import os
 from PIL import Image, ImageDraw, ImageFont
 
-import data
+from data import data
 import verbose.embeds
 
 
@@ -77,6 +77,7 @@ async def execute_quote_command(message):
             new_quote = Quote(message, image_options, image, font, 300, 200, 0, 25)
         except MissingQuoteMessageError:
             await message.channel.send(embed=verbose.embeds.embed_error_message("Must specify a quote message."))
+            return
 
         async with message.channel.typing():
             await new_quote.generate_quote()
@@ -92,7 +93,8 @@ async def execute_quote_command(message):
             new_quote = Quote(message, image_options, image, font, 800, 200, 180, 20)
         except MissingQuoteMessageError:
             await message.channel.send(embed=verbose.embeds.embed_error_message("Must specify a quote message."))
-        
+            return
+
         async with message.channel.typing():
             await new_quote.generate_quote()
 
