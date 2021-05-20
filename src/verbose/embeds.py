@@ -62,21 +62,3 @@ def embed_failed_counting(embed_title, embed_description):
         description = f"{embed_description}",
     )
 
-
-def embed_youtube_info(metadata):
-    youtube_info_embed = discord.Embed(
-        title = f"{metadata['title']} - {metadata['uploader']}",
-        colour = discord.Color(0xeb4034)
-    )
-
-    time_mins = metadata["duration"] // 60
-    time_mins = f"0{time_mins}" if time_mins < 10 else time_mins
-
-    time_secs = metadata["duration"] % 60
-    time_secs = f"0{time_secs}" if time_secs < 10 else time_secs
-
-    youtube_info_embed.set_author(icon_url="https://www.iconpacks.net/icons/2/free-youtube-logo-icon-2431-thumb.png", name=" Now playing:")
-    youtube_info_embed.set_thumbnail(url=metadata["thumbnail"])
-    youtube_info_embed.set_footer(text=f"⠀     👁️ {metadata['view_count']}⠀         |⠀         👍 {metadata['like_count']}⠀         |⠀         👎 {metadata['dislike_count']}⠀         |⠀         ⏱️ {time_mins}:{time_secs}⠀     ")
-
-    return youtube_info_embed
