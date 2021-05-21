@@ -3,16 +3,16 @@ import os
 import logging
 
 
+APPDATA_FILE_PATH = os.getenv("APPDATA") or "."
+
 class DataManager:
     def __init__(self):
-        APPDATA_FILE_PATH = os.getenv("APPDATA") or "."
         self.ROOT_FILE_PATH = os.path.realpath(__file__).strip("src\data.py")
 
         if not os.path.exists(f"{APPDATA_FILE_PATH}/robo"):
             os.mkdir(f"{APPDATA_FILE_PATH}/robo")
 
         self.GUILD_DATA_FILE_PATH = f"{APPDATA_FILE_PATH}/robo/guild_data.json"
-        self.SECRETS_FILE_PATH = f"{APPDATA_FILE_PATH}/robo/secrets.json"
 
         if os.path.exists(self.GUILD_DATA_FILE_PATH):
             with open(self.GUILD_DATA_FILE_PATH, "r") as data_file:
@@ -21,16 +21,6 @@ class DataManager:
             with open(self.GUILD_DATA_FILE_PATH, "w") as data_file:
                 data_file.write("{}")
             self.__guild_data_dict = {}
-
-        if os.path.exists(self.SECRETS_FILE_PATH):
-            with open(self.SECRETS_FILE_PATH, "r") as secrets_file:
-                self.__secrets = json.loads(secrets_file.read())
-        else:
-            self.__secrets = {
-                "hypixel_api_key": "REPLACE THIS TEXT WITH YOUR HYPIXEL API KEY"
-            }
-            with open(self.SECRETS_FILE_PATH, "w") as secrets_file:
-                secrets_file.write(self.__secrets)
 
 
     def get_guild_data(self, guild_id) -> dict:
@@ -75,3 +65,15 @@ class DataManager:
 
 
 data = DataManager()
+
+SECRETS_FILE_PATH = f"{APPDATA_FILE_PATH}/robo/secrets.json"
+
+if os.path.exists(SECRETS_FILE_PATH):
+    with open(SECRETS_FILE_PATH, "r") as secrets_file:
+        __secrets = json.loads(secrets_file.read())
+else:
+    __secrets = {
+        "hypixel_api_key": "REPLACE THIS TEXT WITH YOUR HYPIXEL API KEY"
+    }
+    with open(SECRETS_FILE_PATH, "w") as secrets_file:
+        secrets_file.write(__secrets)
