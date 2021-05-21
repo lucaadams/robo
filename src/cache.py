@@ -17,7 +17,7 @@ class Cache:
 
 
     def add(self, item_to_cache: CachedObject):
-        self.cached_objects[item_to_cache.name] = item_to_cache.value
+        self.cached_objects[item_to_cache.name] = item_to_cache
         self.refresh()
 
 
@@ -28,9 +28,20 @@ class Cache:
         # if too many items in cache, delete the least-recently added
         if len(self.cached_objects.keys()) > self.max_amount_of_objects:
             del self.cached_objects[next(iter(self.cached_objects))]
+            print("too many cached items")
 
-        # if item added more than 5 minutes ago, delete
+        # if item added more than 15 minutes ago, delete
         for object_name in self.cached_objects.keys():
             if self.cached_objects[object_name].time_created - time.time() > self.seconds_before_deletion:
                 del self.cached_objects[object_name]
+
+
+    def object_keys(self):
+        """get a list of all object names in the cache"""
+        return [object_name for object_name in self.cached_objects.keys()]
+
+    def get_object(self, object_name):
+        """get the value of a given object"""
+        if object_name in self.object_keys():
+            return self.cached_objects[object_name].value
 
