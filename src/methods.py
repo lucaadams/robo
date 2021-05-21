@@ -5,9 +5,11 @@ general methods to be used anywhere
 from datetime import datetime
 
 def parse_timestamp(timestamp):
+    timestamp = int(round(timestamp, 0))
+
     # if timestamp is in ms, convert to seconds
     if len(str(timestamp)) > 10:
-        timestamp = timestamp // 1000
+        timestamp = round(timestamp / 1000, 0)
 
     unformatted_datetime = str(datetime.fromtimestamp(timestamp))
     
