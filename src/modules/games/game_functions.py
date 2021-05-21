@@ -1,5 +1,5 @@
 import verbose.embeds
-import games_module.counting
+import modules.games.counting
 
 
 async def start_game(guild_id, message):
@@ -11,7 +11,7 @@ async def start_game(guild_id, message):
 
     if game == "counting":
         increment = await set_increment(message)
-        await games_module.counting.start_counting(guild_id, message, increment)
+        await modules.games.counting.start_counting(guild_id, message, increment)
     else:
         await message.channel.send(embed=verbose.embeds.embed_error_message("That game does not exist."))
 

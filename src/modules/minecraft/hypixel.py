@@ -6,8 +6,8 @@ import verbose.embeds
 import cache
 from methods import parse_timestamp
 from exceptions import StatsNotFoundError
-import minecraft_module.stats.bedwars_stats, \
-    minecraft_module.stats.skywars_stats
+import modules.minecraft.stats.bedwars_stats, \
+    modules.minecraft.stats.skywars_stats
 
 
 hypixel_api_key = data.__secrets["hypixel_api_key"]
@@ -55,7 +55,7 @@ async def hypixel_command_handler(message):
         try:
             bedwars_data = hypixel_data["player"]["stats"]["Bedwars"]
             username = f"[{hypixel_data['player']['achievements']['bedwars_level']}☆] {hypixel_data['player']['displayname']}"
-            await message.channel.send(embed=minecraft_module.stats.bedwars_stats.embed_bedwars_stats(username, bedwars_data, hypixel_logo_url, first_and_last_login, player_rank))
+            await message.channel.send(embed=modules.minecraft.stats.bedwars_stats.embed_bedwars_stats(username, bedwars_data, hypixel_logo_url, first_and_last_login, player_rank))
         except TypeError:
             await message.channel.send(embed=verbose.embeds.embed_sorry_message("I could not find a user with that name. Please check spelling and try again."))
             return
@@ -68,7 +68,7 @@ async def hypixel_command_handler(message):
             skywars_data = hypixel_data["player"]["stats"]["SkyWars"]
             sw_level = sw_xp_to_level(hypixel_data['player']['stats']['SkyWars']['skywars_experience'])
             username = f"[{sw_level}☆] {hypixel_data['player']['displayname']}"
-            await message.channel.send(embed=minecraft_module.stats.skywars_stats.embed_skywars_stats(username, skywars_data, hypixel_logo_url, first_and_last_login, player_rank))
+            await message.channel.send(embed=modules.minecraft.stats.skywars_stats.embed_skywars_stats(username, skywars_data, hypixel_logo_url, first_and_last_login, player_rank))
         except TypeError:
             await message.channel.send(embed=verbose.embeds.embed_sorry_message("I could not find a user with that name. Please check spelling and try again."))
             return

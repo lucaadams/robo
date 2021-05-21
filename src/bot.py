@@ -5,13 +5,13 @@ import traceback
 import logging
 
 import verbose.embeds
-import image_module.quote_functions
-import text_module.keyword_functions
-import games_module.counting
-import games_module.game_functions
-import voice_module.vc_functions
-import minecraft_module.minecraft_functions
-import help_module.help_functions
+import modules.image.quote_functions
+import modules.text.keyword_functions
+import modules.games.counting
+import modules.games.game_functions
+import modules.voice.vc_functions
+import modules.minecraft.minecraft_functions
+import modules.help.help_functions
 
 
 COMMAND_PREFIX = os.getenv("ROBO_COMMAND_PREFIX") or "!robo"
@@ -59,7 +59,7 @@ async def on_message(message):
     if message.author == CLIENT.user:
         return
 
-    await games_module.counting.check_message(message)
+    await modules.games.counting.check_message(message)
 
     guild_id = str(message.guild.id)
 
@@ -67,7 +67,7 @@ async def on_message(message):
         await execute_command(guild_id, message)
         return
 
-    await text_module.keyword_functions.check_keywords(guild_id, message)
+    await modules.text.keyword_functions.check_keywords(guild_id, message)
 
 
 # command manager
@@ -81,22 +81,22 @@ async def execute_command(guild_id, message):
         return
 
     if first_parameter == "keyword" or first_parameter == "k":
-        await text_module.keyword_functions.command_handler(message)
+        await modules.text.keyword_functions.command_handler(message)
 
     elif first_parameter == "quote":
-        await image_module.quote_functions.execute_quote_command(message)
+        await modules.image.quote_functions.execute_quote_command(message)
 
     elif first_parameter == "games":
-        await games_module.game_functions.start_game(guild_id, message)
+        await modules.games.game_functions.start_game(guild_id, message)
 
     elif first_parameter == "vc":
-        await voice_module.vc_functions.vc_command_handler(message)
+        await modules.voice.vc_functions.vc_command_handler(message)
 
     elif first_parameter == "minecraft" or first_parameter == "mc":
-        await minecraft_module.minecraft_functions.minecraft_command_handler(message)
+        await modules.minecraft.minecraft_functions.minecraft_command_handler(message)
 
     elif first_parameter == "help":
-        await help_module.help_functions.help_message_handler(message, COMMAND_PREFIX)
+        await modules.help.help_functions.help_message_handler(message, COMMAND_PREFIX)
 
     elif first_parameter == "echo":
         await message.channel.send(embed=verbose.embeds.embed_response("Your message was: ", " ".join(message.content.split(" ")[2:])))
