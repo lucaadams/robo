@@ -1,3 +1,7 @@
+"""
+general methods to be used anywhere
+"""
+
 from datetime import datetime
 
 def parse_timestamp(timestamp):
@@ -17,3 +21,22 @@ def parse_timestamp(timestamp):
         time = f"{time[:2]}:0{time[3]}"
 
     return f"{time} {day}/{month}/{year}"
+
+def wrap(text, max_chars_per_line):
+    text = text.strip(" ")
+    text_split = text.split(" ")
+    chars_on_this_line = 0
+
+    wrapped_text = ""
+
+    for word in text_split:
+        wrapped_text += word + " "
+        chars_on_this_line += len(word)
+        if chars_on_this_line >= max_chars_per_line:
+            if len(wrapped_text) < len(text):
+                wrapped_text += "\n"
+                chars_on_this_line = 0
+
+    wrapped_text = wrapped_text.strip(" ")
+
+    return wrapped_text

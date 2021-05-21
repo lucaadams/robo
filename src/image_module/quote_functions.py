@@ -5,6 +5,7 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 
 from data import data
+from methods import wrap
 import verbose.embeds
 
 
@@ -34,7 +35,7 @@ class Quote:
         self.quote_location_y = quote_location_y
         self.font_colour = font_colour
         self.max_chars_per_line = max_chars_per_line
-        self.quote_message_wrap = text_wrap(
+        self.quote_message_wrap = wrap(
             self.quote_message, self.max_chars_per_line)
         self.image_file = io.BytesIO()
         self.quote_content = self.get_quote_content()
@@ -101,22 +102,3 @@ async def execute_quote_command(message):
     else:
         await message.channel.send(embed=verbose.embeds.embed_error_message("You must specify a valid image type ('grey' or 'colour')"))
 
-
-def text_wrap(quote_message, max_chars_per_line):
-    quote_message = quote_message.strip(" ")
-    quote_message_split = quote_message.split(" ")
-    chars_on_this_line = 0
-
-    quote_message_wrap = ""
-
-    for word in quote_message_split:
-        quote_message_wrap += word + " "
-        chars_on_this_line += len(word)
-        if chars_on_this_line >= max_chars_per_line:
-            if len(quote_message_wrap) < len(quote_message):
-                quote_message_wrap += "\n"
-                chars_on_this_line = 0
-
-    quote_message_wrap = quote_message_wrap.strip(" ")
-
-    return quote_message_wrap
