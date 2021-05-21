@@ -10,7 +10,9 @@ import text_module.keyword_functions
 import games_module.counting
 import games_module.game_functions
 import voice_module.vc_functions
+import minecraft_module.minecraft_functions
 import help_module.help_functions
+
 
 COMMAND_PREFIX = os.getenv("ROBO_COMMAND_PREFIX") or "!robo"
 CLIENT = discord.Client()
@@ -48,7 +50,7 @@ async def on_ready():
 async def on_error(event, *args):
     err = traceback.format_exc()
     logging.warning(err)
-    await application_info.owner.send(embed=verbose.embeds.embed_error_message(f"```{err}```"))
+    await application_info.owner.send(embed=verbose.embeds.embed_error_message(f"```{err}```"), delete_after=3600)
 
 
 # recieve message
@@ -89,6 +91,9 @@ async def execute_command(guild_id, message):
 
     elif first_parameter == "vc":
         await voice_module.vc_functions.vc_command_handler(message)
+
+    elif first_parameter == "minecraft" or first_parameter == "mc":
+        await minecraft_module.minecraft_functions.minecraft_command_handler(message)
 
     elif first_parameter == "help":
         await help_module.help_functions.help_message_handler(message, COMMAND_PREFIX)
