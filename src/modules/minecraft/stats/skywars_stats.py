@@ -26,8 +26,8 @@ def get_overall_skywars_stats(data, player_rank) -> discord.Embed:
             "Rank": "[{}]".format(player_rank), "Coins": data["coins"], "Winstreak": data["win_streak"],
             "Wins": data["wins"], "Losses": data["losses"], "WLR": round(data["wins"]/data["losses"], 2),
             "Kills": data["kills"], "Deaths": data["deaths"], "K/D": round(data["kills"]/data["deaths"], 2),
-            "Games Played": data["games_played_skywars"], "Rage Quits": data["quits"], "Rage Quit %": f"{round((data['quits']/data['games_played_skywars']) * 100, 2)}%",
-            "Souls": data["souls"], "Heads": data["heads"], "Chests Opened": data["chests_opened"]
+            "Souls": data["souls"], "Heads": data["heads"], "Chests Opened": data["chests_opened"],
+            "Arrows shot": data["arrows_shot"], "Arrows Hit": data["arrows_hit"], "Accuracy": f"{round((data['arrows_hit']/data['arrows_shot']) * 100, 2)}%"
         }
     except:
         raise StatsNotFoundError
