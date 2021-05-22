@@ -39,8 +39,14 @@ async def hypixel_command_handler(message):
                 }
             ).json()
 
+    # check if unsuccessful request
     if not hypixel_data["success"]:
         await message.channel.send(embed=verbose.embeds.embed_sorry_message("I couldn't fetch data for that player - either you have requested them recently or are spamming the command."))
+        return
+
+    # check if player exists
+    if hypixel_data["player"] is None:
+        await message.channel.send(embed=verbose.embeds.embed_sorry_message("That player does not exist. Please check spelling and try again."))
         return
 
     # save recent searches to memory so i dont spam the api
