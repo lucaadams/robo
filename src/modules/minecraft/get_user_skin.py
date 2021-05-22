@@ -17,7 +17,12 @@ recent_searches = cache.Cache()
 
 
 async def get_user_skin(message):
-    username = message.content.split()[3].lower()
+    try:
+        username = message.content.split()[3].lower()
+    except IndexError:
+        await message.channel.send(embed=verbose.embeds.embed_error_message(f"You must specify a user."))
+        return
+
 
     # only send request if user info is not in cache
     if username in recent_searches.object_keys():
@@ -27,7 +32,7 @@ async def get_user_skin(message):
         uuid_request = requests.get(url = get_uuid_url.format(username))
 
         if uuid_request.status_code != SUCCESSFUL_STATUS_CODE:
-            await message.channel.send(embed=verbose.embeds.embed_sorry_message(f"I could not find a user with the name `{username}`."))
+            await message.channel.send(embed=verbose.embeds.embed_sorry_message(f"I could not find a user with the name `{username}`. Please check spelling and try again."))
             return
         
         uuid = uuid_request.json()["id"]
