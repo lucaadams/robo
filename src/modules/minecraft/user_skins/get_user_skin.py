@@ -9,7 +9,10 @@ get_avatar_url = "https://crafatar.com/avatars/{}?overlay=true"
 
 
 async def send_user_skin_render(message):
-    uuid, username = await get_uuid(message)
+    try:
+        uuid, username = await get_uuid(message)
+    except TypeError:
+        return
 
     skin_render_url = get_skin_render_url.format(uuid)
 
