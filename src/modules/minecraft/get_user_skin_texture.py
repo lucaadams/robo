@@ -16,7 +16,7 @@ get_user_info_url = "https://sessionserver.mojang.com/session/minecraft/profile/
 recent_searches = cache.Cache()
 
 
-async def get_user_skin(message):
+async def get_user_skin_texture(message):
     try:
         username = message.content.split()[3].lower()
     except IndexError:
@@ -29,15 +29,16 @@ async def get_user_skin(message):
         user_info = recent_searches.get_object(username)
     else:
         # first send request for the UUID of USER, then send request using that UUID to get more data including skin url
-        uuid_request = requests.get(url = get_uuid_url.format(username))
+        with message.channel.typing():
+            uuid_request = requests.get(url = get_uuid_url.format(username))
 
-        if uuid_request.status_code != SUCCESSFUL_STATUS_CODE:
-            await message.channel.send(embed=verbose.embeds.embed_sorry_message(f"I could not find a user with the name `{username}`. Please check spelling and try again."))
-            return
-        
-        uuid = uuid_request.json()["id"]
+            if uuid_request.status_code != SUCCESSFUL_STATUS_CODE:
+                await message.channel.send(embed=verbose.embeds.embed_sorry_message(f"I could not find a user with the name `{username}`. Please check spelling and try again."))
+                return
+            
+            uuid = uuid_request.json()["id"]
 
-        user_info_request = requests.get(url = get_user_info_url.format(uuid))
+            user_info_request = requests.get(url = get_user_info_url.format(uuid))
 
         logging.info("Request successfully sent to mojang api")
 
