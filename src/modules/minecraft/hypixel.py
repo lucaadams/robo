@@ -8,6 +8,7 @@ from methods import parse_timestamp
 from exceptions import StatsNotFoundError
 import modules.minecraft.stats.bedwars_stats, \
     modules.minecraft.stats.skywars_stats
+from modules.minecraft.user_skins.get_user_skin import get_user_avatar
 
 
 hypixel_api_key = data.__secrets["hypixel_api_key"]
@@ -39,19 +40,21 @@ async def hypixel_command_handler(message):
                 }
             ).json()
 
-    # check if unsuccessful request
-    if not hypixel_data["success"]:
-        await message.channel.send(embed=verbose.embeds.embed_sorry_message("I couldn't fetch data for that player - either you have requested them recently or are spamming the command."))
-        return
+        # check if unsuccessful request
+        if not hypixel_data["success"]:
+            await message.channel.send(embed=verbose.embeds.embed_sorry_message("I couldn't fetch data for that player - either you have requested them recently or are spamming the command."))
+            return
 
-    # check if player exists
-    if hypixel_data["player"] is None:
-        await message.channel.send(embed=verbose.embeds.embed_sorry_message("That player does not exist. Please check spelling and try again."))
-        return
+        # check if player exists
+        if hypixel_data["player"] is None:
+            await message.channel.send(embed=verbose.embeds.embed_sorry_message("That player does not exist. Please check spelling and try again."))
+            return
 
-    # save recent searches to memory so i dont spam the api
-    object_to_cache = cache.CachedObject(username, hypixel_data)
-    recent_searches.add(object_to_cache)
+        # save recent searches to memory so i dont spam the api
+        object_to_cache = cache.CachedObject(username, hypixel_data)
+        recent_searches.add(object_to_cache)
+
+    user_avatar_url = await get_user_avatar(message)
 
     first_and_last_login = f"first login: {parse_timestamp(hypixel_data['player']['firstLogin'])}    \
         last login: {parse_timestamp(hypixel_data['player']['lastLogin'])}"
@@ -67,7 +70,8 @@ async def hypixel_command_handler(message):
         try:
             bedwars_data = hypixel_data["player"]["stats"]["Bedwars"]
             username = f"[{hypixel_data['player']['achievements']['bedwars_level']}☆] {hypixel_data['player']['displayname']}"
-            await message.channel.send(embed=modules.minecraft.stats.bedwars_stats.embed_bedwars_stats(username, bedwars_data, hypixel_logo_url, first_and_last_login, player_rank))
+            await message.channel.send(embed=modules.minecraft.stats.bedwars_stats.embed_bedwars_stats(
+                username, bedwars_data, hypixel_logo_url, first_and_last_login, player_rank, user_avatar_url))
         except TypeError:
             await message.channel.send(embed=verbose.embeds.embed_sorry_message("I could not find a user with that name. Please check spelling and try again."))
             return
@@ -80,7 +84,8 @@ async def hypixel_command_handler(message):
             skywars_data = hypixel_data["player"]["stats"]["SkyWars"]
             sw_level = sw_xp_to_level(hypixel_data['player']['stats']['SkyWars']['skywars_experience'])
             username = f"[{sw_level}☆] {hypixel_data['player']['displayname']}"
-            await message.channel.send(embed=modules.minecraft.stats.skywars_stats.embed_skywars_stats(username, skywars_data, hypixel_logo_url, first_and_last_login, player_rank))
+            await message.channel.send(embed=modules.minecraft.stats.skywars_stats.embed_skywars_stats(
+                username, skywars_data, hypixel_logo_url, first_and_last_login, player_rank, user_avatar_url))
         except TypeError:
             await message.channel.send(embed=verbose.embeds.embed_sorry_message("I could not find a user with that name. Please check spelling and try again."))
             return
@@ -97,3 +102,4 @@ def sw_xp_to_level(xp):
         for level in range(len(xp_thresholds)):
             if xp < xp_thresholds[level]:
                 return level
+

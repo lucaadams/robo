@@ -2,7 +2,7 @@ import discord
 from exceptions import StatsNotFoundError
 
 
-def embed_skywars_stats(username, data, hypixel_logo_url, first_and_last_login, player_rank) -> discord.Embed:
+def embed_skywars_stats(username, data, hypixel_logo_url, first_and_last_login, player_rank, user_avatar_url) -> discord.Embed:
     stats_embed = discord.Embed(
         title = username,
         colour = discord.Colour.gold()
@@ -11,7 +11,7 @@ def embed_skywars_stats(username, data, hypixel_logo_url, first_and_last_login, 
     overall_stats_data = get_overall_skywars_stats(data, player_rank)
 
     stats_embed.set_author(icon_url=hypixel_logo_url, name=" Overall skywars stats")
-    stats_embed.set_thumbnail(url="https://static.wikia.nocookie.net/mineplex/images/b/b6/Skywarslogo.png/revision/latest?cb=20190727041147")
+    stats_embed.set_thumbnail(url=user_avatar_url)
     stats_embed.set_footer(text=first_and_last_login)
     
     for stat in overall_stats_data.keys():

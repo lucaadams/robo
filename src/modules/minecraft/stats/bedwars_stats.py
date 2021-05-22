@@ -1,8 +1,9 @@
 import discord
+
 from exceptions import StatsNotFoundError
 
 
-def embed_bedwars_stats(username, data, hypixel_logo_url, first_and_last_login, player_rank) -> discord.Embed:
+def embed_bedwars_stats(username, data, hypixel_logo_url, first_and_last_login, player_rank, user_avatar_url) -> discord.Embed:
     stats_embed = discord.Embed(
         title = username,
         colour = discord.Colour.gold()
@@ -12,7 +13,7 @@ def embed_bedwars_stats(username, data, hypixel_logo_url, first_and_last_login, 
     overall_stats_data = get_overall_bedwars_stats(data, player_rank)
 
     stats_embed.set_author(icon_url=hypixel_logo_url, name=" Overall bedwars stats")
-    stats_embed.set_thumbnail(url="https://i.ytimg.com/vi/DQFZ0lJPcs8/maxresdefault.jpg")
+    stats_embed.set_thumbnail(url=user_avatar_url)
     stats_embed.set_footer(text=first_and_last_login)
     
     for stat in overall_stats_data.keys():

@@ -2,10 +2,11 @@ import requests
 from base64 import b64decode
 import json
 import logging
-import discord
 
 import verbose.embeds
 import cache
+from modules.minecraft.get_uuid import get_uuid
+from modules.minecraft.user_skins.skin_embeds import embed_skin
 
 
 SUCCESSFUL_STATUS_CODE = 200
@@ -23,20 +24,13 @@ async def get_user_skin_texture(message):
         await message.channel.send(embed=verbose.embeds.embed_error_message(f"You must specify a user."))
         return
 
-
     # only send request if user info is not in cache
     if username in recent_searches.object_keys():
         user_info = recent_searches.get_object(username)
     else:
         # first send request for the UUID of USER, then send request using that UUID to get more data including skin url
         with message.channel.typing():
-            uuid_request = requests.get(url = get_uuid_url.format(username))
-
-            if uuid_request.status_code != SUCCESSFUL_STATUS_CODE:
-                await message.channel.send(embed=verbose.embeds.embed_sorry_message(f"I could not find a user with the name `{username}`. Please check spelling and try again."))
-                return
-            
-            uuid = uuid_request.json()["id"]
+            uuid, username = get_uuid(message)
 
             user_info_request = requests.get(url = get_user_info_url.format(uuid))
 
@@ -53,12 +47,3 @@ async def get_user_skin_texture(message):
             # `property["value"]` is the value of the textures property
             textures = json.loads(b64decode(property["value"], validate=True).decode("utf-8"))
             await message.channel.send(embed=embed_skin(textures["textures"]["SKIN"]["url"], textures["profileName"]))
-
-
-def embed_skin(skin_url, username):
-    embed = discord.Embed(
-        title = f"{username}'s skin:",
-        colour = discord.Colour.gold()
-    )
-    embed.set_image(url=skin_url)
-    return embed
