@@ -4,6 +4,7 @@ general methods to be used anywhere
 
 from datetime import datetime
 
+
 def parse_timestamp(timestamp):
     timestamp = int(round(timestamp, 0))
 
@@ -13,16 +14,14 @@ def parse_timestamp(timestamp):
 
     unformatted_datetime = str(datetime.fromtimestamp(timestamp))
     
-    time = unformatted_datetime[11:15]
+    time = unformatted_datetime[11:]
     date = unformatted_datetime[:10]
 
-    day, month, year = date.split("-")
+    hours, minutes, _ = time.split(":")
+    year, month, day = date.split("-")
 
-    # if the minutes value is less than 10, add a 0 in front (e.g. 10:5 -> 10:05)
-    if int(time[3:]) < 10:
-        time = f"{time[:2]}:0{time[3]}"
+    return f"{hours}:{minutes} {day}/{month}/{year}"
 
-    return f"{time} {day}/{month}/{year}"
 
 def wrap(text, max_chars_per_line):
     text = text.strip(" ")
