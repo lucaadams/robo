@@ -58,6 +58,8 @@ async def hypixel_command_handler(message):
 
     try:
         player_rank = hypixel_data["player"]["newPackageRank"]
+        if player_rank == "MVP_PLUS":
+            player_rank = "MVP+"
     except KeyError:
         player_rank = "N/A"
 
