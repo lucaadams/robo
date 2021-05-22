@@ -80,7 +80,7 @@ async def hypixel_command_handler(message):
 def sw_xp_to_level(xp):
     xp_thresholds = [0, 20, 70, 150, 250, 500, 1000, 2000, 3500, 6000, 10000, 15000]
     if xp >= 15000:
-        return (xp - 15000) / 10000 + 12
+        return int((xp - 15000) / 10000 + 12)
     else:
         for level in range(len(xp_thresholds)):
             if xp < xp_thresholds[level]:
