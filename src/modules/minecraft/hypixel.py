@@ -99,7 +99,7 @@ def sw_xp_to_level(xp):
     if xp >= 15000:
         return int((xp - 15000) / 10000 + 12)
     else:
-        for level in range(len(xp_thresholds)):
-            if xp < xp_thresholds[level]:
+        for level, threshold in enumerate(xp_thresholds):
+            if xp < threshold:
                 return level
 
