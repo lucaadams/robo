@@ -78,5 +78,6 @@ async def minecraft_help_message(message, COMMAND_PREFIX):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Text Commands:", f'''
     • `{COMMAND_PREFIX} minecraft bedwars/bw [USERNAME]` \n    _Robo sends a selection of hypixel bedwars stats for player [USERNAME]._\n
     • `{COMMAND_PREFIX} minecraft skywars/sw [USERNAME]` \n    _Robo sends a selection of hypixel skywars stats for player [USERNAME]._\n
-    • `{COMMAND_PREFIX} minecraft skin [USERNAME]` \n    _Robo sends the raw skin texture of player [USERNAME] which can be saved and input to the minecraft launcher for use._\n
+    • `{COMMAND_PREFIX} minecraft skin [USERNAME]` \n    _Robo sends a render of [USERNAME]'s skin._\n
+    • `{COMMAND_PREFIX} minecraft skin-texture [USERNAME]` \n    _Robo sends the raw skin texture of player [USERNAME] which can be saved and input to the minecraft launcher for use._\n
     ''', ":page_with_curl:"))
