@@ -20,6 +20,9 @@ async def help_message_handler(message, COMMAND_PREFIX):
     elif second_parameter == "games":
         await games_help_message(message, COMMAND_PREFIX)
 
+    elif second_parameter == "minecraft" or second_parameter == "mc":
+        await minecraft_help_message(message, COMMAND_PREFIX)
+
     else:
         await message.channel.send(embed=verbose.embeds.embed_error_message("Must specify valid help message."))
 
@@ -30,6 +33,7 @@ async def default_help_message(message, COMMAND_PREFIX):
     • **Image Module**\n    `{COMMAND_PREFIX} help image`\n    _Commands used to make images with custom text._\n
     • **Voice Module**\n    `{COMMAND_PREFIX} help vc`\n    _Commands used to playing audio from Youtube or Twitch in a voice channel._\n
     • **Games Module**\n    `{COMMAND_PREFIX} help games`\n    _Commands used to play Robo's built-in games._\n
+    • **Minecraft Module**\n    `{COMMAND_PREFIX} help mincraft/mc`\n    _Commands used to get info from various minecraft-related APIs._\n
     ''', ":page_with_curl:"))
 
 
@@ -67,4 +71,12 @@ async def vc_help_message(message, COMMAND_PREFIX):
 async def games_help_message(message, COMMAND_PREFIX):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Text Commands:", f'''
     • `{COMMAND_PREFIX} games counting [INCREMENT(optional)]` \n    _Start a game of Counting (min 2 people). Count up to the highest number you can, without saying two numbers in a row or sending the wrong number._\n
+    ''', ":page_with_curl:"))
+
+
+async def minecraft_help_message(message, COMMAND_PREFIX):
+    await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Text Commands:", f'''
+    • `{COMMAND_PREFIX} minecraft bedwars/bw [USERNAME]` \n    _Robo sends a selection of hypixel bedwars stats for player [USERNAME]._\n
+    • `{COMMAND_PREFIX} minecraft skywars/sw [USERNAME]` \n    _Robo sends a selection of hypixel skywars stats for player [USERNAME]._\n
+    • `{COMMAND_PREFIX} minecraft skin [USERNAME]` \n    _Robo sends the raw skin texture of player [USERNAME] which can be saved and input to the minecraft launcher for use._\n
     ''', ":page_with_curl:"))
