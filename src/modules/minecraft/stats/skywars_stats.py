@@ -2,6 +2,9 @@ import discord
 from exceptions import StatsNotFoundError
 
 
+hypixel_logo_url = "https://pbs.twimg.com/profile_images/1346968969849171970/DdNypQdN_400x400.png"
+
+
 def embed_skywars_stats(username, data, hypixel_logo_url, first_and_last_login, player_rank, user_avatar_url) -> discord.Embed:
     stats_embed = discord.Embed(
         title = username,

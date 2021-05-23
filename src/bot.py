@@ -11,12 +11,14 @@ import modules.games.counting
 import modules.games.game_functions
 import modules.voice.vc_functions
 import modules.minecraft.minecraft_functions
+import modules.minecraft.hypixel
 import modules.help.help_functions
 
 
 COMMAND_PREFIX = os.getenv("ROBO_COMMAND_PREFIX") or "!robo"
 CLIENT = discord.Client()
 application_info = None
+stop_emoji = "⏹️"
 
 
 def run_client():
@@ -68,6 +70,23 @@ async def on_message(message):
         return
 
     await modules.text.keyword_functions.check_keywords(guild_id, message)
+
+
+@CLIENT.event
+async def on_reaction_add(reaction, user):
+    # if the reaction was added by the bot, return
+    if user == CLIENT.user:
+        return
+
+    bot_message = reaction.message
+
+    # if the reaction is not on the bot's own message, return
+    if bot_message.author != CLIENT.user:
+        return
+    
+    await reaction.remove(user)
+
+    await modules.minecraft.hypixel.change_page(bot_message, reaction)
 
 
 # command manager
