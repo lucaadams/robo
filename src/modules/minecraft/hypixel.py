@@ -84,7 +84,7 @@ async def hypixel_command_handler(message):
         try:
             username = f"[{hypixel_data['player']['achievements']['bedwars_level']}☆] {hypixel_data['player']['displayname']}"
             base_player_data = {
-                "username": username, "gamemode": "bw", "user_gamemode-specific_data": hypixel_data["player"]["stats"]["Bedwars"],
+                "username": username, "gamemode": "bw", "gamemode_specific_data": hypixel_data["player"]["stats"]["Bedwars"],
                 "first_and_last_login": first_and_last_login, "player_rank": player_rank, "user_avatar_url": user_avatar_url
             }
             bw_stats_message = await message.channel.send(embed=modules.minecraft.stats.bedwars_stats.embed_bedwars_stats(base_player_data, 0))
@@ -102,13 +102,16 @@ async def hypixel_command_handler(message):
     elif game == "sw" or game == "skywars":
         try:
             skywars_data = hypixel_data["player"]["stats"]["SkyWars"]
-            username = f"[{skywars_data['levelFormatted'][-3:].strip('§f')}] {hypixel_data['player']['displayname']}"
+            level = skywars_data['levelFormatted'][-3:].strip('§f')
+            level = level[:-1] + "\\" + level[-1]
+            username = f"[{level}] {hypixel_data['player']['displayname']}"
             base_player_data = {
-                "username": username, "gamemode": "sw", "user_gamemode-specific_data": skywars_data,
+                "username": username, "gamemode": "sw", "gamemode_specific_data": skywars_data,
                 "first_and_last_login": first_and_last_login, "player_rank": player_rank, "user_avatar_url": user_avatar_url
             }
-            sw_stats_message = await message.channel.send(embed=modules.minecraft.stats.skywars_stats.embed_skywars_stats(base_player_data))
-            sent_message = StatsMessage(sw_stats_message, hypixel_data, "sw")
+            sw_stats_message = await message.channel.send(embed=modules.minecraft.stats.skywars_stats.embed_skywars_stats(base_player_data, 0))
+            sent_message = StatsMessage(
+                sw_stats_message, base_player_data, "sw")
             sent_stats_messages.append(sent_message)
             await add_reaction(sw_stats_message)
         except TypeError:
@@ -153,6 +156,10 @@ async def change_page(bot_message, reaction):
 
     if sent_stats_messages[message_index_in_sent_messages].gamemode == "bw":
         await bot_message.edit(embed=modules.minecraft.stats.bedwars_stats.embed_bedwars_stats(
+            sent_stats_messages[message_index_in_sent_messages].base_player_data, page_number))
+
+    elif sent_stats_messages[message_index_in_sent_messages].gamemode == "sw":
+        await bot_message.edit(embed=modules.minecraft.stats.skywars_stats.embed_skywars_stats(
             sent_stats_messages[message_index_in_sent_messages].base_player_data, page_number))
 
 

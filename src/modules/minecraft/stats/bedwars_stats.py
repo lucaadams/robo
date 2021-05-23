@@ -20,11 +20,11 @@ def embed_bedwars_stats(base_player_data, page_number) -> discord.Embed:
     # get only the data i need from the dict with all the data
     if page_number == 0:
         stats_data, gamemode = get_overall_bedwars_stats(
-            base_player_data["user_gamemode-specific_data"], base_player_data["player_rank"])
+            base_player_data["gamemode_specific_data"], base_player_data["player_rank"])
     else:
         gamecode = page_number_to_gamecode(page_number)
         stats_data, gamemode = get_mode_specific_bedwars_stats(
-            base_player_data["user_gamemode-specific_data"], base_player_data["player_rank"], gamecode)
+            base_player_data["gamemode_specific_data"], base_player_data["player_rank"], gamecode)
 
     stats_embed.set_author(icon_url=hypixel_logo_url,
                            name=f" {gamemode} bedwars stats")
