@@ -18,4 +18,3 @@ async def minecraft_command_handler(message):
 
     else:
         await message.channel.send(embed=verbose.embeds.embed_error_message("That command does not exist."))
-

@@ -9,14 +9,15 @@ import verbose.embeds
 import cache
 from methods import parse_timestamp
 from exceptions import StatsNotFoundError
-import modules.minecraft.stats.bedwars_stats, \
-    modules.minecraft.stats.skywars_stats
+import modules.minecraft.stats.bedwars_stats
+import modules.minecraft.stats.skywars_stats
 from modules.minecraft.user_skins.get_user_skin import get_user_avatar
 
 
 hypixel_api_key = data.__secrets["hypixel_api_key"]
 if hypixel_api_key == "REPLACE THIS TEXT WITH YOUR HYPIXEL API KEY":
-    logging.info("Your hypixel API key had not been set. Get one by going in-game to the hypixel server and typing `/api new`.")
+    logging.info(
+        "Your hypixel API key had not been set. Bedwars and SkyWars stats commands will not work. Get one by going in-game to the hypixel server and typing `/api new`.")
 
 recent_searches = cache.Cache()
 sent_stats_messages = []
@@ -46,8 +47,8 @@ async def hypixel_command_handler(message):
         async with message.channel.typing():
             # send request for hypixel data from a specific user
             hypixel_data = requests.get(
-                url = "https://api.hypixel.net/player",
-                params = {
+                url="https://api.hypixel.net/player",
+                params={
                     "key": hypixel_api_key,
                     "name": username
                 }
@@ -83,11 +84,12 @@ async def hypixel_command_handler(message):
         try:
             username = f"[{hypixel_data['player']['achievements']['bedwars_level']}☆] {hypixel_data['player']['displayname']}"
             base_player_data = {
-                "username": username, "gamemode": "bw", "user_gamemode-specific_data": hypixel_data["player"]["stats"]["Bedwars"], 
+                "username": username, "gamemode": "bw", "user_gamemode-specific_data": hypixel_data["player"]["stats"]["Bedwars"],
                 "first_and_last_login": first_and_last_login, "player_rank": player_rank, "user_avatar_url": user_avatar_url
             }
             bw_stats_message = await message.channel.send(embed=modules.minecraft.stats.bedwars_stats.embed_bedwars_stats(base_player_data, 0))
-            sent_message = StatsMessage(bw_stats_message, base_player_data, "bw")
+            sent_message = StatsMessage(
+                bw_stats_message, base_player_data, "bw")
             sent_stats_messages.append(sent_message)
             await add_reaction(bw_stats_message)
         except TypeError:
@@ -96,13 +98,13 @@ async def hypixel_command_handler(message):
         except (KeyError, StatsNotFoundError):
             await message.channel.send(embed=verbose.embeds.embed_sorry_message("That user has never played hypixel bedwars."))
             return
-    
+
     elif game == "sw" or game == "skywars":
         try:
             skywars_data = hypixel_data["player"]["stats"]["SkyWars"]
             username = f"[{skywars_data['levelFormatted'][-3:].strip('§f')}] {hypixel_data['player']['displayname']}"
             base_player_data = {
-                "username": username, "gamemode": "sw", "user_gamemode-specific_data": skywars_data, 
+                "username": username, "gamemode": "sw", "user_gamemode-specific_data": skywars_data,
                 "first_and_last_login": first_and_last_login, "player_rank": player_rank, "user_avatar_url": user_avatar_url
             }
             sw_stats_message = await message.channel.send(embed=modules.minecraft.stats.skywars_stats.embed_skywars_stats(base_player_data))
@@ -129,7 +131,7 @@ async def change_page(bot_message, reaction):
     for index, stats_message in enumerate(sent_stats_messages):
         if bot_message == stats_message.message:
             message_index_in_sent_messages = index
-    
+
     if message_index_in_sent_messages is None:
         return
 
@@ -155,7 +157,8 @@ async def change_page(bot_message, reaction):
 
 
 def sw_xp_to_level(xp):
-    xp_thresholds = [0, 20, 70, 150, 250, 500, 1000, 2000, 3500, 6000, 10000, 15000]
+    xp_thresholds = [0, 20, 70, 150, 250, 500,
+                     1000, 2000, 3500, 6000, 10000, 15000]
     if xp >= 15000:
         return int((xp - 15000) / 10000 + 12)
     else:

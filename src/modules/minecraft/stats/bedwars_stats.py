@@ -13,24 +13,28 @@ corresponding_gamemodes_and_gamecodes = {
 
 def embed_bedwars_stats(base_player_data, page_number) -> discord.Embed:
     stats_embed = discord.Embed(
-        title = base_player_data["username"],
-        colour = discord.Colour.gold()
+        title=base_player_data["username"],
+        colour=discord.Colour.gold()
     )
 
     # get only the data i need from the dict with all the data
     if page_number == 0:
-        stats_data, gamemode = get_overall_bedwars_stats(base_player_data["user_gamemode-specific_data"], base_player_data["player_rank"])
+        stats_data, gamemode = get_overall_bedwars_stats(
+            base_player_data["user_gamemode-specific_data"], base_player_data["player_rank"])
     else:
         gamecode = page_number_to_gamecode(page_number)
-        stats_data, gamemode = get_mode_specific_bedwars_stats(base_player_data["user_gamemode-specific_data"], base_player_data["player_rank"], gamecode)
+        stats_data, gamemode = get_mode_specific_bedwars_stats(
+            base_player_data["user_gamemode-specific_data"], base_player_data["player_rank"], gamecode)
 
-    stats_embed.set_author(icon_url=hypixel_logo_url, name=f" {gamemode} bedwars stats")
+    stats_embed.set_author(icon_url=hypixel_logo_url,
+                           name=f" {gamemode} bedwars stats")
     stats_embed.set_thumbnail(url=base_player_data["user_avatar_url"])
     stats_embed.set_footer(text=base_player_data["first_and_last_login"])
-    
+
     for stat in stats_data.keys():
-        stats_embed.add_field(name=stat, value=f"`{stats_data[stat]}`", inline=True)
-    
+        stats_embed.add_field(
+            name=stat, value=f"`{stats_data[stat]}`", inline=True)
+
     return stats_embed
 
 
@@ -74,5 +78,5 @@ def page_number_to_gamecode(page_number):
         1: "eight_one", 2: "eight_two",
         3: "four_three", 4: "four_four"
     }
-    
+
     return corresponding_page_numbers_and_gamecodes[page_number]

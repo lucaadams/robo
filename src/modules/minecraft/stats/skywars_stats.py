@@ -7,19 +7,21 @@ hypixel_logo_url = "https://pbs.twimg.com/profile_images/1346968969849171970/DdN
 
 def embed_skywars_stats(username, data, hypixel_logo_url, first_and_last_login, player_rank, user_avatar_url) -> discord.Embed:
     stats_embed = discord.Embed(
-        title = username,
-        colour = discord.Colour.gold()
+        title=username,
+        colour=discord.Colour.gold()
     )
 
     overall_stats_data = get_overall_skywars_stats(data, player_rank)
 
-    stats_embed.set_author(icon_url=hypixel_logo_url, name=" Overall skywars stats")
+    stats_embed.set_author(icon_url=hypixel_logo_url,
+                           name=" Overall skywars stats")
     stats_embed.set_thumbnail(url=user_avatar_url)
     stats_embed.set_footer(text=first_and_last_login)
-    
+
     for stat in overall_stats_data.keys():
-        stats_embed.add_field(name=stat, value=f"`{overall_stats_data[stat]}`", inline=True)
-    
+        stats_embed.add_field(
+            name=stat, value=f"`{overall_stats_data[stat]}`", inline=True)
+
     return stats_embed
 
 
