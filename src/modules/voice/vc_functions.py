@@ -48,7 +48,9 @@ async def vc_command_handler(message):
 
     elif second_parameter == "add":
         await add_song_to_queue(message)
-        if len(guild_vc_data[guild_id]["guild_queue"]) == 1 and guild_vc_data[guild_id]["voice_client"].is_connected():
+        if len(guild_vc_data[guild_id]["guild_queue"]) == 1 \
+            and guild_vc_data[guild_id]["voice_client"] is not None \
+                and guild_vc_data[guild_id]["voice_client"].is_connected():
             await play_from_yt(message)
 
     elif second_parameter == "skip" or second_parameter == "next":
@@ -359,8 +361,8 @@ def shuffle_queue(guild_id):
 
 def embed_youtube_info(metadata):
     youtube_info_embed = discord.Embed(
-        title = f"{metadata['title']} - {metadata['uploader']}",
-        colour = discord.Color(0xeb4034)
+        title=f"{metadata['title']} - {metadata['uploader']}",
+        colour=discord.Color(0xeb4034)
     )
 
     time_mins = metadata["duration"] // 60
@@ -369,9 +371,11 @@ def embed_youtube_info(metadata):
     time_secs = metadata["duration"] % 60
     time_secs = f"0{time_secs}" if time_secs < 10 else time_secs
 
-    youtube_info_embed.set_author(icon_url="https://www.iconpacks.net/icons/2/free-youtube-logo-icon-2431-thumb.png", name=" Now playing:")
+    youtube_info_embed.set_author(
+        icon_url="https://www.iconpacks.net/icons/2/free-youtube-logo-icon-2431-thumb.png", name=" Now playing:")
     youtube_info_embed.set_thumbnail(url=metadata["thumbnail"])
-    youtube_info_embed.set_footer(text=f"⠀     👁️ {metadata['view_count']}⠀         |⠀         👍 {metadata['like_count']}⠀         |⠀         👎 {metadata['dislike_count']}⠀         |⠀         ⏱️ {time_mins}:{time_secs}⠀     ")
+    youtube_info_embed.set_footer(
+        text=f"⠀     👁️ {metadata['view_count']}⠀         |⠀         👍 {metadata['like_count']}⠀         |⠀         👎 {metadata['dislike_count']}⠀         |⠀         ⏱️ {time_mins}:{time_secs}⠀     ")
 
     return youtube_info_embed
 
