@@ -77,3 +77,5 @@ else:
     }
     with open(SECRETS_FILE_PATH, "w") as secrets_file:
         secrets_file.write(__secrets)
+
+

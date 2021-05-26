@@ -45,4 +45,3 @@ class Cache:
         """get the value of a given object"""
         if object_name in self.object_keys():
             return self.cached_objects[object_name].value
-
