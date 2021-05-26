@@ -20,6 +20,10 @@ async def send_user_skin_render(message):
 
 
 async def get_user_avatar(message):
-    uuid, _ = await get_uuid(message)
+    try:
+        uuid, _ = await get_uuid(message)
+    except TypeError:
+        return
+        
     url = get_avatar_url.format(uuid)
     return url
