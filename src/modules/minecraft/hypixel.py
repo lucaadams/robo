@@ -69,6 +69,9 @@ async def hypixel_command_handler(message):
 
     user_avatar_url = await get_user_avatar(message)
 
+    if user_avatar_url is None:
+        return
+
     first_and_last_login = f"first login: {parse_timestamp(hypixel_data['player']['firstLogin'])}    \
         last login: {parse_timestamp(hypixel_data['player']['lastLogin'])}"
 
