@@ -21,7 +21,9 @@ async def get_user_skin_texture(message):
     try:
         username = message.content.split()[3].lower()
     except IndexError:
-        await message.channel.send(embed=verbose.embeds.embed_error_message(f"You must specify a user."))
+        await message.channel.send(
+            embed=verbose.embeds.embed_error_message(f"You must specify a user.")
+        )
         return
 
     # only send request if user info is not in cache
@@ -32,8 +34,7 @@ async def get_user_skin_texture(message):
         with message.channel.typing():
             uuid, username = get_uuid(message)
 
-            user_info_request = requests.get(
-                url=get_user_info_url.format(uuid))
+            user_info_request = requests.get(url=get_user_info_url.format(uuid))
 
         logging.info("Request successfully sent to mojang api")
 
@@ -47,5 +48,10 @@ async def get_user_skin_texture(message):
             # decode skin code from Base64 to return a json file with user textures
             # `property["value"]` is the value of the textures property
             textures = json.loads(
-                b64decode(property["value"], validate=True).decode("utf-8"))
-            await message.channel.send(embed=embed_skin(textures["textures"]["SKIN"]["url"], textures["profileName"]))
+                b64decode(property["value"], validate=True).decode("utf-8")
+            )
+            await message.channel.send(
+                embed=embed_skin(
+                    textures["textures"]["SKIN"]["url"], textures["profileName"]
+                )
+            )

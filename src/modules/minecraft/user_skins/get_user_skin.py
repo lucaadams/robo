@@ -24,6 +24,6 @@ async def get_user_avatar(message):
         uuid, _ = await get_uuid(message)
     except TypeError:
         return
-        
+
     url = get_avatar_url.format(uuid)
     return url

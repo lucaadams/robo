@@ -13,7 +13,7 @@ def parse_timestamp(timestamp):
         timestamp = round(timestamp / 1000, 0)
 
     unformatted_datetime = str(datetime.fromtimestamp(timestamp))
-    
+
     time = unformatted_datetime[11:]
     date = unformatted_datetime[:10]
 

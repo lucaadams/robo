@@ -15,7 +15,8 @@ from modules.minecraft.user_skins.get_user_skin import get_user_avatar
 hypixel_api_key = data.__secrets["hypixel_api_key"]
 if hypixel_api_key == "REPLACE THIS TEXT WITH YOUR HYPIXEL API KEY":
     logging.info(
-        "Your hypixel API key had not been set. Bedwars and SkyWars stats commands will not work. Get one by going in-game to the hypixel server and typing `/api new`.")
+        "Your hypixel API key had not been set. Bedwars and SkyWars stats commands will not work. Get one by going in-game to the hypixel server and typing `/api new`."
+    )
 
 recent_searches = cache.Cache()
 sent_stats_messages_with_reactions = []
@@ -37,7 +38,11 @@ async def hypixel_command_handler(message):
         game = message.content.split()[2].lower()
         username = message.content.split()[3].lower()
     except IndexError:
-        await message.channel.send(embed=verbose.embeds.embed_error_message(f"You must include both parameters `[GAME]` and `[USERNAME]`."))
+        await message.channel.send(
+            embed=verbose.embeds.embed_error_message(
+                f"You must include both parameters `[GAME]` and `[USERNAME]`."
+            )
+        )
         return
 
     # try to get search from cache. if it didn't work, send req
@@ -47,20 +52,25 @@ async def hypixel_command_handler(message):
             # send request for hypixel data from a specific user
             hypixel_data = requests.get(
                 url="https://api.hypixel.net/player",
-                params={
-                    "key": hypixel_api_key,
-                    "name": username
-                }
+                params={"key": hypixel_api_key, "name": username},
             ).json()
 
         # check if unsuccessful request
         if not hypixel_data["success"]:
-            await message.channel.send(embed=verbose.embeds.embed_sorry_message("I couldn't fetch data for that player - either you have requested them recently or are spamming the command."))
+            await message.channel.send(
+                embed=verbose.embeds.embed_sorry_message(
+                    "I couldn't fetch data for that player - either you have requested them recently or are spamming the command."
+                )
+            )
             return
 
         # check if player exists
         if hypixel_data["player"] is None:
-            await message.channel.send(embed=verbose.embeds.embed_sorry_message("That player does not exist. Please check spelling and try again."))
+            await message.channel.send(
+                embed=verbose.embeds.embed_sorry_message(
+                    "That player does not exist. Please check spelling and try again."
+                )
+            )
             return
 
         # save recent searches to memory so i dont spam the api
@@ -86,42 +96,72 @@ async def hypixel_command_handler(message):
         try:
             username = f"[{hypixel_data['player']['achievements']['bedwars_level']}☆] {hypixel_data['player']['displayname']}"
             base_player_data = {
-                "username": username, "gamemode": "bw", "gamemode_specific_data": hypixel_data["player"]["stats"]["Bedwars"],
-                "first_and_last_login": first_and_last_login, "player_rank": player_rank, "user_avatar_url": user_avatar_url
+                "username": username,
+                "gamemode": "bw",
+                "gamemode_specific_data": hypixel_data["player"]["stats"]["Bedwars"],
+                "first_and_last_login": first_and_last_login,
+                "player_rank": player_rank,
+                "user_avatar_url": user_avatar_url,
             }
-            bw_stats_message = await message.channel.send(embed=modules.minecraft.stats.bedwars_stats.embed_bedwars_stats(base_player_data, 0))
-            sent_message = StatsMessage(
-                bw_stats_message, base_player_data, "bw")
+            bw_stats_message = await message.channel.send(
+                embed=modules.minecraft.stats.bedwars_stats.embed_bedwars_stats(
+                    base_player_data, 0
+                )
+            )
+            sent_message = StatsMessage(bw_stats_message, base_player_data, "bw")
             sent_stats_messages_with_reactions.append(sent_message)
             await add_reaction(bw_stats_message)
             await disable_old_reactions()
         except TypeError:
-            await message.channel.send(embed=verbose.embeds.embed_sorry_message("I could not find a user with that name. Please check spelling and try again."))
+            await message.channel.send(
+                embed=verbose.embeds.embed_sorry_message(
+                    "I could not find a user with that name. Please check spelling and try again."
+                )
+            )
             return
         except (KeyError, StatsNotFoundError):
-            await message.channel.send(embed=verbose.embeds.embed_sorry_message("That user has never played hypixel bedwars."))
+            await message.channel.send(
+                embed=verbose.embeds.embed_sorry_message(
+                    "That user has never played hypixel bedwars."
+                )
+            )
             return
 
     elif game == "sw" or game == "skywars":
         try:
             skywars_data = hypixel_data["player"]["stats"]["SkyWars"]
-            level = skywars_data['levelFormatted'][-3:].strip('§f')
+            level = skywars_data["levelFormatted"][-3:].strip("§f")
             level = level[:-1] + "\\" + level[-1]
             username = f"[{level}] {hypixel_data['player']['displayname']}"
             base_player_data = {
-                "username": username, "gamemode": "sw", "gamemode_specific_data": skywars_data,
-                "first_and_last_login": first_and_last_login, "player_rank": player_rank, "user_avatar_url": user_avatar_url
+                "username": username,
+                "gamemode": "sw",
+                "gamemode_specific_data": skywars_data,
+                "first_and_last_login": first_and_last_login,
+                "player_rank": player_rank,
+                "user_avatar_url": user_avatar_url,
             }
-            sw_stats_message = await message.channel.send(embed=modules.minecraft.stats.skywars_stats.embed_skywars_stats(base_player_data, 0))
-            sent_message = StatsMessage(
-                sw_stats_message, base_player_data, "sw")
+            sw_stats_message = await message.channel.send(
+                embed=modules.minecraft.stats.skywars_stats.embed_skywars_stats(
+                    base_player_data, 0
+                )
+            )
+            sent_message = StatsMessage(sw_stats_message, base_player_data, "sw")
             sent_stats_messages_with_reactions.append(sent_message)
             await add_reaction(sw_stats_message)
         except TypeError:
-            await message.channel.send(embed=verbose.embeds.embed_sorry_message("I could not find a user with that name. Please check spelling and try again."))
+            await message.channel.send(
+                embed=verbose.embeds.embed_sorry_message(
+                    "I could not find a user with that name. Please check spelling and try again."
+                )
+            )
             return
         except (KeyError, StatsNotFoundError):
-            await message.channel.send(embed=verbose.embeds.embed_sorry_message("That user has never played hypixel skywars."))
+            await message.channel.send(
+                embed=verbose.embeds.embed_sorry_message(
+                    "That user has never played hypixel skywars."
+                )
+            )
             return
 
 
@@ -143,7 +183,9 @@ async def change_page(bot_message, reaction):
 
     if reaction.emoji == stop_emoji:
         # remove all reactions
-        await sent_stats_messages_with_reactions[message_index_in_sent_messages].message.clear_reactions()
+        await sent_stats_messages_with_reactions[
+            message_index_in_sent_messages
+        ].message.clear_reactions()
         sent_stats_messages_with_reactions.pop(message_index_in_sent_messages)
         return
 
@@ -157,13 +199,31 @@ async def change_page(bot_message, reaction):
     if page_number == -1:
         return
 
-    if sent_stats_messages_with_reactions[message_index_in_sent_messages].gamemode == "bw":
-        await bot_message.edit(embed=modules.minecraft.stats.bedwars_stats.embed_bedwars_stats(
-            sent_stats_messages_with_reactions[message_index_in_sent_messages].base_player_data, page_number))
+    if (
+        sent_stats_messages_with_reactions[message_index_in_sent_messages].gamemode
+        == "bw"
+    ):
+        await bot_message.edit(
+            embed=modules.minecraft.stats.bedwars_stats.embed_bedwars_stats(
+                sent_stats_messages_with_reactions[
+                    message_index_in_sent_messages
+                ].base_player_data,
+                page_number,
+            )
+        )
 
-    elif sent_stats_messages_with_reactions[message_index_in_sent_messages].gamemode == "sw":
-        await bot_message.edit(embed=modules.minecraft.stats.skywars_stats.embed_skywars_stats(
-            sent_stats_messages_with_reactions[message_index_in_sent_messages].base_player_data, page_number))
+    elif (
+        sent_stats_messages_with_reactions[message_index_in_sent_messages].gamemode
+        == "sw"
+    ):
+        await bot_message.edit(
+            embed=modules.minecraft.stats.skywars_stats.embed_skywars_stats(
+                sent_stats_messages_with_reactions[
+                    message_index_in_sent_messages
+                ].base_player_data,
+                page_number,
+            )
+        )
 
 
 async def disable_old_reactions():
@@ -183,8 +243,7 @@ async def disable_old_reactions():
 
 
 def sw_xp_to_level(xp):
-    xp_thresholds = [0, 20, 70, 150, 250, 500,
-                     1000, 2000, 3500, 6000, 10000, 15000]
+    xp_thresholds = [0, 20, 70, 150, 250, 500, 1000, 2000, 3500, 6000, 10000, 15000]
     if xp >= 15000:
         return int((xp - 15000) / 10000 + 12)
     else:
