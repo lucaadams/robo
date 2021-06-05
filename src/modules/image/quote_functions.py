@@ -14,7 +14,11 @@ class MissingQuoteMessageError(Exception):
 
 
 class Quote:
-    """ used to initialize all of the quote-related fields, put all the fields together in a BytesIO object (which acts like a file but is stored in memory) and send it on discord """
+    """
+    used to initialize all of the quote-related fields, 
+    put all the fields together in a BytesIO object (which acts like a file but is stored in memory) 
+    and send it on discord 
+    """
     def __init__(self, message, image_options, image, font, quote_location_x, quote_location_y, font_colour, max_chars_per_line):
         self.message = message
 
