@@ -102,8 +102,9 @@ async def hypixel_command_handler(message):
     elif game == "sw" or game == "skywars":
         try:
             skywars_data = hypixel_data["player"]["stats"]["SkyWars"]
-            level = skywars_data['levelFormatted'][-3:].strip('§f')
-            level = level[:-1] + "\\" + level[-1]
+            level = skywars_data['levelFormatted']
+            # kinda complicated but all it does is make sure it shows up correctly in discord
+            level = (level[-3:].strip('§f'))[:-1] + "\\" + (level[-3:].strip('§f'))[-1] if level.__contains__("f") else level[-2:]
             username = f"[{level}] {hypixel_data['player']['displayname']}"
             base_player_data = {
                 "username": username, "gamemode": "sw", "gamemode_specific_data": skywars_data,
