@@ -140,7 +140,10 @@ async def use_flashcards(bot_message, reaction):
     if guild_id in active_flashcard_sets and bot_message.id != active_flashcard_sets[guild_id]["message"].id:
         return
 
-    flashcard_set_for_guild = active_flashcard_sets[guild_id]
+    try:
+        flashcard_set_for_guild = active_flashcard_sets[guild_id]
+    except:
+        return
 
     if reaction.emoji == emoji_list[1]:
         if flashcard_set_for_guild["current_side"] == "front":
