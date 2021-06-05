@@ -30,7 +30,7 @@ async def get_user_skin_texture(message):
     else:
         # first send request for the UUID of USER, then send request using that UUID to get more data including skin url
         with message.channel.typing():
-            uuid, username = get_uuid(message)
+            uuid, username = await get_uuid(message)
 
             user_info_request = requests.get(
                 url=get_user_info_url.format(uuid))
