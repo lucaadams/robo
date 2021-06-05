@@ -3,6 +3,7 @@ import modules.games.counting
 
 
 async def start_game(guild_id, message):
+    guild_id = str(message.guild.id)
     try:
         game = message.content.split(" ")[2]
     except IndexError:

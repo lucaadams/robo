@@ -68,7 +68,7 @@ async def on_message(message):
     guild_id = str(message.guild.id)
 
     if message.content.startswith(COMMAND_PREFIX):
-        await execute_command(guild_id, message)
+        await execute_command(message)
         return
 
     await modules.games.counting.check_message(message)
@@ -103,7 +103,7 @@ async def on_reaction_add(reaction, user):
 
 
 # command manager
-async def execute_command(guild_id, message):
+async def execute_command(message):
     try:
         first_parameter = message.content.split(" ")[1]
     except IndexError:
@@ -121,7 +121,7 @@ async def execute_command(guild_id, message):
         await modules.image.quote_functions.execute_quote_command(message)
 
     elif first_parameter == "games":
-        await modules.games.game_functions.start_game(guild_id, message)
+        await modules.games.game_functions.start_game(message)
 
     elif first_parameter == "vc":
         await modules.voice.vc_functions.vc_command_handler(message)
