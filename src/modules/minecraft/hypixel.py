@@ -75,12 +75,9 @@ async def hypixel_command_handler(message):
     first_and_last_login = f"first login: {parse_timestamp(hypixel_data['player']['firstLogin'])}    \
         last login: {parse_timestamp(hypixel_data['player']['lastLogin'])}"
 
-    try:
-        player_rank = hypixel_data["player"]["newPackageRank"]
-        if player_rank == "MVP_PLUS":
-            player_rank = "MVP+"
-    except KeyError:
-        player_rank = "N/A"
+    player_rank = hypixel_data["player"].get("newPackageRank", "N/A")
+    if player_rank == "MVP_PLUS":
+        player_rank = "MVP+"
 
     if game == "bw" or game == "bedwars":
         try:
