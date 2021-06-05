@@ -5,7 +5,7 @@ import verbose.embeds
 
 
 async def command_handler(message):
-    guild_id = message.guild.id
+    guild_id = str(message.guild.id)
     second_parameter = message.content.split(" ")[2]
 
     if second_parameter == "add":
@@ -45,8 +45,12 @@ async def add(guild_id, message, keyword, value):
 
 async def remove(guild_id, message, message_removal):
     guild_data = data.get_guild_data(guild_id)
-    guild_data["keywords"].pop(message_removal)
-    await message.channel.send(embed=verbose.embeds.embed_successful_action("Keyword removed. "))
+    try:
+        guild_data["keywords"].pop(message_removal)
+    except KeyError:
+        await message.channel.send(embed=verbose.embeds.embed_error_message("That keyword does not exist."))
+    else:
+        await message.channel.send(embed=verbose.embeds.embed_successful_action("Keyword removed. "))
 
     data.set_guild_data(guild_id, guild_data)
 
