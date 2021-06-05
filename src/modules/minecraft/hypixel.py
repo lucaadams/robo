@@ -99,7 +99,7 @@ async def hypixel_command_handler(message):
             await message.channel.send(embed=verbose.embeds.embed_sorry_message("I could not find a user with that name. Please check spelling and try again."))
             return
         except (KeyError, StatsNotFoundError):
-            await message.channel.send(embed=verbose.embeds.embed_sorry_message("That user has never played hypixel bedwars."))
+            await message.channel.send(embed=verbose.embeds.embed_sorry_message("That user has not played enough bedwars for me to get their stats."))
             return
 
     elif game == "sw" or game == "skywars":
@@ -121,7 +121,7 @@ async def hypixel_command_handler(message):
             await message.channel.send(embed=verbose.embeds.embed_sorry_message("I could not find a user with that name. Please check spelling and try again."))
             return
         except (KeyError, StatsNotFoundError):
-            await message.channel.send(embed=verbose.embeds.embed_sorry_message("That user has never played hypixel skywars."))
+            await message.channel.send(embed=verbose.embeds.embed_sorry_message("That user has not played enough skywars for me to get their stats."))
             return
 
 
