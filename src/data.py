@@ -32,7 +32,8 @@ class DataManager:
             # Initialize data for this guild
             self.__guild_data_dict[guild_id] = {
                 "keywords": {},
-                "saved_queues": {}
+                "saved_queues": {},
+                "flashcard_sets": {}
             }
         return self.__guild_data_dict[guild_id].copy()
 
@@ -77,5 +78,3 @@ else:
     }
     with open(SECRETS_FILE_PATH, "w") as secrets_file:
         secrets_file.write(__secrets)
-
-
