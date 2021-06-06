@@ -11,8 +11,8 @@ from modules.minecraft.user_skins.skin_embeds import embed_skin
 
 SUCCESSFUL_STATUS_CODE = 200
 
-get_uuid_url = "https://api.mojang.com/users/profiles/minecraft/{}"
-get_user_info_url = "https://sessionserver.mojang.com/session/minecraft/profile/{}"
+get_uuid_url = "https://api.mojang.com/users/profiles/minecraft/{username}"
+get_user_info_url = "https://sessionserver.mojang.com/session/minecraft/profile/{uuid}"
 
 recent_searches = cache.Cache()
 
@@ -26,14 +26,17 @@ async def get_user_skin_texture(message):
 
     # only send request if user info is not in cache
     if username in recent_searches.object_keys():
-        user_info = recent_searches.get_object(username)
+        user_info = recent_searches.get_object(username=username)
     else:
         # first send request for the UUID of USER, then send request using that UUID to get more data including skin url
         with message.channel.typing():
-            uuid, username = await get_uuid(message)
+            try:
+                uuid, username = await get_uuid(message)
+            except TypeError:
+                return
 
             user_info_request = requests.get(
-                url=get_user_info_url.format(uuid))
+                url=get_user_info_url.format(uuid=uuid))
 
         logging.info("Request successfully sent to mojang api")
 
