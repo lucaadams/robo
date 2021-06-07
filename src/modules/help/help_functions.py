@@ -20,6 +20,9 @@ async def help_message_handler(message, COMMAND_PREFIX):
     elif second_parameter == "games":
         await games_help_message(message, COMMAND_PREFIX)
 
+    elif second_parameter == "flashcards":
+        await flashcards_help_message(message, COMMAND_PREFIX)
+
     elif second_parameter == "minecraft" or second_parameter == "mc":
         await minecraft_help_message(message, COMMAND_PREFIX)
 
@@ -32,6 +35,7 @@ async def default_help_message(message, COMMAND_PREFIX):
     • **Text Module**\n    `{COMMAND_PREFIX} help text`\n     _Commands used to add, edit, remove and list keywords._\n
     • **Image Module**\n    `{COMMAND_PREFIX} help image`\n    _Commands used to make images with custom text._\n
     • **Voice Module**\n    `{COMMAND_PREFIX} help vc`\n    _Commands used to playing audio from Youtube or Twitch in a voice channel._\n
+    • **Flashcards Module**\n    `{COMMAND_PREFIX} help flashcards`\n    _Commands used to make, use, and edit custom flashcard sets._\n
     • **Games Module**\n    `{COMMAND_PREFIX} help games`\n    _Commands used to play Robo's built-in games._\n
     • **Minecraft Module**\n    `{COMMAND_PREFIX} help mincraft/mc`\n    _Commands used to get info from various minecraft-related APIs._\n
     ''', ":page_with_curl:"))
@@ -39,10 +43,10 @@ async def default_help_message(message, COMMAND_PREFIX):
 
 async def text_help_message(message, COMMAND_PREFIX):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Text Commands:", f'''
-    • `{COMMAND_PREFIX} add [KEYWORD] [VALUE]` \n    _Add a keyword that Robo will check for in your messages. Robo will reply with its value._\n
-    • `{COMMAND_PREFIX} remove [KEYWORD]` \n    _Remove a keyword from Robo's list of keywords._\n
-    • `{COMMAND_PREFIX} edit [OLD KEYWORD] [RENAMED KEYWORD]` \n    _Edit the name of an existing keyword._\n
-    • `{COMMAND_PREFIX} list` \n    _Robo will display a list of all the current keywords and their values on your server._\n
+    • `{COMMAND_PREFIX} keyword add [KEYWORD] [VALUE]` \n    _Add a keyword that Robo will check for in your messages. Robo will reply with its value._\n
+    • `{COMMAND_PREFIX} keyword remove [KEYWORD]` \n    _Remove a keyword from Robo's list of keywords._\n
+    • `{COMMAND_PREFIX} keyword edit [OLD KEYWORD] [RENAMED KEYWORD]` \n    _Edit the name of an existing keyword._\n
+    • `{COMMAND_PREFIX} keyword list` \n    _Robo will display a list of all the current keywords and their values on your server._\n
     ''', ":page_with_curl:"))
 
 
@@ -68,14 +72,24 @@ async def vc_help_message(message, COMMAND_PREFIX):
     ''', ":page_with_curl:"))
 
 
+async def flashcards_help_message(message, COMMAND_PREFIX):
+    await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Flashcard Commands:", f'''
+    • `{COMMAND_PREFIX} flashcards new [NAME]` \n    _Robo will guide you through the creation process of a new flashcard set with the name [NAME]._\n
+    • `{COMMAND_PREFIX} flashcards use [NAME]` \n    _Robo will send a message containing the flashcard set [name], which you can navigate using reactions._\n
+    • `{COMMAND_PREFIX} flashcards remove [NAME]` \n    _Remove a flashcard set from the list of saved flashcard sets._\n
+    • `{COMMAND_PREFIX} flashcards edit [SET] [POSITION] "[NEW FRONT]" "[NEW BACK]"` \n    _Replace the flashcard in a set with a new card._\n
+    • `{COMMAND_PREFIX} flashcards list` \n    _Robo will display a list of all the saved flashcard sets on your server._\n
+    ''', ":page_with_curl:"))
+
+
 async def games_help_message(message, COMMAND_PREFIX):
-    await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Text Commands:", f'''
+    await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Games Commands:", f'''
     • `{COMMAND_PREFIX} games counting [INCREMENT(optional)]` \n    _Start a game of Counting (min 2 people). Count up to the highest number you can, without saying two numbers in a row or sending the wrong number._\n
     ''', ":page_with_curl:"))
 
 
 async def minecraft_help_message(message, COMMAND_PREFIX):
-    await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Text Commands:", f'''
+    await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Minecraft Commands:", f'''
     • `{COMMAND_PREFIX} minecraft bedwars/bw [USERNAME]` \n    _Robo sends a selection of hypixel bedwars stats for player [USERNAME]._\n
     • `{COMMAND_PREFIX} minecraft skywars/sw [USERNAME]` \n    _Robo sends a selection of hypixel skywars stats for player [USERNAME]._\n
     • `{COMMAND_PREFIX} minecraft skin [USERNAME]` \n    _Robo sends a render of [USERNAME]'s skin._\n
