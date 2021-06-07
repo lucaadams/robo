@@ -1,3 +1,4 @@
+import random
 import discord
 
 from data import data
@@ -9,7 +10,8 @@ DEFAULT_GUILD_FLASHCARD_DATA = {
     "channel": None,
     "user": None,
     "current_flashcard_set_name": None,
-    "current_flashcard_set": {}
+    "current_flashcard_set": {},
+    "auto_shuffle_flashcards_on_use": True
 }
 
 DEFAULT_GUILD_ACTIVE_FLASHCARD_SETS_DATA = {
@@ -51,8 +53,16 @@ async def flashcard_command_handler(message):
     elif second_parameter == "edit":
         await edit_flashcard_set(message)
 
+    elif second_parameter == "remove":
+        await remove_flashcard_set(message)
+
     elif second_parameter == "list":
         await send_flashcard_set_list(message)
+
+    elif second_parameter == "toggle-auto-shuffle":
+        # this does nothing atm lmao
+        flashcard_data[guild_id]["auto_shuffle_flashcards_on_use"] = False if flashcard_data[guild_id]["auto_shuffle_flashcards_on_use"] \
+            else True
 
     else:
         await message.channel.send(embed=verbose.embeds.embed_error_message("That command does not exist."))
@@ -160,11 +170,12 @@ async def use_flashcards(bot_message, reaction):
             raise ValueError("Current side is not front or back... somehow.")
 
     if reaction.emoji == emoji_list[2]:
-        flashcard_set_for_guild["index"] += 1 if flashcard_set_for_guild["index"] < (len(flashcard_set_for_guild["active_set"]) - 1) else 0
+        flashcard_set_for_guild["index"] += 1 if flashcard_set_for_guild["index"] < (len(flashcard_set_for_guild["active_set"]) - 1) \
+            else -(len(flashcard_set_for_guild["active_set"]) - 1)
         flashcard_set_for_guild["current_side"] = "front"
 
     if reaction.emoji == emoji_list[0]:
-        flashcard_set_for_guild["index"] -= 1 if flashcard_set_for_guild["index"] > 0 else 0
+        flashcard_set_for_guild["index"] -= 1 if flashcard_set_for_guild["index"] > 0 else -(len(flashcard_set_for_guild["active_set"]) - 1)
         flashcard_set_for_guild["current_side"] = "front"
 
     await bot_message.edit(embed=flashcard_embed(
@@ -173,6 +184,52 @@ async def use_flashcards(bot_message, reaction):
         flashcard_set_for_guild["index"],
         flashcard_set_for_guild["current_side"]
     ))
+
+
+async def edit_flashcard_set(message):
+    guild_id = str(message.guild.id)
+
+    name_of_flashcard_set_to_edit = message.content.split()[3]
+    flashcard_sets = data.get_guild_data(guild_id)["flashcard_sets"]
+
+    if name_of_flashcard_set_to_edit not in flashcard_sets.keys():
+        await message.channel.send(embed=verbose.embeds.embed_sorry_message("That flashcard set does not exist. Please check spelling and try again."))
+        return
+
+    index_to_edit = int(message.content.split()[4]) - 1
+    new_front, _, new_back = message.content.split('"')[1:4]
+    edited_flashcard_set = flashcard_sets[name_of_flashcard_set_to_edit]
+    flashcard_front_to_replace = list(flashcard_sets[name_of_flashcard_set_to_edit])[index_to_edit]
+
+    edited_flashcard_set[new_front] = edited_flashcard_set.pop(flashcard_front_to_replace)
+    edited_flashcard_set[new_front] = new_back
+
+    guild_data = data.get_guild_data(guild_id)
+    guild_data["flashcard_sets"][name_of_flashcard_set_to_edit] = edited_flashcard_set
+    data.set_guild_data(guild_id, guild_data)
+
+    message.channel.send(embed=verbose.embeds.embed_successful_action("Flashcard set edited."))
+
+
+async def remove_flashcard_set(message):
+    if not message.author.guild_permissions.administrator:
+        await message.channel.send(embed=verbose.embeds.embed_error_message("Sorry, you must be an administrator in this server to use that command."))
+        return
+
+    guild_id = str(message.guild.id)
+
+    name_of_flashcard_set_to_remove = message.content.split()[3]
+    flashcard_sets = data.get_guild_data(guild_id)["flashcard_sets"]
+
+    if name_of_flashcard_set_to_remove not in flashcard_sets.keys():
+        await message.channel.send(embed=verbose.embeds.embed_sorry_message("That flashcard set does not exist. Please check spelling and try again."))
+        return
+
+    guild_data = data.get_guild_data(guild_id)
+    guild_data["flashcard_sets"].pop(name_of_flashcard_set_to_remove)
+    data.set_guild_data(guild_id, guild_data)
+
+    await message.channel.send(embed=verbose.embeds.embed_successful_action(f"Flashcard set `{name_of_flashcard_set_to_remove}` deleted."))
 
 
 async def send_flashcard_set_list(message):
