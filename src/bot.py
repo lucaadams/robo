@@ -48,15 +48,19 @@ async def on_guild_join(guild):
 async def on_ready():
     global application_info
     application_info = await CLIENT.application_info()
-    await CLIENT.change_presence(activity=discord.Game(name=f"{COMMAND_PREFIX} help"))
     logging.info("Client ready")
+    while True:
+        await CLIENT.change_presence(activity=discord.Game(name=f"{COMMAND_PREFIX} help"))
+        await asyncio.sleep(30)
+        await CLIENT.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(CLIENT.guilds)} servers."))
+        await asyncio.sleep(10)
 
 
 @CLIENT.event
 async def on_error(event, *args):
     err = traceback.format_exc()
     logging.warning(err)
-    await application_info.owner.send(embed=verbose.embeds.embed_error_message(f"```{err}```"), delete_after=3600)
+    await application_info.owner.send(embed=verbose.embeds.embed_error_message(f"```{err[-2047:]}```"), delete_after=3600)
 
 
 # recieve message
@@ -150,7 +154,7 @@ async def execute_command(message):
             "Server nuke engaged. 20 second countdown initiated.", 
             f'To cancel, type "{COMMAND_PREFIX} cancel nuke"'))
         for i in range(20, 0, -1):
-            asyncio.sleep(1)
+            await asyncio.sleep(1)
             await message.channel.send(i)
         await message.channel.send(embed=verbose.embeds.embed_error_message("Server nuke failed. Please try again later. "))
 
