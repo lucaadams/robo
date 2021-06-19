@@ -1,6 +1,5 @@
 import asyncio
 import random
-import json
 import youtube_dl
 import pafy
 import discord
@@ -33,8 +32,8 @@ async def vc_command_handler(message):
     guild_id = str(message.guild.id)
     if guild_id not in guild_vc_data:
         guild_vc_data[guild_id] = DEFAULT_GUILD_VC_DATA.copy()
-    with open("file.json", "w") as vc_data:
-        vc_data.write(json.dumps(guild_vc_data))
+
+    guild_vc_data[guild_id]["guild_queue"]
 
     try:
         second_parameter = message.content.split(" ")[2]
@@ -43,11 +42,7 @@ async def vc_command_handler(message):
         await message.channel.send(embed=verbose.embeds.embed_error_message("Incomplete command."))
         return
 
-    print("command called in " + str(message.guild.name))
-
-    print(second_parameter)
-    print(list(COMMAND_HANDLER_DICT))
-
+    # get required function that corresponds to 
     if second_parameter in COMMAND_HANDLER_DICT.keys():
         await COMMAND_HANDLER_DICT[second_parameter](message)
     else:
@@ -142,7 +137,6 @@ async def continue_to_next_req(message):
 
 async def add_song_to_queue(message):
     guild_id = str(message.guild.id)
-    print("adding song to " + str(message.guild.name))
     user_song_request_list = message.content.split(" ")[3:]
     user_song_request = " ".join(user_song_request_list)
 
@@ -163,7 +157,6 @@ async def add_song_to_queue(message):
                     f"ytsearch:{user_song_request}", download=False)
                 video_to_add = user_song_request_dict['entries'][0]
 
-        print("added song to " + str(message.guild.name))
         guild_vc_data[guild_id]["guild_queue"].append(video_to_add)
 
     await message.channel.send(embed=verbose.embeds.embed_successful_action(
@@ -180,11 +173,10 @@ async def remove_from_queue(message):
         return
 
     try:
+        removed_song = guild_vc_data[guild_id]["guild_queue"].pop(index_to_remove - 1)
         await message.channel.send(
-            embed=verbose.embeds.embed_successful_action(f"[{guild_vc_data[guild_id]['guild_queue'][index_to_remove - 1]['title']}] \
-                ({guild_vc_data[guild_id]['guild_queue'][index_to_remove - 1]['webpage_url']}) \
-                    has been removed from the queue"))
-        guild_vc_data[guild_id]["guild_queue"].pop(index_to_remove - 1)
+            embed=verbose.embeds.embed_successful_action(f"[{removed_song['title']}] \
+                ({removed_song['webpage_url']}) has been removed from the queue"))
     except IndexError:
         await message.channel.send(embed=verbose.embeds.embed_error_message("That queue index does not exist."))
         return
@@ -374,8 +366,8 @@ def check_if_url(string):
 
 COMMAND_HANDLER_DICT = {
     "join": join_voice_channel,
-    "add": add_song_to_queue,
     "leave": leave_voice_channel,
+    "add": add_song_to_queue,
     "skip": continue_to_next_req,
     "next": continue_to_next_req,
     "queue": send_queue,
