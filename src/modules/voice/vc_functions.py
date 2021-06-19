@@ -1,5 +1,6 @@
 import asyncio
 import random
+import json
 import youtube_dl
 import pafy
 import discord
@@ -32,6 +33,8 @@ async def vc_command_handler(message):
     guild_id = str(message.guild.id)
     if guild_id not in guild_vc_data:
         guild_vc_data[guild_id] = DEFAULT_GUILD_VC_DATA.copy()
+    with open("file.json", "w") as vc_data:
+        vc_data.write(json.dumps(guild_vc_data))
 
     try:
         second_parameter = message.content.split(" ")[2]
@@ -40,58 +43,13 @@ async def vc_command_handler(message):
         await message.channel.send(embed=verbose.embeds.embed_error_message("Incomplete command."))
         return
 
-    if second_parameter == "join":
-        await join_voice_channel(message)
+    print("command called in " + str(message.guild.name))
 
-    elif second_parameter == "leave":
-        await leave_voice_channel(message)
+    print(second_parameter)
+    print(list(COMMAND_HANDLER_DICT))
 
-    elif second_parameter == "add":
-        await add_song_to_queue(message)
-        if len(guild_vc_data[guild_id]["guild_queue"]) == 1 \
-            and guild_vc_data[guild_id]["voice_client"] is not None \
-                and guild_vc_data[guild_id]["voice_client"].is_connected():
-            await play_from_yt(message)
-
-    elif second_parameter == "skip" or second_parameter == "next":
-        await continue_to_next_req(message)
-
-    elif second_parameter == "queue":
-        await send_queue(message)
-
-    elif second_parameter == "remove":
-        await remove_from_queue(message)
-
-    elif second_parameter == "save-queue":
-        await save_queue(message)
-
-    elif second_parameter == "shuffle":
-        shuffle_queue(guild_id)
-        await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote(f"Queue shuffled.", ":twisted_rightwards_arrows:"))
-
-    elif second_parameter == "queue-list":
-        await send_queue_list(message)
-
-    elif second_parameter == "play-queue":
-        await play_queue(message)
-
-    elif second_parameter == "toggle-np":
-        if guild_vc_data[guild_id]["enable_np"]:
-            guild_vc_data[guild_id]["enable_np"] = False
-            await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("'Now playing' message disabled.", ":ok_hand:"))
-
-        elif not guild_vc_data[guild_id]["enable_np"]:
-            guild_vc_data[guild_id]["enable_np"] = True
-            await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("'Now playing' message enabled.", ":ok_hand:"))
-
-    elif second_parameter == "loop":
-        if guild_vc_data[guild_id]["loop"]:
-            guild_vc_data[guild_id]["loop"] = False
-            await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("Loop disabled.", ":repeat:"))
-        else:
-            guild_vc_data[guild_id]["loop"] = True
-            await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("Loop enabled.", ":repeat:"))
-
+    if second_parameter in COMMAND_HANDLER_DICT.keys():
+        await COMMAND_HANDLER_DICT[second_parameter](message)
     else:
         await message.channel.send(embed=verbose.embeds.embed_error_message("Invalid command."))
 
@@ -184,6 +142,7 @@ async def continue_to_next_req(message):
 
 async def add_song_to_queue(message):
     guild_id = str(message.guild.id)
+    print("adding song to " + str(message.guild.name))
     user_song_request_list = message.content.split(" ")[3:]
     user_song_request = " ".join(user_song_request_list)
 
@@ -204,6 +163,7 @@ async def add_song_to_queue(message):
                     f"ytsearch:{user_song_request}", download=False)
                 video_to_add = user_song_request_dict['entries'][0]
 
+        print("added song to " + str(message.guild.name))
         guild_vc_data[guild_id]["guild_queue"].append(video_to_add)
 
     await message.channel.send(embed=verbose.embeds.embed_successful_action(
@@ -221,8 +181,9 @@ async def remove_from_queue(message):
 
     try:
         await message.channel.send(
-            embed=verbose.embeds.embed_successful_action(f"[{guild_vc_data[guild_id]['guild_queue'][index_to_remove - 1]['title']}]({guild_vc_data[guild_id]['guild_queue'][index_to_remove - 1]['webpage_url']}) \
-                has been removed from the queue"))
+            embed=verbose.embeds.embed_successful_action(f"[{guild_vc_data[guild_id]['guild_queue'][index_to_remove - 1]['title']}] \
+                ({guild_vc_data[guild_id]['guild_queue'][index_to_remove - 1]['webpage_url']}) \
+                    has been removed from the queue"))
         guild_vc_data[guild_id]["guild_queue"].pop(index_to_remove - 1)
     except IndexError:
         await message.channel.send(embed=verbose.embeds.embed_error_message("That queue index does not exist."))
@@ -242,6 +203,7 @@ async def send_queue(message):
     """
     sends songs from a specified queue, or the current queue if no queue is specified
     """
+    print("sending queue of " + str(message.guild.name))
     guild_id = str(message.guild.id)
     desc = ""
     num = 1
@@ -349,7 +311,8 @@ async def save_queue(message):
         f"Saved current queue preset as `{queue_name}`"))
 
 
-def shuffle_queue(guild_id):
+async def shuffle_queue(message):
+    guild_id = str(message.guild.id)
     if guild_vc_data[guild_id]["voice_client"] is not None:
         guild_queue_to_shuffle = guild_vc_data[guild_id]["guild_queue"].copy()
         guild_queue_to_shuffle.pop(0)
@@ -357,6 +320,31 @@ def shuffle_queue(guild_id):
         guild_vc_data[guild_id]["guild_queue"][1:] = guild_queue_to_shuffle
     else:
         random.shuffle(guild_vc_data[guild_id]["guild_queue"])
+
+    await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote(f"Queue shuffled.", ":twisted_rightwards_arrows:"))
+
+
+async def toggle_np(message):
+    guild_id = str(message.guild.id)
+
+    if guild_vc_data[guild_id]["enable_np"]:
+        guild_vc_data[guild_id]["enable_np"] = False
+        await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("'Now playing' message disabled.", ":ok_hand:"))
+
+    elif not guild_vc_data[guild_id]["enable_np"]:
+        guild_vc_data[guild_id]["enable_np"] = True
+        await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("'Now playing' message enabled.", ":ok_hand:"))
+
+
+async def toggle_loop(message):
+    guild_id = str(message.guild.id)
+
+    if guild_vc_data[guild_id]["loop"]:
+        guild_vc_data[guild_id]["loop"] = False
+        await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("Loop disabled.", ":repeat:"))
+    else:
+        guild_vc_data[guild_id]["loop"] = True
+        await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("Loop enabled.", ":repeat:"))
 
 
 def embed_youtube_info(metadata):
@@ -382,3 +370,20 @@ def embed_youtube_info(metadata):
 
 def check_if_url(string):
     return string.startswith("http") or string.startswith("www")
+
+
+COMMAND_HANDLER_DICT = {
+    "join": join_voice_channel,
+    "add": add_song_to_queue,
+    "leave": leave_voice_channel,
+    "skip": continue_to_next_req,
+    "next": continue_to_next_req,
+    "queue": send_queue,
+    "remove": remove_from_queue,
+    "save-queue": save_queue,
+    "shuffle": shuffle_queue,
+    "queue-list": send_queue_list,
+    "play-queue": play_queue,
+    "toggle-np": toggle_np,
+    "loop": toggle_loop,
+}
