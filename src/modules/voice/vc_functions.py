@@ -1,5 +1,5 @@
 import asyncio
-import random
+import copy
 import youtube_dl
 import pafy
 import discord
@@ -31,7 +31,7 @@ guild_vc_data = {}
 async def vc_command_handler(message):
     guild_id = str(message.guild.id)
     if guild_id not in guild_vc_data:
-        guild_vc_data[guild_id] = DEFAULT_GUILD_VC_DATA.copy()
+        guild_vc_data[guild_id] = copy.deepcopy(DEFAULT_GUILD_VC_DATA)
 
     guild_vc_data[guild_id]["guild_queue"]
 
