@@ -260,6 +260,6 @@ def flashcard_embed(name_of_set, flashcard_set, index, side):
         colour = discord.Colour(0x67858a),
         description = content,
     )
-    embed.set_footer(text=f"{index + 1} / {len(flashcard_set)} - {side}side")
+    embed.set_footer(text=f"{index + 1} / {len(flashcard_set)} - {side}")
 
     return embed
