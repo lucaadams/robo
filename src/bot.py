@@ -18,7 +18,7 @@ from modules.flashcards.flashcard_functions import flashcard_data
 import modules.help.help_functions
 
 
-COMMAND_PREFIX = os.getenv("ROBO_COMMAND_PREFIX") or "!robo"
+COMMAND_PREFIX = os.getenv("ROBO_COMMAND_PREFIX") or ".robo"
 CLIENT = discord.Client()
 application_info = None
 stop_emoji = "⏹️"
@@ -60,7 +60,9 @@ async def on_ready():
 async def on_error(event, *args):
     err = traceback.format_exc()
     logging.warning(err)
-    await application_info.owner.send(embed=verbose.embeds.embed_error_message(f"```{err[-2047:]}```"), delete_after=3600)
+    if len(err) >= 2048:
+        err = err[:-2047]
+    await application_info.owner.send(embed=verbose.embeds.embed_error_message(f"```{err}```"), delete_after=3600)
 
 
 # recieve message
