@@ -180,11 +180,11 @@ async def remove_from_queue(message):
         return
 
     try:
+        guild_vc_data[guild_id]["guild_queue"].pop(index_to_remove - 1)
         await message.channel.send(
             embed=verbose.embeds.embed_successful_action(f"[{guild_vc_data[guild_id]['guild_queue'][index_to_remove - 1]['title']}] \
                 ({guild_vc_data[guild_id]['guild_queue'][index_to_remove - 1]['webpage_url']}) \
                     has been removed from the queue"))
-        guild_vc_data[guild_id]["guild_queue"].pop(index_to_remove - 1)
     except IndexError:
         await message.channel.send(embed=verbose.embeds.embed_error_message("That queue index does not exist."))
         return
