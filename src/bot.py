@@ -6,6 +6,7 @@ import traceback
 import logging
 
 import verbose.embeds
+from command_prefix import COMMAND_PREFIX
 import modules.image.quote_functions
 import modules.text.keyword_functions
 import modules.games.counting
@@ -18,7 +19,6 @@ from modules.flashcards.flashcard_functions import flashcard_data
 import modules.help.help_functions
 
 
-COMMAND_PREFIX = os.getenv("ROBO_COMMAND_PREFIX") or ".robo"
 CLIENT = discord.Client()
 application_info = None
 stop_emoji = "⏹️"
@@ -139,7 +139,7 @@ async def execute_command(message):
         await modules.flashcards.flashcard_functions.flashcard_command_handler(message)
 
     elif first_parameter == "help":
-        await modules.help.help_functions.help_message_handler(message, COMMAND_PREFIX)
+        await modules.help.help_functions.help_message_handler(message)
 
     elif first_parameter == "echo":
         await message.channel.send(embed=verbose.embeds.embed_response("Your message was: ", " ".join(message.content.split(" ")[2:])))

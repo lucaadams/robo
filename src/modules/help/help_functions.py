@@ -1,36 +1,37 @@
 import verbose.embeds
+from command_prefix import COMMAND_PREFIX
 
 
-async def help_message_handler(message, COMMAND_PREFIX):
+async def help_message_handler(message):
     try:
         second_parameter = message.content.split(" ")[2]
     except IndexError:
-        await default_help_message(message, COMMAND_PREFIX)
+        await default_help_message(message)
         return
 
     if second_parameter == "text":
-        await text_help_message(message, COMMAND_PREFIX)
+        await text_help_message(message)
 
     elif second_parameter == "image":
-        await image_help_message(message, COMMAND_PREFIX)
+        await image_help_message(message)
 
     elif second_parameter == "vc":
-        await vc_help_message(message, COMMAND_PREFIX)
+        await vc_help_message(message)
 
     elif second_parameter == "games":
-        await games_help_message(message, COMMAND_PREFIX)
+        await games_help_message(message)
 
     elif second_parameter == "flashcards":
-        await flashcards_help_message(message, COMMAND_PREFIX)
+        await flashcards_help_message(message)
 
     elif second_parameter == "minecraft" or second_parameter == "mc":
-        await minecraft_help_message(message, COMMAND_PREFIX)
+        await minecraft_help_message(message)
 
     else:
         await message.channel.send(embed=verbose.embeds.embed_error_message("Must specify valid help message."))
 
 
-async def default_help_message(message, COMMAND_PREFIX):
+async def default_help_message(message):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Commands:", f'''
     • **Text Module**\n    `{COMMAND_PREFIX} help text`\n     _Commands used to add, edit, remove and list keywords._\n
     • **Image Module**\n    `{COMMAND_PREFIX} help image`\n    _Commands used to make images with custom text._\n
@@ -41,7 +42,7 @@ async def default_help_message(message, COMMAND_PREFIX):
     ''', ":page_with_curl:"))
 
 
-async def text_help_message(message, COMMAND_PREFIX):
+async def text_help_message(message):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Text Commands:", f'''
     • `{COMMAND_PREFIX} keyword add [KEYWORD] [VALUE]` \n    _Add a keyword that Robo will check for in your messages. Robo will reply with its value._\n
     • `{COMMAND_PREFIX} keyword remove [KEYWORD]` \n    _Remove a keyword from Robo's list of keywords._\n
@@ -50,13 +51,13 @@ async def text_help_message(message, COMMAND_PREFIX):
     ''', ":page_with_curl:"))
 
 
-async def image_help_message(message, COMMAND_PREFIX):
+async def image_help_message(message):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Image Commands:", f'''
     • `{COMMAND_PREFIX} quote [TYPE] "[MESSAGE]" "[AUTHOR(optional)]"` \n    _Robo will make a custom image with the image type of your choice, the quote message of your choice and the author of your choice._\n
     ''', ":page_with_curl:"))
 
 
-async def vc_help_message(message, COMMAND_PREFIX):
+async def vc_help_message(message):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Voice Commands:", f'''
     • `{COMMAND_PREFIX} vc join` \n    _Get Robo to join the vc that you are currently in. Any songs in the queue will automatically start playing._\n
     • `{COMMAND_PREFIX} vc leave` \n    _Robo will leave the vc that he is currently in._\n
@@ -72,7 +73,7 @@ async def vc_help_message(message, COMMAND_PREFIX):
     ''', ":page_with_curl:"))
 
 
-async def flashcards_help_message(message, COMMAND_PREFIX):
+async def flashcards_help_message(message):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Flashcard Commands:", f'''
     • `{COMMAND_PREFIX} flashcards new [NAME]` \n    _Robo will guide you through the creation process of a new flashcard set with the name [NAME]._\n
     • `{COMMAND_PREFIX} flashcards use [NAME]` \n    _Robo will send a message containing the flashcard set [name], which you can navigate using reactions._\n
@@ -82,13 +83,13 @@ async def flashcards_help_message(message, COMMAND_PREFIX):
     ''', ":page_with_curl:"))
 
 
-async def games_help_message(message, COMMAND_PREFIX):
+async def games_help_message(message):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Games Commands:", f'''
     • `{COMMAND_PREFIX} games counting [INCREMENT(optional)]` \n    _Start a game of Counting (min 2 people). Count up to the highest number you can, without saying two numbers in a row or sending the wrong number._\n
     ''', ":page_with_curl:"))
 
 
-async def minecraft_help_message(message, COMMAND_PREFIX):
+async def minecraft_help_message(message):
     await message.channel.send(embed=verbose.embeds.embed_response_custom_emote("Minecraft Commands:", f'''
     • `{COMMAND_PREFIX} minecraft bedwars/bw [USERNAME]` \n    _Robo sends a selection of hypixel bedwars stats for player [USERNAME]._\n
     • `{COMMAND_PREFIX} minecraft skywars/sw [USERNAME]` \n    _Robo sends a selection of hypixel skywars stats for player [USERNAME]._\n
