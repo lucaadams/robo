@@ -105,4 +105,3 @@ async def execute_quote_command(message):
 
     else:
         await message.channel.send(embed=verbose.embeds.embed_error_message("You must specify a valid image type ('grey' or 'colour')"))
-
