@@ -1,6 +1,7 @@
 import requests
 import logging
 import time
+import json
 
 import data
 import verbose.embeds
@@ -45,13 +46,17 @@ async def hypixel_command_handler(message):
     if hypixel_data is None:
         async with message.channel.typing():
             # send request for hypixel data from a specific user
-            hypixel_data = requests.get(
-                url="https://api.hypixel.net/player",
-                params={
-                    "key": hypixel_api_key,
-                    "name": username
-                }
-            ).json()
+            try:
+                hypixel_data = requests.get(
+                    url="https://api.hypixel.net/player",
+                    params={
+                        "key": hypixel_api_key,
+                        "name": username
+                    }
+                ).json()
+            except json.decoder.JSONDecodeError:
+                await message.channel.send(embed=verbose.embeds.embed_sorry_message("I'm sorry, I could not fetch Hypixel data. Most likely Hypixel is down."))
+                return
 
         # check if unsuccessful request
         if not hypixel_data["success"]:
@@ -148,8 +153,8 @@ async def change_page(bot_message, reaction):
 
     # get required page number
     page_number = -1
-    for index in range(len(emoji_list)):
-        if reaction.emoji == emoji_list[index]:
+    for index, emoji in enumerate(emoji_list):
+        if reaction.emoji == emoji:
             page_number = index
             break
 
