@@ -45,10 +45,10 @@ async def get_user_skin_texture(message):
         recent_searches.add(object_to_cache)
 
     # search properties for the "textures" property where i can get the user's skin
-    for property in user_info["properties"]:
-        if property["name"] == "textures":
+    for property_ in user_info["properties"]:
+        if property_["name"] == "textures":
             # decode skin code from Base64 to return a json file with user textures
-            # `property["value"]` is the value of the textures property
+            # `property_["value"]` is the value of the textures property
             textures = json.loads(
-                b64decode(property["value"], validate=True).decode("utf-8"))
+                b64decode(property_["value"], validate=True).decode("utf-8"))
             await message.channel.send(embed=embed_skin(textures["textures"]["SKIN"]["url"], textures["profileName"]))
