@@ -39,16 +39,13 @@ def embed_skywars_stats(base_player_data, page_number) -> discord.Embed:
 def get_overall_skywars_stats(data, player_rank) -> discord.Embed:
     gamemode = "Overall"
 
-    try:
-        overall_stats_data = {
-            "Rank": "[{}]".format(player_rank), "Coins": data.get("coins", 0), "Winstreak": data.get("win_streak", 0),
-            "Wins": data.get("wins", 0), "Losses": data.get("losses", 0), "WLR": round(data.get("wins", 0)/data.get("losses", 1), 2),
-            "Kills": data.get("kills", 0), "Deaths": data.get("deaths", 0), "K/D": round(data.get("kills", 0)/data.get("deaths", 1), 2),
-            "Total souls": data.get("souls_gathered", 0), "Heads": data.get("heads", 0), "Chests Opened": data.get("chests_opened", 0),
-            "Arrows shot": data.get("arrows_shot", 0), "Arrows Hit": data.get("arrows_hit", 0), "Accuracy": f"{round((data.get('arrows_hit', 0)/data.get('arrows_shot', 1)) * 100, 2)}%"
-        }
-    except:
-        raise StatsNotFoundError
+    overall_stats_data = {
+        "Rank": "[{}]".format(player_rank), "Coins": data.get("coins", 0), "Winstreak": data.get("win_streak", 0),
+        "Wins": data.get("wins", 0), "Losses": data.get("losses", 0), "WLR": round(data.get("wins", 0)/data.get("losses", 1), 2),
+        "Kills": data.get("kills", 0), "Deaths": data.get("deaths", 0), "K/D": round(data.get("kills", 0)/data.get("deaths", 1), 2),
+        "Total souls": data.get("souls_gathered", 0), "Heads": data.get("heads", 0), "Chests Opened": data.get("chests_opened", 0),
+        "Arrows shot": data.get("arrows_shot", 0), "Arrows Hit": data.get("arrows_hit", 0), "Accuracy": f"{round((data.get('arrows_hit', 0)/data.get('arrows_shot', 1)) * 100, 2)}%"
+    }
 
     return overall_stats_data, gamemode
 
@@ -56,14 +53,11 @@ def get_overall_skywars_stats(data, player_rank) -> discord.Embed:
 def get_mode_specific_skywars_stats(data, player_rank, gamecode) -> discord.Embed:
     gamemode = corresponding_gamemodes_and_gamecodes[gamecode]
 
-    try:
-        overall_stats_data = {
-            "Rank": "[{}]".format(player_rank), "Coins": data.get("coins", 0), "Winstreak": data.get("win_streak", 0),
-            "Wins": data.get(f"wins_{gamecode}", 0), "Losses": data.get(f"losses_{gamecode}", 0), "WLR": round(data.get(f"wins_{gamecode}", 0)/data.get(f"losses_{gamecode}", 1), 2),
-            "Kills": data.get(f"kills_{gamecode}", 0), "Deaths": data.get(f"deaths_{gamecode}", 0), "K/D": round(data.get(f"kills_{gamecode}", 0)/data.get(f"deaths_{gamecode}", 1), 2)
-        }
-    except:
-        raise StatsNotFoundError
+    overall_stats_data = {
+        "Rank": "[{}]".format(player_rank), "Coins": data.get("coins", 0), "Winstreak": data.get("win_streak", 0),
+        "Wins": data.get(f"wins_{gamecode}", 0), "Losses": data.get(f"losses_{gamecode}", 0), "WLR": round(data.get(f"wins_{gamecode}", 0)/data.get(f"losses_{gamecode}", 1), 2),
+        "Kills": data.get(f"kills_{gamecode}", 0), "Deaths": data.get(f"deaths_{gamecode}", 0), "K/D": round(data.get(f"kills_{gamecode}", 0)/data.get(f"deaths_{gamecode}", 1), 2)
+    }
 
     return overall_stats_data, gamemode
 

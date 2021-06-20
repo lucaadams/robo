@@ -40,17 +40,14 @@ def embed_bedwars_stats(base_player_data, page_number) -> discord.Embed:
 
 def get_overall_bedwars_stats(data, player_rank) -> discord.Embed:
     gamemode = "Overall"
-    try:
-        overall_stats_data = {
-            "Rank": "[{}]".format(player_rank), "Coins": data.get("coins"), "Winstreak": data.get("winstreak"),
-            "Wins": data.get("wins_bedwars"), "Losses": data.get("losses_bedwars"), "WLR": round(data.get("wins_bedwars", 0)/data.get("losses_bedwars", 1), 2),
-            "Kills": data.get("kills_bedwars"), "Deaths": data.get("deaths_bedwars"), "K/D": round(data.get("kills_bedwars", 0)/data.get("deaths_bedwars", 1), 2),
-            "Final Kills": data.get("final_kills_bedwars"), "Final Deaths": data.get("final_deaths_bedwars"), "FKDR": round(data.get("final_kills_bedwars", 0)/data.get("final_deaths_bedwars", 1), 2),
-            "Beds Broken": data.get("beds_broken_bedwars"), "Beds Lost": data.get("beds_lost_bedwars"), "BBBLR": round(data.get("beds_broken_bedwars", 0)/data.get("beds_lost_bedwars", 1), 2),
-            "Games Played": data.get("games_played_bedwars"), "Diamonds": data.get("diamond_resources_collected_bedwars"), "Emeralds": data.get("emerald_resources_collected_bedwars")
-        }
-    except:
-        raise StatsNotFoundError
+    overall_stats_data = {
+        "Rank": "[{}]".format(player_rank), "Coins": data.get("coins"), "Winstreak": data.get("winstreak"),
+        "Wins": data.get("wins_bedwars"), "Losses": data.get("losses_bedwars"), "WLR": round(data.get("wins_bedwars", 0)/data.get("losses_bedwars", 1), 2),
+        "Kills": data.get("kills_bedwars"), "Deaths": data.get("deaths_bedwars"), "K/D": round(data.get("kills_bedwars", 0)/data.get("deaths_bedwars", 1), 2),
+        "Final Kills": data.get("final_kills_bedwars"), "Final Deaths": data.get("final_deaths_bedwars"), "FKDR": round(data.get("final_kills_bedwars", 0)/data.get("final_deaths_bedwars", 1), 2),
+        "Beds Broken": data.get("beds_broken_bedwars"), "Beds Lost": data.get("beds_lost_bedwars"), "BBBLR": round(data.get("beds_broken_bedwars", 0)/data.get("beds_lost_bedwars", 1), 2),
+        "Games Played": data.get("games_played_bedwars"), "Diamonds": data.get("diamond_resources_collected_bedwars"), "Emeralds": data.get("emerald_resources_collected_bedwars")
+    }
 
     return overall_stats_data, gamemode
 
@@ -58,17 +55,14 @@ def get_overall_bedwars_stats(data, player_rank) -> discord.Embed:
 def get_mode_specific_bedwars_stats(data, player_rank, gamecode) -> discord.Embed:
     gamemode = corresponding_gamemodes_and_gamecodes[gamecode]
 
-    try:
-        overall_stats_data = {
-            "Rank": "[{}]".format(player_rank), "Coins": data.get("coins"), "Winstreak": data.get(f"{gamecode}_winstreak"),
-            "Wins": data.get(f"{gamecode}_wins_bedwars"), "Losses": data.get(f"{gamecode}_losses_bedwars"), "WLR": round(data.get(f"{gamecode}_wins_bedwars", 0)/data.get(f"{gamecode}_losses_bedwars", 1), 2),
-            "Kills": data.get(f"{gamecode}_kills_bedwars"), "Deaths": data.get("deaths_bedwars"), "K/D": round(data.get(f"{gamecode}_kills_bedwars", 0)/data.get(f"{gamecode}_deaths_bedwars", 1), 2),
-            "Final Kills": data.get(f"{gamecode}_final_kills_bedwars"), "Final Deaths": data.get(f"{gamecode}_final_deaths_bedwars"), "FKDR": round(data.get(f"{gamecode}_final_kills_bedwars", 0)/data.get(f"{gamecode}_final_deaths_bedwars", 1), 2),
-            "Beds Broken": data.get(f"{gamecode}_beds_broken_bedwars"), "Beds Lost": data.get(f"{gamecode}_beds_lost_bedwars"), "BBBLR": round(data.get(f"{gamecode}_beds_broken_bedwars", 0)/data.get(f"{gamecode}_beds_lost_bedwars", 1), 2),
-            "Games Played": data.get(f"{gamecode}_games_played_bedwars"), "Diamonds": data.get(f"{gamecode}_diamond_resources_collected_bedwars"), "Emeralds": data.get(f"{gamecode}_emerald_resources_collected_bedwars")
-        }
-    except:
-        raise StatsNotFoundError
+    overall_stats_data = {
+        "Rank": "[{}]".format(player_rank), "Coins": data.get("coins"), "Winstreak": data.get(f"{gamecode}_winstreak"),
+        "Wins": data.get(f"{gamecode}_wins_bedwars"), "Losses": data.get(f"{gamecode}_losses_bedwars"), "WLR": round(data.get(f"{gamecode}_wins_bedwars", 0)/data.get(f"{gamecode}_losses_bedwars", 1), 2),
+        "Kills": data.get(f"{gamecode}_kills_bedwars"), "Deaths": data.get("deaths_bedwars"), "K/D": round(data.get(f"{gamecode}_kills_bedwars", 0)/data.get(f"{gamecode}_deaths_bedwars", 1), 2),
+        "Final Kills": data.get(f"{gamecode}_final_kills_bedwars"), "Final Deaths": data.get(f"{gamecode}_final_deaths_bedwars"), "FKDR": round(data.get(f"{gamecode}_final_kills_bedwars", 0)/data.get(f"{gamecode}_final_deaths_bedwars", 1), 2),
+        "Beds Broken": data.get(f"{gamecode}_beds_broken_bedwars"), "Beds Lost": data.get(f"{gamecode}_beds_lost_bedwars"), "BBBLR": round(data.get(f"{gamecode}_beds_broken_bedwars", 0)/data.get(f"{gamecode}_beds_lost_bedwars", 1), 2),
+        "Games Played": data.get(f"{gamecode}_games_played_bedwars"), "Diamonds": data.get(f"{gamecode}_diamond_resources_collected_bedwars"), "Emeralds": data.get(f"{gamecode}_emerald_resources_collected_bedwars")
+    }
 
     return overall_stats_data, gamemode
 
