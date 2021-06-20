@@ -158,7 +158,7 @@ async def use_flashcards(bot_message, reaction):
 
     try:
         flashcard_set_for_guild = active_flashcard_sets[guild_id]
-    except:
+    except KeyError:
         return
 
     if reaction.emoji == emoji_list[1]:
