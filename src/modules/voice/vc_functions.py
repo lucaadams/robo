@@ -7,6 +7,7 @@ import discord
 
 import bot
 from data import data
+from command_prefix import COMMAND_PREFIX
 import verbose.embeds
 
 
@@ -23,7 +24,7 @@ YOUTUBE_DL_OPTIONS = {
 }
 
 DEFAULT_GUILD_VC_DATA = {
-    'voice_client': None, 'guild_queue': [], 'loop': False, 'enable_np': True
+    'voice_client': None, 'guild_queue': [], 'now_playing': None,'loop': False, 'enable_np': True,
 }
 
 guild_vc_data = {}
@@ -161,7 +162,44 @@ async def add_song_to_queue(message):
         guild_vc_data[guild_id]["guild_queue"].append(video_to_add)
 
     await message.channel.send(embed=verbose.embeds.embed_successful_action(
-        f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the queue"))
+        f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the queue."))
+
+    if not guild_vc_data[guild_id]["voice_client"].is_playing():
+        await play_from_yt(message)
+
+
+# im sorry for copying and pasting this whole thing its just so much less effort
+async def add_song_to_top_position_in_queue(message):
+    guild_id = str(message.guild.id)
+    user_song_request_list = message.content.split(" ")[3:]
+    user_song_request = " ".join(user_song_request_list)
+
+    if len(user_song_request) < 1:
+        await message.channel.send(embed=verbose.embeds.embed_error_message("No request specified."))
+        return
+
+    # Add the video metadata to queue
+    # use channel.typing so the user knows something is happening - it might take a while to download metadata depending on internet speed
+    async with message.channel.typing():
+        with youtube_dl.YoutubeDL() as ytdl:
+            if check_if_url(user_song_request):
+                user_song_request_dict = ytdl.extract_info(
+                    user_song_request, download=False)
+                video_to_add = user_song_request_dict
+            else:
+                user_song_request_dict = ytdl.extract_info(
+                    f"ytsearch:{user_song_request}", download=False)
+                video_to_add = user_song_request_dict['entries'][0]
+
+        if guild_vc_data[guild_id]["voice_client"].is_playing():
+            guild_vc_data[guild_id]["guild_queue"].insert(1, video_to_add)
+            await continue_to_next_req(message)
+        else:
+            guild_vc_data[guild_id]["guild_queue"].insert(0, video_to_add)
+            await play_from_yt(message)
+
+    await message.channel.send(embed=verbose.embeds.embed_successful_action(
+        f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the top of the queue."))
 
 
 async def remove_from_queue(message):
@@ -196,7 +234,6 @@ async def send_queue(message):
     """
     sends songs from a specified queue, or the current queue if no queue is specified
     """
-    print("sending queue of " + str(message.guild.name))
     guild_id = str(message.guild.id)
     desc = ""
     num = 1
@@ -279,7 +316,7 @@ async def play_queue(message):
     try:
         guild_vc_data[guild_id]["voice_client"].stop()
     except AttributeError:
-        await message.channel.send(embed=verbose.embeds.embed_response("Queue set.", "Type `!robo vc join` to start listening."))
+        await message.channel.send(embed=verbose.embeds.embed_response("Queue set.", f"Type `{COMMAND_PREFIX} vc join` to start listening."))
         return
 
     await play_from_yt(message)
@@ -306,11 +343,11 @@ async def save_queue(message):
 
 async def shuffle_queue(message):
     guild_id = str(message.guild.id)
-    if guild_vc_data[guild_id]["voice_client"] is not None:
-        guild_queue_to_shuffle = guild_vc_data[guild_id]["guild_queue"].copy()
-        guild_queue_to_shuffle.pop(0)
-        random.shuffle(guild_queue_to_shuffle)
-        guild_vc_data[guild_id]["guild_queue"][1:] = guild_queue_to_shuffle
+    if guild_vc_data[guild_id]["voice_client"].is_playing():
+        playing_song = guild_vc_data[guild_id]["guild_queue"].pop(0)
+        random.shuffle(guild_vc_data[guild_id]["guild_queue"])
+        guild_vc_data[guild_id]["guild_queue"].insert(0, playing_song)
+
     else:
         random.shuffle(guild_vc_data[guild_id]["guild_queue"])
 
@@ -369,6 +406,7 @@ COMMAND_HANDLER_DICT = {
     "join": join_voice_channel,
     "leave": leave_voice_channel,
     "add": add_song_to_queue,
+    "playnow": add_song_to_top_position_in_queue,
     "skip": continue_to_next_req,
     "next": continue_to_next_req,
     "queue": send_queue,
