@@ -135,7 +135,15 @@ async def continue_to_next_req(message):
     # the "after" parameter in the voice_client.play method will take care of playing the next song
 
 
-async def add_song_to_queue(message):
+async def add_song_to_bottom_of_queue(message):
+    await add_song_to_queue(message, skip_to_top=False)
+
+
+async def add_song_to_top_of_queue(message):
+    await add_song_to_queue(message, skip_to_top=True)
+
+
+async def add_song_to_queue(message, skip_to_top: bool=False):
     guild_id = str(message.guild.id)
     user_song_request_list = message.content.split(" ")[3:]
     user_song_request = " ".join(user_song_request_list)
@@ -157,47 +165,24 @@ async def add_song_to_queue(message):
                     f"ytsearch:{user_song_request}", download=False)
                 video_to_add = user_song_request_dict['entries'][0]
 
-        guild_vc_data[guild_id]["guild_queue"].append(video_to_add)
-
-    await message.channel.send(embed=verbose.embeds.embed_successful_action(
-        f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the queue."))
-
-    if not guild_vc_data[guild_id]["voice_client"].is_playing():
-        await play_from_yt(message)
-
-
-# im sorry for copying and pasting this whole thing its just so much less effort
-async def add_song_to_top_position_in_queue(message):
-    guild_id = str(message.guild.id)
-    user_song_request_list = message.content.split(" ")[3:]
-    user_song_request = " ".join(user_song_request_list)
-
-    if len(user_song_request) < 1:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("No request specified."))
-        return
-
-    # Add the video metadata to queue
-    # use channel.typing so the user knows something is happening - it might take a while to download metadata depending on internet speed
-    async with message.channel.typing():
-        with youtube_dl.YoutubeDL() as ytdl:
-            if check_if_url(user_song_request):
-                user_song_request_dict = ytdl.extract_info(
-                    user_song_request, download=False)
-                video_to_add = user_song_request_dict
+        if skip_to_top:
+            if guild_vc_data[guild_id]["voice_client"].is_playing():
+                guild_vc_data[guild_id]["guild_queue"].insert(1, video_to_add)
+                await continue_to_next_req(message)
             else:
-                user_song_request_dict = ytdl.extract_info(
-                    f"ytsearch:{user_song_request}", download=False)
-                video_to_add = user_song_request_dict['entries'][0]
-
-        if guild_vc_data[guild_id]["voice_client"].is_playing():
-            guild_vc_data[guild_id]["guild_queue"].insert(1, video_to_add)
-            await continue_to_next_req(message)
+                guild_vc_data[guild_id]["guild_queue"].insert(0, video_to_add)
+                await play_from_yt(message)
+        
+                await message.channel.send(embed=verbose.embeds.embed_successful_action(
+                    f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the top of the queue."))
         else:
-            guild_vc_data[guild_id]["guild_queue"].insert(0, video_to_add)
-            await play_from_yt(message)
+            guild_vc_data[guild_id]["guild_queue"].append(video_to_add)
 
-    await message.channel.send(embed=verbose.embeds.embed_successful_action(
-        f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the top of the queue."))
+            await message.channel.send(embed=verbose.embeds.embed_successful_action(
+                f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the queue."))
+
+            if not guild_vc_data[guild_id]["voice_client"].is_playing():
+                await play_from_yt(message)
 
 
 async def remove_from_queue(message):
@@ -403,8 +388,8 @@ def check_if_url(string):
 COMMAND_HANDLER_DICT = {
     "join": join_voice_channel,
     "leave": leave_voice_channel,
-    "add": add_song_to_queue,
-    "playnow": add_song_to_top_position_in_queue,
+    "add": add_song_to_bottom_of_queue,
+    "playnow": add_song_to_top_of_queue,
     "skip": continue_to_next_req,
     "next": continue_to_next_req,
     "queue": send_queue,
