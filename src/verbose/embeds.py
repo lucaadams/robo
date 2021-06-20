@@ -61,4 +61,3 @@ def embed_failed_counting(embed_title, embed_description):
         colour = discord.Colour.dark_red(),
         description = f"{embed_description}",
     )
-
