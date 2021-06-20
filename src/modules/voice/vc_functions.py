@@ -35,8 +35,6 @@ async def vc_command_handler(message):
     if guild_id not in guild_vc_data:
         guild_vc_data[guild_id] = copy.deepcopy(DEFAULT_GUILD_VC_DATA)
 
-    guild_vc_data[guild_id]["guild_queue"]
-
     try:
         second_parameter = message.content.split(" ")[2]
     # if no second parameter specified, send error message
