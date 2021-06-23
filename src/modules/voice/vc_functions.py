@@ -12,7 +12,7 @@ import verbose.embeds
 
 
 FFMPEG_OPTIONS = {
-    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn',
 }
 
 YOUTUBE_DL_OPTIONS = {
@@ -24,7 +24,7 @@ YOUTUBE_DL_OPTIONS = {
 }
 
 DEFAULT_GUILD_VC_DATA = {
-    'voice_client': None, 'guild_queue': [], 'now_playing': None,'loop': False, 'enable_np': True,
+    'voice_client': None, 'guild_queue': [], 'now_playing': None, 'loop': False, 'queue_loop': False, 'enable_np': True, 'vote_skips': 0,
 }
 
 guild_vc_data = {}
@@ -116,9 +116,13 @@ async def on_playback_finished(message):
 
     if not guild_vc_data[guild_id]["loop"]:
         try:
-            guild_vc_data[guild_id]["guild_queue"].pop(0)
+            removed_song = guild_vc_data[guild_id]["guild_queue"].pop(0)
         except IndexError:
             await message.channel.send(embed=verbose.embeds.embed_response("Your queue has finished playing.", "I will stay in the voice channel... in silence..."))
+            return
+
+        if guild_vc_data[guild_id]["queue_loop"]:
+            guild_vc_data[guild_id]["guild_queue"].append(removed_song)
 
     await play_from_yt(message)
 
@@ -181,7 +185,8 @@ async def add_song_to_queue(message, skip_to_top: bool=False):
             await message.channel.send(embed=verbose.embeds.embed_successful_action(
                 f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the queue."))
 
-            if not guild_vc_data[guild_id]["voice_client"].is_playing():
+            # check if voice client exists before checking if it is playing
+            if guild_vc_data[guild_id]["voice_client"] and not guild_vc_data[guild_id]["voice_client"].is_playing():
                 await play_from_yt(message)
 
 
@@ -360,6 +365,17 @@ async def toggle_loop(message):
         await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("Loop enabled.", ":repeat:"))
 
 
+async def toggle_queue_loop(message):
+    guild_id = str(message.guild.id)
+
+    if guild_vc_data[guild_id]["queue_loop"]:
+        guild_vc_data[guild_id]["queue_loop"] = False
+        await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("Queue loop disabled.", ":repeat:"))
+    else:
+        guild_vc_data[guild_id]["queue_loop"] = True
+        await message.channel.send(embed=verbose.embeds.embed_response_without_title_custom_emote("Queue loop enabled.", ":repeat:"))
+
+
 def embed_youtube_info(metadata):
     youtube_info_embed = discord.Embed(
         title=f"{metadata['title']} - {metadata['uploader']}",
@@ -391,7 +407,6 @@ COMMAND_HANDLER_DICT = {
     "add": add_song_to_bottom_of_queue,
     "playnow": add_song_to_top_of_queue,
     "skip": continue_to_next_req,
-    "next": continue_to_next_req,
     "queue": send_queue,
     "remove": remove_from_queue,
     "save-queue": save_queue,
@@ -400,4 +415,5 @@ COMMAND_HANDLER_DICT = {
     "play-queue": play_queue,
     "toggle-np": toggle_np,
     "loop": toggle_loop,
+    "loop-queue": toggle_queue_loop,
 }
