@@ -67,7 +67,8 @@ async def vc_help_message(message):
     • `{COMMAND_PREFIX} vc save-queue [NAME]` \n    _Saves current queue as a preset with the name [NAME]. Saving another with the same name will overwrite the old one._\n
     • `{COMMAND_PREFIX} vc play-queue [NAME]` \n    _Plays the saved queue with the name [NAME]._\n
     • `{COMMAND_PREFIX} vc queue-list` \n    _Shows a list of all saved queues in your server._\n
-    • `{COMMAND_PREFIX} vc loop` \n    _Loops the currently playing song request._\n
+    • `{COMMAND_PREFIX} vc loop` \n    _Loops the currently playing song request._
+    • `{COMMAND_PREFIX} vc queue-loop` \n    _Loops the currently active queue._\n
     • `{COMMAND_PREFIX} vc shuffle` \n    _Shuffles the queue._\n
     • `{COMMAND_PREFIX} vc toggle-np` \n    _Toggles whether you recieve the `Now playing:` message when a new song starts playing._\n
     ''', ":page_with_curl:"))
