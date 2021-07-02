@@ -170,8 +170,7 @@ async def use_flashcards(bot_message, reaction):
             raise ValueError("Current side is not front or back... somehow.")
 
     if reaction.emoji == emoji_list[2]:
-        flashcard_set_for_guild["index"] += 1 if flashcard_set_for_guild["index"] < (len(flashcard_set_for_guild["active_set"]) - 1) \
-            else -(len(flashcard_set_for_guild["active_set"]) - 1)
+        flashcard_set_for_guild["index"] = (flashcard_set_for_guild["index"] + 1) % len(flashcard_set_for_guild["active_set"])
         flashcard_set_for_guild["current_side"] = "front"
 
     if reaction.emoji == emoji_list[0]:
