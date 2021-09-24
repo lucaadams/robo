@@ -2,11 +2,15 @@ import asyncio
 import random
 import copy
 import youtube_dl
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
 import pafy
+import logging
 import discord
 
 import bot
 from data import data
+from data import __secrets
 from command_prefix import COMMAND_PREFIX
 import verbose.embeds
 
@@ -29,6 +33,16 @@ DEFAULT_GUILD_VC_DATA = {
 
 guild_vc_data = {}
 
+spotipy_client_id = __secrets["spotipy_client_id"]
+spotipy_client_secret = __secrets["spotipy_client_secret"]
+if spotipy_client_id == "REPLACE THIS TEXT WITH YOUR SPOTIPY CLEINT ID" or \
+    spotipy_client_secret == "REPLACE THIS TEXT WITH YOUR SPOTIPY CLEINT SECRET":
+    logging.info(
+        "Your spotipy client id and/or secret have not been set. Adding songs or playlists from spotify will not work. \
+            To get a client id and/or secret, go to https://developer.spotify.com/dashboard/login and make an app.")
+
+#sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=spotipy_client_id, client_secret=spotipy_client_secret, redirect_uri="https://localhost", scope="playlist-read-private"))
+sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=spotipy_client_id, client_secret=spotipy_client_secret))
 
 async def vc_command_handler(message):
     guild_id = str(message.guild.id)
@@ -147,7 +161,7 @@ async def add_song_to_top_of_queue(message):
     await add_song_to_queue(message, skip_to_top=True)
 
 
-async def add_song_to_queue(message, skip_to_top: bool=False):
+async def add_song_to_queue(message: discord.Message, skip_to_top: bool=False):
     guild_id = str(message.guild.id)
     user_song_request_list = message.content.split(" ")[3:]
     user_song_request = " ".join(user_song_request_list)
@@ -159,11 +173,17 @@ async def add_song_to_queue(message, skip_to_top: bool=False):
     # Add the video metadata to queue
     # use channel.typing so the user knows something is happening - it might take a while to download metadata depending on internet speed
     async with message.channel.typing():
+        if check_if_url(user_song_request, "spotify"):
+            await message.channel.send(embed=verbose.embeds.embed_response_without_title("Processing playlist. You may not use commands during this process."))
+            await add_spotify_playlist_to_queue(message)
+            return
+
         with youtube_dl.YoutubeDL() as ytdl:
-            if check_if_url(user_song_request):
+            if check_if_url(user_song_request, "youtube"):
                 user_song_request_dict = ytdl.extract_info(
                     user_song_request, download=False)
                 video_to_add = user_song_request_dict
+
             else:
                 user_song_request_dict = ytdl.extract_info(
                     f"ytsearch:{user_song_request}", download=False)
@@ -188,6 +208,32 @@ async def add_song_to_queue(message, skip_to_top: bool=False):
             # check if voice client exists before checking if it is playing
             if guild_vc_data[guild_id]["voice_client"] and not guild_vc_data[guild_id]["voice_client"].is_playing():
                 await play_from_yt(message)
+
+
+async def add_spotify_playlist_to_queue(message):
+    guild_id = str(message.guild.id)
+    user_song_request_list = message.content.split(" ")[3:]
+    user_song_request = " ".join(user_song_request_list)
+
+    #async with message.channel.typing:
+    with youtube_dl.YoutubeDL() as ytdl:
+        if "playlist" in user_song_request:
+            songs_to_add: list = sp.playlist_items(user_song_request, fields="items.track.name,items.track.artists.name,total")["items"]
+
+            for track in songs_to_add:
+                user_song_request_dict = ytdl.extract_info(
+                    f"ytsearch:{track['track']['name']} {track['track']['artists'][0]['name']}", download=False)
+                video_to_add = user_song_request_dict['entries'][0]
+
+                guild_vc_data[guild_id]["guild_queue"].append(video_to_add)
+
+                if guild_vc_data[guild_id]["voice_client"] and not guild_vc_data[guild_id]["voice_client"].is_playing():
+                    await play_from_yt(message)
+
+        else:
+            user_song_request_dict = ytdl.extract_info(
+                f"ytsearch:{user_song_request}", download=False)
+            video_to_add = user_song_request_dict['entries'][0]
 
 
 async def remove_from_queue(message):
@@ -397,8 +443,8 @@ def embed_youtube_info(metadata):
     return youtube_info_embed
 
 
-def check_if_url(string):
-    return string.startswith("http") or string.startswith("www")
+def check_if_url(string, website):
+    return (string.startswith("http") or string.startswith("www")) and (website in string)
 
 
 COMMAND_HANDLER_DICT = {

@@ -74,7 +74,9 @@ if os.path.exists(SECRETS_FILE_PATH):
         __secrets = json.loads(secrets_file.read())
 else:
     __secrets = {
-        "hypixel_api_key": "REPLACE THIS TEXT WITH YOUR HYPIXEL API KEY"
+        "hypixel_api_key": "REPLACE THIS TEXT WITH YOUR HYPIXEL API KEY",
+        "spotipy_client_id": "REPLACE THIS TEXT WITH YOUR SPOTIPY CLEINT ID",
+        "spotipy_client_secret": "REPLACE THIS TEXT WITH YOUR SPOTIPY CLIENT SECRET"
     }
     with open(SECRETS_FILE_PATH, "w") as secrets_file:
-        secrets_file.write(__secrets)
+        secrets_file.write(json.dumps(__secrets))
