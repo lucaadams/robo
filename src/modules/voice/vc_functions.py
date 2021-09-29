@@ -41,8 +41,19 @@ if spotipy_client_id == "REPLACE THIS TEXT WITH YOUR SPOTIPY CLEINT ID" or \
         "Your spotipy client id and/or secret have not been set. Adding songs or playlists from spotify will not work. \
             To get a client id and/or secret, go to https://developer.spotify.com/dashboard/login and make an app.")
 
-#sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=spotipy_client_id, client_secret=spotipy_client_secret, redirect_uri="https://localhost", scope="playlist-read-private"))
 sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=spotipy_client_id, client_secret=spotipy_client_secret))
+
+class Song:
+    def __init__(self, youtube_metadata: dict=None, name: str=None, url: str=None):
+        if youtube_metadata is not None:
+            self.name = youtube_metadata["title"]
+            self.url = youtube_metadata["webpage_url"]
+            self.youtube_metadata = youtube_metadata
+        else:
+            self.name = name
+            self.url = url
+            self.youtube_metadata = {}
+
 
 async def vc_command_handler(message):
     guild_id = str(message.guild.id)
@@ -105,24 +116,27 @@ async def play_from_yt(message):
 
     # get the metadata for the oldest song in the queue (the one that is going to be played)
     try:
-        song_request = guild_queue[0]
+        song_request: Song = guild_queue[0]
     except IndexError:
         await message.channel.send(embed=verbose.embeds.embed_response("The queue is empty.", "I will stay in the voice channel... in silence..."))
         return
 
-    if isinstance(song_request, str):
+    if not song_request.youtube_metadata: # if i dont have the metadata
         with youtube_dl.YoutubeDL() as ytdl:
-            if check_if_url(song_request, "youtube"):
-                user_song_request_dict = ytdl.extract_info(
-                    song_request, download=False)
-                song_request_metadata = user_song_request_dict
+            if check_if_url(song_request.url, "youtube"):
+                song_request_metadata = ytdl.extract_info(
+                    song_request.url, download=False)
+                song_request.youtube_metadata = song_request_metadata
 
             else:
-                user_song_request_dict = ytdl.extract_info(
-                    f"ytsearch:{song_request}", download=False)
-                song_request_metadata = user_song_request_dict['entries'][0]
+                results = ytdl.extract_info(
+                    f"ytsearch:{song_request.name}", download=False)
+                if len(results['entries']) == 0:
+                    await message.channel.send(embed=verbose.embeds.embed_error_message("Sorry, I could not find a song on youtube with that name."))
+                song_request_metadata = results['entries'][0]
+                song_request.youtube_metadata = song_request_metadata
     else:
-        song_request_metadata = song_request
+        song_request_metadata = song_request.youtube_metadata
 
     voice_client = guild_vc_data[guild_id]["voice_client"]
 
@@ -195,12 +209,15 @@ async def add_song_to_queue(message: discord.Message, skip_to_top: bool=False):
             if check_if_url(user_song_request, "youtube"):
                 user_song_request_dict = ytdl.extract_info(
                     user_song_request, download=False)
-                video_to_add = user_song_request_dict
+                video_to_add = Song(youtube_metadata=user_song_request_dict)
 
             else:
-                user_song_request_dict = ytdl.extract_info(
+                results = ytdl.extract_info(
                     f"ytsearch:{user_song_request}", download=False)
-                video_to_add = user_song_request_dict['entries'][0]
+                if len(results['entries']) == 0:
+                    await message.channel.send(embed=verbose.embeds.embed_error_message("Sorry, I could not find a song on youtube with that name."))
+                    return
+                video_to_add = Song(results['entries'][0])
 
         if skip_to_top:
             if guild_vc_data[guild_id]["voice_client"].is_playing():
@@ -211,12 +228,12 @@ async def add_song_to_queue(message: discord.Message, skip_to_top: bool=False):
                 await play_from_yt(message)
         
                 await message.channel.send(embed=verbose.embeds.embed_successful_action(
-                    f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the top of the queue."))
+                    f"Added [{video_to_add.name}]({video_to_add.url}) to the top of the queue."))
         else:
             guild_vc_data[guild_id]["guild_queue"].append(video_to_add)
 
             await message.channel.send(embed=verbose.embeds.embed_successful_action(
-                f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the queue."))
+                f"Added [{video_to_add.name}]({video_to_add.url}) to the queue."))
 
             # check if voice client exists before checking if it is playing
             if guild_vc_data[guild_id]["voice_client"] and not guild_vc_data[guild_id]["voice_client"].is_playing():
@@ -231,15 +248,16 @@ async def add_spotify_playlist_to_queue(message):
     #async with message.channel.typing:
     with youtube_dl.YoutubeDL() as ytdl:
         if "playlist" in user_song_request:
-            # try:
-            songs_to_add: list = sp.playlist_items(user_song_request, fields="items.track.name,items.track.artists.name,total")["items"]
-            # except spotipy.SpotifyException:
-            #     await message.channel.send(embed=verbose.embeds.embed_error_message(
-            #         "Sorry, data could not be fetched for that playlist. Most likely it doesn't exist, it is privated, or it is too long."))
-            #     return
+            try:
+                songs_to_add: list = sp.playlist_items(user_song_request, fields="items.track.name,items.track.artists.name,items.track.external_urls.spotify,total")["items"]
+            except spotipy.SpotifyException:
+                await message.channel.send(embed=verbose.embeds.embed_error_message(
+                    "Sorry, data could not be fetched for that playlist. Most likely it doesn't exist, it is privated, or it is too long."))
+                return
 
             for track in songs_to_add:
-                guild_vc_data[guild_id]["guild_queue"].append(f"{track['track']['name']} {track['track']['artists'][0]['name']}")
+                guild_vc_data[guild_id]["guild_queue"].append(
+                    Song(name=f"{track['track']['name']} - {track['track']['artists'][0]['name']}", url=track['track']['external_urls']['spotify']))
 
                 if guild_vc_data[guild_id]["voice_client"] and not guild_vc_data[guild_id]["voice_client"].is_playing():
                     await play_from_yt(message)
@@ -247,13 +265,17 @@ async def add_spotify_playlist_to_queue(message):
             await message.channel.send(embed=verbose.embeds.embed_successful_action("Playlist added to queue."))
 
         else:
-            user_song_request_dict = ytdl.extract_info(
+            results = ytdl.extract_info(
                 f"ytsearch:{user_song_request}", download=False)
-            video_to_add = user_song_request_dict['entries'][0]
+            if len(results['entries']) == 0:
+                await message.channel.send(embed=verbose.embeds.embed_error_message(
+                    "Sorry, robo currently only supports spotify playlists. You probably tried to request an album or track."))
+                return
+            video_to_add = Song(results['entries'][0])
 
             guild_vc_data[guild_id]["guild_queue"].append(video_to_add)
             await message.channel.send(embed=verbose.embeds.embed_successful_action(
-                f"Added [{video_to_add['title']}]({video_to_add['webpage_url']}) to the queue."))
+                f"Added [{video_to_add.name}]({video_to_add.url}) to the queue."))
 
 
 async def remove_from_queue(message):
