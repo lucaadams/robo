@@ -69,7 +69,7 @@ async def execute_quote_command(message):
     try:
         image_type = message.content.split(" ")[2]
     except IndexError:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("Incomplete command."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("Incomplete command."))
 
     if image_type == "colour":
         image_options = os.listdir(f"{data.ROOT_FILE_PATH}/res/quote_images/colourful")
@@ -81,7 +81,7 @@ async def execute_quote_command(message):
         try:
             new_quote = Quote(message, image_options, image, font, 300, 200, 0, 25)
         except MissingQuoteMessageError:
-            await message.channel.send(embed=verbose.embeds.embed_error_message("Must specify a quote message."))
+            await message.channel.send(embed=verbose.embeds.embed_warning_message("Must specify a quote message."))
             return
 
         async with message.channel.typing():
@@ -97,11 +97,11 @@ async def execute_quote_command(message):
         try:
             new_quote = Quote(message, image_options, image, font, 800, 200, 180, 20)
         except MissingQuoteMessageError:
-            await message.channel.send(embed=verbose.embeds.embed_error_message("Must specify a quote message."))
+            await message.channel.send(embed=verbose.embeds.embed_warning_message("Must specify a quote message."))
             return
 
         async with message.channel.typing():
             await new_quote.generate_quote()
 
     else:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("You must specify a valid image type ('grey' or 'colour')"))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("You must specify a valid image type ('grey' or 'colour')"))

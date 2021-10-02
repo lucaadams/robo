@@ -28,7 +28,7 @@ async def help_message_handler(message):
         await minecraft_help_message(message)
 
     else:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("Must specify valid help message."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("Must specify valid help message."))
 
 
 async def default_help_message(message):

@@ -40,7 +40,7 @@ async def hypixel_command_handler(message):
         game = message.content.split()[2].lower()
         username = message.content.split()[3].lower()
     except IndexError:
-        await message.channel.send(embed=verbose.embeds.embed_error_message(f"You must include both parameters `[GAME]` and `[USERNAME]`."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message(f"You must include both parameters `[GAME]` and `[USERNAME]`."))
         return
 
     # try to get search from cache. if it didn't work, send req

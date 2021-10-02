@@ -21,7 +21,7 @@ async def get_user_skin_texture(message):
     try:
         username = message.content.split()[3].lower()
     except IndexError:
-        await message.channel.send(embed=verbose.embeds.embed_error_message(f"You must specify a user."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message(f"You must specify a user."))
         return
 
     # only send request if user info is not in cache

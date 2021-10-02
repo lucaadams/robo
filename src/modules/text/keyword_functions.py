@@ -15,16 +15,16 @@ async def command_handler(message):
         try:
             await remove(guild_id, message, message.content.split(" ")[3])
         except IndexError:
-            await message.channel.send(embed=verbose.embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
+            await message.channel.send(embed=verbose.embeds.embed_warning_message("That keyword does not exist. Did you make a typo? "))
 
     elif second_parameter == "edit":
         try:
             if message.content.split(" ")[3] == "":
-                await message.channel.send(embed=verbose.embeds.embed_error_message("Name of new keyword must be specified. "))
+                await message.channel.send(embed=verbose.embeds.embed_warning_message("Name of new keyword must be specified. "))
             else:
                 await edit(guild_id, message, message.content.split(" ")[3], " ".join(message.content.split(" ")[4:]))
         except IndexError:
-            await message.channel.send(embed=verbose.embeds.embed_error_message("That keyword does not exist. Did you make a typo? "))
+            await message.channel.send(embed=verbose.embeds.embed_warning_message("That keyword does not exist. Did you make a typo? "))
 
     elif second_parameter == "list":
         await list_keywords(guild_id, message)
@@ -33,7 +33,7 @@ async def command_handler(message):
 async def add(guild_id, message, keyword, value):
     guild_data = data.get_guild_data(guild_id)
     if value == "":
-        await message.channel.send(embed=verbose.embeds.embed_error_message("No value specified. "))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("No value specified. "))
     else:
         if keyword in guild_data["keywords"]:
             guild_data["keywords"][keyword].append(value)
@@ -48,7 +48,7 @@ async def remove(guild_id, message, message_removal):
     try:
         guild_data["keywords"].pop(message_removal)
     except KeyError:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("That keyword does not exist."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("That keyword does not exist."))
     else:
         await message.channel.send(embed=verbose.embeds.embed_successful_action("Keyword removed. "))
 

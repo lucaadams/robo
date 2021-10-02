@@ -83,7 +83,7 @@ class QueueMessage:
             await self.clear_reactions()
 
         if reaction.emoji == emoji_list[3]:
-            self.current_page += 1 if self.current_page != self.page_count else 0
+            self.current_page += 1 if self.current_page != self.page_count - 1 else 0
 
         if reaction.emoji == emoji_list[4]:
             self.current_page = self.page_count - 1

@@ -159,8 +159,8 @@ async def execute_command(message):
         for i in range(20, 0, -1):
             await asyncio.sleep(1)
             await message.channel.send(i)
-        await message.channel.send(embed=verbose.embeds.embed_error_message("Server nuke failed. Please try again later. "))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("Server nuke failed. Please try again later. "))
 
     else:
-        await message.channel.send(embed=verbose.embeds.embed_error_message(
+        await message.channel.send(embed=verbose.embeds.embed_warning_message(
             f"Command not recognised. Type `{COMMAND_PREFIX} help` for a list of commands. "))

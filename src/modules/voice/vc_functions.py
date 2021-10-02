@@ -55,14 +55,14 @@ async def vc_command_handler(message):
         second_parameter = message.content.split(" ")[2]
     # if no second parameter specified, send error message
     except IndexError:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("Incomplete command."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("Incomplete command."))
         return
 
     # get required function that corresponds to 
     if second_parameter in COMMAND_HANDLER_DICT.keys():
         await COMMAND_HANDLER_DICT[second_parameter](message)
     else:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("Invalid command."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("Invalid command."))
 
 
 async def join_voice_channel(message):
@@ -123,7 +123,7 @@ async def play_from_yt(message):
                 results = ytdl.extract_info(
                     f"ytsearch:{song_request.name}", download=False)
                 if len(results['entries']) == 0:
-                    await message.channel.send(embed=verbose.embeds.embed_error_message("Sorry, I could not find a song on youtube with that name."))
+                    await message.channel.send(embed=verbose.embeds.embed_warning_message("Sorry, I could not find a song on youtube with that name."))
                 song_request_metadata = results['entries'][0]
                 song_request.youtube_metadata = song_request_metadata
     else:
@@ -186,7 +186,7 @@ async def add_song_to_queue(message: discord.Message, skip_to_top: bool=False):
     user_song_request = " ".join(user_song_request_list)
 
     if len(user_song_request) < 1:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("No request specified."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("No request specified."))
         return
 
     # Add the video metadata to queue
@@ -206,7 +206,7 @@ async def add_song_to_queue(message: discord.Message, skip_to_top: bool=False):
                 results = ytdl.extract_info(
                     f"ytsearch:{user_song_request}", download=False)
                 if len(results['entries']) == 0:
-                    await message.channel.send(embed=verbose.embeds.embed_error_message("Sorry, I could not find a song on youtube with that name."))
+                    await message.channel.send(embed=verbose.embeds.embed_warning_message("Sorry, I could not find a song on youtube with that name."))
                     return
                 video_to_add = Song(results['entries'][0])
 
@@ -242,7 +242,7 @@ async def add_spotify_playlist_to_queue(message):
             try:
                 songs_to_add: list = sp.playlist_items(user_song_request, fields="items.track.name,items.track.artists.name,items.track.external_urls.spotify,total")["items"]
             except spotipy.SpotifyException:
-                await message.channel.send(embed=verbose.embeds.embed_error_message(
+                await message.channel.send(embed=verbose.embeds.embed_warning_message(
                     "Sorry, data could not be fetched for that playlist. Most likely it doesn't exist, it is privated, or it is too long."))
                 return
 
@@ -259,7 +259,7 @@ async def add_spotify_playlist_to_queue(message):
             results = ytdl.extract_info(
                 f"ytsearch:{user_song_request}", download=False)
             if len(results['entries']) == 0:
-                await message.channel.send(embed=verbose.embeds.embed_error_message(
+                await message.channel.send(embed=verbose.embeds.embed_warning_message(
                     "Sorry, robo currently only supports spotify playlists. You probably tried to request an album or track."))
                 return
             video_to_add = Song(results['entries'][0])
@@ -275,7 +275,7 @@ async def remove_from_queue(message):
     try:
         index_to_remove = int(message.content.split(" ")[3])
     except ValueError:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("Must specify valid queue index."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("Must specify valid queue index."))
         return
 
     try:
@@ -284,7 +284,7 @@ async def remove_from_queue(message):
             embed=verbose.embeds.embed_successful_action(f"[{removed_song['title']}] \
                 ({removed_song['webpage_url']}) has been removed from the queue"))
     except IndexError:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("That queue index does not exist."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("That queue index does not exist."))
         return
 
     # if they want to remove currently playing song, then continue to next song
@@ -316,31 +316,6 @@ async def send_queue(message):
     if guild_vc_data[guild_id]["active_queue_message"] is not None:
         await guild_vc_data[guild_id]["active_queue_message"].clear_reactions()
     guild_vc_data[guild_id]["active_queue_message"] = queue_message
-
-    # if len(specific_queue) == 0:
-    #     for song in guild_vc_data[guild_id]["guild_queue"]:
-    #         desc += f"{num} - [{song.name}]({song.url})\n"
-    #         num += 1
-    #     if desc == "":
-    #         await message.channel.send(embed=verbose.embeds.embed_response_without_title("Your queue is currently empty."))
-    #     else:
-    #         await message.channel.send(embed=verbose.embeds.embed_response("Up next", desc))
-    #     return
-
-    # # if the user specified a queue, then check if it exists in the guild_data json file and get queue info from there instead
-    # guild_data = data.get_guild_data(guild_id)
-    # if specific_queue in guild_data["saved_queues"]:
-    #     for metadata in guild_data["saved_queues"][specific_queue]:
-    #         desc += f"{num} - [{metadata['title']}]({metadata['webpage_url']})\n"
-    #         num += 1
-    #     if desc == "":
-    #         await message.channel.send(embed=verbose.embeds.embed_response_without_title("That queue is currently empty."))
-    #     else:
-    #         await message.channel.send(embed=verbose.embeds.embed_response(f"Queue `{specific_queue}`:", desc))
-    #     return
-
-    # await message.channel.send(embed=verbose.embeds.embed_error_message("You do not have a saved queue with that name."))
-
 
 
 async def change_queue_page(bot_message, reaction):
@@ -390,11 +365,11 @@ async def play_queue(message):
     try:
         queue_to_play = " ".join(message.content.split(" ")[3:])
     except IndexError:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("You must specify a queue to play."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("You must specify a queue to play."))
         return
 
     if queue_to_play not in guild_data["saved_queues"]:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("That queue does not exist."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("That queue does not exist."))
         return
 
     guild_vc_data[guild_id]["guild_queue"] = guild_data["saved_queues"][queue_to_play].copy()

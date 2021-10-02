@@ -17,4 +17,4 @@ async def minecraft_command_handler(message):
         await modules.minecraft.user_skins.get_user_skin_texture.get_user_skin_texture(message)
 
     else:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("That command does not exist."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("That command does not exist."))

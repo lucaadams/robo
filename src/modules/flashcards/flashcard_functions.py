@@ -65,14 +65,14 @@ async def flashcard_command_handler(message):
             else True
 
     else:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("That command does not exist."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("That command does not exist."))
 
 
 async def create_new_flashcards_set(message):
     try:
         flashcard_set_name = message.content.split()[3]
     except IndexError:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("You must specify a name for your flashcard set."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("You must specify a name for your flashcard set."))
         return
 
     guild_id = str(message.guild.id)
@@ -104,7 +104,7 @@ async def end_flashcard_creation(message):
     guild_id = str(message.guild.id)
 
     if not flashcard_data[guild_id]["flashcard_creation_in_progress"]:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("You cannot end creation if no creation has started."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("You cannot end creation if no creation has started."))
 
     if message.author != flashcard_data[guild_id]["user"]:
         await message.channel.send(embed=verbose.embeds.embed_sorry_message("Only the flashcard set creator can end creation."))
@@ -127,7 +127,7 @@ async def setup_flashcard_use(message):
     try:
         flashcard_set_to_use = message.content.split()[3]
     except IndexError:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("You must specify a flashcard set to use."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("You must specify a flashcard set to use."))
         return
 
     flashcard_sets = data.get_guild_data(guild_id)["flashcard_sets"]
@@ -212,7 +212,7 @@ async def edit_flashcard_set(message):
 
 async def remove_flashcard_set(message):
     if not message.author.guild_permissions.administrator:
-        await message.channel.send(embed=verbose.embeds.embed_error_message("Sorry, you must be an administrator in this server to use that command."))
+        await message.channel.send(embed=verbose.embeds.embed_warning_message("Sorry, you must be an administrator in this server to use that command."))
         return
 
     guild_id = str(message.guild.id)

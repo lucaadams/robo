@@ -3,9 +3,16 @@ import discord
 
 def embed_error_message(embed_description):
     return discord.Embed(
-        title = ":exclamation: ERROR.",
+        title = ":exclamation: ERROR",
         colour = discord.Colour.dark_red(),
         description = f"{embed_description}",
+    )
+
+
+def embed_warning_message(embed_description):
+    return discord.Embed(
+        colour = discord.Colour(0xfcbb38),
+        description = f":warning: {embed_description}",
     )
 
 
