@@ -7,7 +7,6 @@ import data
 import verbose.embeds
 import cache
 from methods import parse_timestamp
-from exceptions import StatsNotFoundError
 import modules.minecraft.stats.bedwars_stats
 import modules.minecraft.stats.skywars_stats
 from modules.minecraft.user_skins.get_user_skin import get_user_avatar
@@ -23,6 +22,9 @@ sent_stats_messages_with_reactions = []
 
 emoji_list = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣"]
 stop_emoji = "⏹️"
+
+class StatsNotFoundError(Exception):
+    pass
 
 
 class StatsMessage:
