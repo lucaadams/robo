@@ -2,7 +2,7 @@ import time
 import math
 import discord
 
-import data
+from data import data
 import verbose.embeds
 
 
@@ -28,21 +28,15 @@ class Song:
 
 class QueueMessage:
     def __init__(self, message, queue: list[Song]=None, queue_name=None):
-        if queue is not None:
-            self.queue = queue
-        else:
-            guild_data = data.get_guild_data(message.guild.id)
-            if queue_name not in guild_data["saved_queues"]:
-                raise InvalidQueueParameters
-            queue = guild_data["saved_queues"][queue_name]
-
-        self.name = queue_name if queue_name else "Current Queue"
+        self.queue = queue
+        self.name = queue_name if queue_name else "Up next"
         self.message: discord.Message = None
         self.channel = message.channel
         self.current_page = 0
-        self.page_count = math.ceil(len(queue) / songs_per_page)
+        self.page_count = 0 if queue is None else math.ceil(len(queue) / songs_per_page)
         self.pages: list[str] = []
-        self.init_pages()
+        if self.page_count != 0:
+            self.init_pages()
         self.time_sent = time.time()
 
 
@@ -63,7 +57,7 @@ class QueueMessage:
         if self.page_count == 0:
             self.message = await self.channel.send(embed=verbose.embeds.embed_response_without_title("Your queue is currently empty."))
         else:
-            self.message = await self.channel.send(embed=verbose.embeds.embed_response("Up next", self.pages[0]))
+            self.message = await self.channel.send(embed=self.queue_embed())
 
             for emoji in emoji_list:
                 await self.message.add_reaction(emoji)
@@ -88,8 +82,19 @@ class QueueMessage:
         if reaction.emoji == emoji_list[4]:
             self.current_page = self.page_count - 1
 
-        await self.message.edit(embed=verbose.embeds.embed_response("Up next", self.pages[self.current_page]))
+        await self.message.edit(embed=self.queue_embed())
 
 
     async def clear_reactions(self):
         await self.message.clear_reactions()
+
+
+    def queue_embed(self):
+        queue_embed = discord.Embed(
+            title = f":information_source: {self.name}:",
+            colour = discord.Colour(0x3f87a1),
+            description = f"{self.pages[self.current_page]}",
+        )
+        queue_embed.set_footer(text=f"Page {self.current_page + 1}/{self.page_count}")
+
+        return queue_embed

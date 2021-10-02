@@ -303,13 +303,23 @@ async def send_queue(message):
     """
     guild_id = str(message.guild.id)
 
-    # if no queue specified, send songs from the current queue
     specific_queue_name = " ".join(message.content.split(" ")[3:])
 
-    if len(specific_queue_name) == 0:
-        queue_message = QueueMessage(message, queue=guild_vc_data[guild_id]["guild_queue"])
+    if len(specific_queue_name) > 0: # if queue specified
+        guild_data = data.get_guild_data(guild_id)
+
+        if specific_queue_name not in guild_data["saved_queues"]:
+            await message.channel.send(embed=verbose.embeds.embed_warning_message("That queue does not exist."))
+            return
+
+        # load the queue of dicts and parse into Songs
+        queue_to_send = [dict_to_song(song_dict) for song_dict in guild_data["saved_queues"][specific_queue_name]]
+
     else:
-        queue_message = QueueMessage(message, queue_name=specific_queue_name)
+        specific_queue_name = None
+        queue_to_send = guild_vc_data[guild_id]["guild_queue"]
+
+    queue_message = QueueMessage(message, queue=queue_to_send, queue_name=specific_queue_name)
 
     await queue_message.send()
 
@@ -372,7 +382,7 @@ async def play_queue(message):
         await message.channel.send(embed=verbose.embeds.embed_warning_message("That queue does not exist."))
         return
 
-    guild_vc_data[guild_id]["guild_queue"] = guild_data["saved_queues"][queue_to_play].copy()
+    guild_vc_data[guild_id]["guild_queue"] = [dict_to_song(song_dict) for song_dict in guild_data["saved_queues"][queue_to_play]]
 
     try:
         guild_vc_data[guild_id]["voice_client"].stop()
@@ -393,13 +403,33 @@ async def save_queue(message):
         await message.channel.send(embed=verbose.embeds.embed_sorry_message("Your current queue is empty."))
         return
 
+    queue_to_save = [song_to_dict(song) for song in guild_vc_data[guild_id]["guild_queue"]]
+
     queue_name = " ".join(message.content.split(" ")[3:])
     guild_data = data.get_guild_data(guild_id)
-    guild_data["saved_queues"][queue_name] = guild_vc_data[guild_id]["guild_queue"].copy()
+    guild_data["saved_queues"][queue_name] = queue_to_save
     data.set_guild_data(guild_id, guild_data)
 
     await message.channel.send(embed=verbose.embeds.embed_successful_action(
         f"Saved current queue preset as `{queue_name}`"))
+
+
+def song_to_dict(song: Song) -> dict:
+    song_dict = {}
+    song_dict["name"] = song.name
+    song_dict["url"] = song.url
+    song_dict["youtube_metadata"] = song.youtube_metadata
+
+    return song_dict
+
+
+def dict_to_song(song_dict: dict) -> Song:
+    if song_dict["youtube_metadata"] != {}:
+        song = Song(youtube_metadata=song_dict["youtube_metadata"])
+    else:
+        song = Song(name=song_dict["name"], url=song_dict["url"])
+
+    return song
 
 
 async def shuffle_queue(message):
