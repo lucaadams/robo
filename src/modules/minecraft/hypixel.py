@@ -137,7 +137,7 @@ async def add_reaction(bot_message):
     await bot_message.add_reaction(stop_emoji)
 
 
-async def change_page(bot_message, reaction):
+async def change_stats_message_page(bot_message, reaction):
     # first, get the stats of the user that the sent message was about
     message_index_in_sent_messages = None
     for index, stats_message in enumerate(sent_stats_messages_with_reactions):
