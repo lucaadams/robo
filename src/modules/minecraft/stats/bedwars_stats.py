@@ -1,7 +1,5 @@
 import discord
 
-from exceptions import StatsNotFoundError
-
 
 hypixel_logo_url = "https://pbs.twimg.com/profile_images/1346968969849171970/DdNypQdN_400x400.png"
 
