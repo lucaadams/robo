@@ -1,4 +1,5 @@
 import asyncio
+import time
 import random
 import copy
 import youtube_dl
@@ -13,6 +14,7 @@ from data import data
 from data import __secrets
 from command_prefix import COMMAND_PREFIX
 import verbose.embeds
+from modules.voice.song_queue import Song, QueueMessage
 
 
 FFMPEG_OPTIONS = {
@@ -28,7 +30,7 @@ YOUTUBE_DL_OPTIONS = {
 }
 
 DEFAULT_GUILD_VC_DATA = {
-    'voice_client': None, 'guild_queue': [], 'now_playing': None, 'loop': False, 'queue_loop': False, 'enable_np': True, 'vote_skips': 0,
+    'voice_client': None, 'guild_queue': [], 'active_queue_message': None, 'now_playing': None, 'loop': False, 'queue_loop': False, 'enable_np': True, 'vote_skips': 0,
 }
 
 guild_vc_data = {}
@@ -42,17 +44,6 @@ if spotipy_client_id == "REPLACE THIS TEXT WITH YOUR SPOTIPY CLEINT ID" or \
             To get a client id and/or secret, go to https://developer.spotify.com/dashboard/login and make an app.")
 
 sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=spotipy_client_id, client_secret=spotipy_client_secret))
-
-class Song:
-    def __init__(self, youtube_metadata: dict=None, name: str=None, url: str=None):
-        if youtube_metadata is not None:
-            self.name = youtube_metadata["title"]
-            self.url = youtube_metadata["webpage_url"]
-            self.youtube_metadata = youtube_metadata
-        else:
-            self.name = name
-            self.url = url
-            self.youtube_metadata = {}
 
 
 async def vc_command_handler(message):
@@ -311,34 +302,53 @@ async def send_queue(message):
     sends songs from a specified queue, or the current queue if no queue is specified
     """
     guild_id = str(message.guild.id)
-    desc = ""
-    num = 1
 
     # if no queue specified, send songs from the current queue
-    specific_queue = " ".join(message.content.split(" ")[3:])
-    if len(specific_queue) == 0:
-        for metadata in guild_vc_data[guild_id]["guild_queue"]:
-            desc += f"{num} - [{metadata['title']}]({metadata['webpage_url']})\n"
-            num += 1
-        if desc == "":
-            await message.channel.send(embed=verbose.embeds.embed_response_without_title("Your queue is currently empty."))
-        else:
-            await message.channel.send(embed=verbose.embeds.embed_response("Up next", desc))
+    specific_queue_name = " ".join(message.content.split(" ")[3:])
+
+    if len(specific_queue_name) == 0:
+        queue_message = QueueMessage(message, queue=guild_vc_data[guild_id]["guild_queue"])
+    else:
+        queue_message = QueueMessage(message, queue_name=specific_queue_name)
+
+    await queue_message.send()
+
+    if guild_vc_data[guild_id]["active_queue_message"] is not None:
+        await guild_vc_data[guild_id]["active_queue_message"].clear_reactions()
+    guild_vc_data[guild_id]["active_queue_message"] = queue_message
+
+    # if len(specific_queue) == 0:
+    #     for song in guild_vc_data[guild_id]["guild_queue"]:
+    #         desc += f"{num} - [{song.name}]({song.url})\n"
+    #         num += 1
+    #     if desc == "":
+    #         await message.channel.send(embed=verbose.embeds.embed_response_without_title("Your queue is currently empty."))
+    #     else:
+    #         await message.channel.send(embed=verbose.embeds.embed_response("Up next", desc))
+    #     return
+
+    # # if the user specified a queue, then check if it exists in the guild_data json file and get queue info from there instead
+    # guild_data = data.get_guild_data(guild_id)
+    # if specific_queue in guild_data["saved_queues"]:
+    #     for metadata in guild_data["saved_queues"][specific_queue]:
+    #         desc += f"{num} - [{metadata['title']}]({metadata['webpage_url']})\n"
+    #         num += 1
+    #     if desc == "":
+    #         await message.channel.send(embed=verbose.embeds.embed_response_without_title("That queue is currently empty."))
+    #     else:
+    #         await message.channel.send(embed=verbose.embeds.embed_response(f"Queue `{specific_queue}`:", desc))
+    #     return
+
+    # await message.channel.send(embed=verbose.embeds.embed_error_message("You do not have a saved queue with that name."))
+
+
+
+async def change_queue_page(bot_message, reaction):
+    guild_id = str(bot_message.guild.id)
+    if bot_message != guild_vc_data[guild_id]["active_queue_message"].message:
         return
 
-    # if the user specified a queue, then check if it exists in the guild_data json file and get queue info from there instead
-    guild_data = data.get_guild_data(guild_id)
-    if specific_queue in guild_data["saved_queues"]:
-        for metadata in guild_data["saved_queues"][specific_queue]:
-            desc += f"{num} - [{metadata['title']}]({metadata['webpage_url']})\n"
-            num += 1
-        if desc == "":
-            await message.channel.send(embed=verbose.embeds.embed_response_without_title("That queue is currently empty."))
-        else:
-            await message.channel.send(embed=verbose.embeds.embed_response(f"Queue `{specific_queue}`:", desc))
-        return
-
-    await message.channel.send(embed=verbose.embeds.embed_error_message("You do not have a saved queue with that name."))
+    await guild_vc_data[guild_id]["active_queue_message"].change_page(reaction)
 
 
 async def send_queue_list(message):
