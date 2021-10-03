@@ -105,6 +105,7 @@ async def on_reaction_add(reaction, user):
 
     # if the reaction is not meant for a module it will just return and do nothing
     await modules.voice.vc_functions.change_queue_page(bot_message, reaction)
+    await modules.help.help_functions.change_help_message_page(bot_message, reaction)
     await modules.minecraft.hypixel.change_stats_message_page(bot_message, reaction)
     await modules.flashcards.flashcard_functions.use_flashcards(bot_message, reaction)
 

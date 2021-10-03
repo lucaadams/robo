@@ -19,7 +19,7 @@ class PagedMessage:
             self.init_pages()
 
         self.emoji_list = ["⏪", "◀️", "⏹️", "▶️", "⏩"]
-        self.disable_reactions = False
+        self.disable_reactions = False if self.page_count > 1 else True # no reactions if only 1 page
 
         self.time_sent = time.time()
 
@@ -47,8 +47,9 @@ class PagedMessage:
         else:
             self.message = await self.channel.send(embed=self.content_embed())
 
-            for emoji in self.emoji_list:
-                await self.message.add_reaction(emoji)
+            if self.page_count > 1:
+                for emoji in self.emoji_list:
+                    await self.message.add_reaction(emoji)
 
 
     async def change_page_internal(self, reaction):
@@ -81,7 +82,6 @@ class PagedMessage:
     async def change_page(self, reaction):
         if not self.disable_reactions:
             await self.change_page_internal(reaction)
-            print("not disabled")
 
 
     async def clear_reactions(self):
