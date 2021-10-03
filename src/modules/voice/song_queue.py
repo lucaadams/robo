@@ -4,7 +4,7 @@ import verbose.embeds
 from verbose.paged_message import PagedMessage
 
 
-songs_per_page = 12
+SONGS_PER_PAGE = 12
 
 
 class InvalidQueueParameters(Exception):
@@ -25,7 +25,7 @@ class Song:
 
 class QueueMessage(PagedMessage):
     def __init__(self, message_to_reply_to, queue: list[Song]=None, queue_name=None):
-        super().__init__(message_to_reply_to, queue_name if queue_name else "Up next", queue, songs_per_page)
+        super().__init__(message_to_reply_to, queue_name if queue_name else "Up next", queue, SONGS_PER_PAGE)
 
 
     def init_pages(self):
