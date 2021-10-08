@@ -544,6 +544,7 @@ COMMAND_HANDLER_DICT = {
     "join": join_voice_channel,
     "leave": leave_voice_channel,
     "add": add_song_to_bottom_of_queue,
+    "play": add_song_to_bottom_of_queue,
     "playnow": add_song_to_top_of_queue,
     "skip": continue_to_next_req,
     "queue": send_queue,
