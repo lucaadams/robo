@@ -255,6 +255,40 @@ async def add_spotify_playlist_to_queue(message):
 
             await message.channel.send(embed=verbose.embeds.embed_successful_action("Playlist added to queue."))
 
+        if "album" in user_song_request:
+            try:
+                songs_to_add: list = sp.album_tracks(user_song_request)["items"]
+            except spotipy.SpotifyException:
+                await message.channel.send(embed=verbose.embeds.embed_warning_message(
+                    "Sorry, data could not be fetched for that playlist. Most likely it doesn't exist, it is privated, or it is too long."))
+                return
+
+            for track in songs_to_add:
+                guild_vc_data[guild_id]["guild_queue"].append(
+                    Song(name=f"{track['name']} - {track['artists'][0]['name']}", url=track['external_urls']['spotify']))
+
+                if guild_vc_data[guild_id]["voice_client"] and not guild_vc_data[guild_id]["voice_client"].is_playing():
+                    await play_from_yt(message)
+
+            await message.channel.send(embed=verbose.embeds.embed_successful_action("Album added to queue."))
+
+        if "track" in user_song_request:
+            try:
+                song_to_add: list = sp.track(user_song_request)
+            except spotipy.SpotifyException:
+                await message.channel.send(embed=verbose.embeds.embed_warning_message(
+                    "Sorry, data could not be fetched for that playlist. Most likely it doesn't exist, it is privated, or it is too long."))
+                return
+
+            guild_vc_data[guild_id]["guild_queue"].append(
+                Song(name=f"{song_to_add['name']} - {song_to_add['artists'][0]['name']}", url=song_to_add['external_urls']['spotify']))
+
+            print("gui")
+            if guild_vc_data[guild_id]["voice_client"] and not guild_vc_data[guild_id]["voice_client"].is_playing():
+                await play_from_yt(message)
+
+            await message.channel.send(embed=verbose.embeds.embed_successful_action("Song added to queue."))
+
         else:
             results = ytdl.extract_info(
                 f"ytsearch:{user_song_request}", download=False)
