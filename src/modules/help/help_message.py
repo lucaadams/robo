@@ -2,7 +2,9 @@ import discord
 
 from verbose.paged_message import PagedMessage
 
+
 ITEMS_PER_PAGE = 6
+
 
 class HelpMessage(PagedMessage):
     def __init__(self, message_to_reply_to, content: list[str], module_name: str):
