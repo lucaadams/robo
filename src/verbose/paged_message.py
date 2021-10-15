@@ -94,6 +94,7 @@ class PagedMessage:
             colour = discord.Colour(0x3f87a1),
             description = f"{self.pages[self.current_page]}",
         )
-        content_embed.set_footer(text=f"Page {self.current_page + 1}/{self.page_count}")
+        if self.page_count > 1:
+            content_embed.set_footer(text=f"Page {self.current_page + 1}/{self.page_count}")
 
         return content_embed
