@@ -307,7 +307,7 @@ async def remove_from_queue(message):
 
     try:
         index_to_remove = int(message.content.split(" ")[3])
-    except ValueError:
+    except IndexError:
         await message.channel.send(embed=verbose.embeds.embed_warning_message("Must specify valid queue index."))
         return
 
