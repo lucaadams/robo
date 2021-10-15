@@ -2,7 +2,9 @@ import verbose.embeds
 from modules.help.help_message import HelpMessage
 from command_prefix import COMMAND_PREFIX
 
+
 active_help_messages = []
+
 
 async def help_message_handler(message):
     try:
