@@ -22,7 +22,7 @@ async def help_message_handler(message):
         help_message = HelpMessage(message, image_help_message_content, "Image Commands")
         await help_message.send()
 
-    elif second_parameter == "voice":
+    elif second_parameter == "vc":
         help_message = HelpMessage(message, voice_help_message_content, "Voice Commands")
         await help_message.send()
         active_help_messages.append(help_message)
