@@ -286,7 +286,7 @@ async def add_spotify_playlist_to_queue(message):
             if guild_vc_data[guild_id]["voice_client"] and not guild_vc_data[guild_id]["voice_client"].is_playing():
                 await play_from_yt(message)
 
-            await message.channel.send(embed=verbose.embeds.embed_successful_action("Song added to queue."))
+            await message.channel.send(embed=verbose.embeds.embed_successful_action(f"{song_to_add['name']} - {song_to_add['artists'][0]['name']} added to queue."))
 
         else:
             results = ytdl.extract_info(
@@ -312,10 +312,9 @@ async def remove_from_queue(message):
         return
 
     try:
-        removed_song = guild_vc_data[guild_id]["guild_queue"].pop(index_to_remove - 1)
+        removed_song: Song = guild_vc_data[guild_id]["guild_queue"].pop(index_to_remove - 1)
         await message.channel.send(
-            embed=verbose.embeds.embed_successful_action(f"[{removed_song['title']}] \
-                ({removed_song['webpage_url']}) has been removed from the queue"))
+            embed=verbose.embeds.embed_successful_action(f"[{removed_song.name}]({removed_song.url}) has been removed from the queue"))
     except IndexError:
         await message.channel.send(embed=verbose.embeds.embed_warning_message("That queue index does not exist."))
         return
