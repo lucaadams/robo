@@ -364,7 +364,7 @@ async def change_queue_page(bot_message, reaction):
     guild_id = str(bot_message.guild.id)
     if guild_id not in guild_vc_data:
         return
-    if bot_message != guild_vc_data[guild_id]["active_queue_message"].message:
+    if guild_vc_data[guild_id]["active_queue_message"] and bot_message != guild_vc_data[guild_id]["active_queue_message"].message:
         return
 
     await guild_vc_data[guild_id]["active_queue_message"].change_page(reaction)
