@@ -1,5 +1,4 @@
 import asyncio
-import time
 import random
 import copy
 import youtube_dl
@@ -529,7 +528,7 @@ def embed_youtube_info(metadata):
         icon_url="https://www.iconpacks.net/icons/2/free-youtube-logo-icon-2431-thumb.png", name=" Now playing:")
     youtube_info_embed.set_thumbnail(url=metadata["thumbnail"])
     youtube_info_embed.set_footer(
-        text=f"⠀     👁️ {metadata['view_count']}⠀         |⠀         👍 {metadata['like_count']}⠀         |⠀         👎 {metadata['dislike_count']}⠀         |⠀         ⏱️ {time_mins}:{time_secs}⠀     ")
+        text=f"⠀               👁️ {metadata['view_count']}⠀               |⠀               👍 {metadata['like_count']}⠀               |⠀               ⏱️ {time_mins}:{time_secs}⠀               ")
 
     return youtube_info_embed
 
