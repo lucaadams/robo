@@ -146,6 +146,12 @@ async def execute_command(message):
     elif first_parameter == "echo":
         await message.channel.send(embed=verbose.embeds.embed_response("Your message was: ", " ".join(message.content.split(" ")[2:])))
 
+    elif first_parameter == "server-list" and message.author == application_info.owner:
+        servers = ""
+        for guild in CLIENT.guilds:
+            servers += (" • " + guild.name + "\n")
+        await message.channel.send(embed=verbose.embeds.embed_response("Currently in: ", servers))
+
     elif first_parameter == "ping":
         ping_start = time.time()
         await message.channel.send("Pong!")
