@@ -17,7 +17,7 @@ if hypixel_api_key == "REPLACE THIS TEXT WITH YOUR HYPIXEL API KEY":
     logging.info(
         "Your hypixel API key had not been set. Bedwars and SkyWars stats commands will not work. Get one by going in-game to the hypixel server and typing `/api new`.")
 
-recent_searches = cache.Cache()
+recent_searches = cache.Cache(seconds_before_deletion=60)
 sent_stats_messages_with_reactions = []
 
 emoji_list = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣"]
@@ -42,6 +42,8 @@ async def hypixel_command_handler(message):
     except IndexError:
         await message.channel.send(embed=verbose.embeds.embed_warning_message(f"You must include both parameters `[GAME]` and `[USERNAME]`."))
         return
+
+    recent_searches.refresh()
 
     # try to get search from cache. if it didn't work, send req
     hypixel_data = recent_searches.get_object(username)
@@ -79,18 +81,18 @@ async def hypixel_command_handler(message):
     if user_avatar_url is None:
         return
 
-    first_and_last_login = f"first login: {parse_timestamp(hypixel_data['player']['firstLogin'])}    \
-        last login: {parse_timestamp(hypixel_data['player']['lastLogin'])}"
+    first_and_last_login = f"first login: {parse_timestamp(hypixel_data.get('player', {}).get('firstLogin', 0))}    \
+        last login: {parse_timestamp(hypixel_data.get('player', {}).get('lastLogin', 0))}"
 
-    player_rank = hypixel_data["player"].get("newPackageRank", "N/A")
+    player_rank = hypixel_data.get("player", {}).get("newPackageRank", "N/A")
     if player_rank == "MVP_PLUS":
         player_rank = "MVP+"
 
     if game == "bw" or game == "bedwars":
         try:
-            username = f"[{hypixel_data['player']['achievements']['bedwars_level']}☆] {hypixel_data['player']['displayname']}"
+            username = f"[{hypixel_data.get('player', {}).get('achievements', {}).get('bedwars_level', 0)}☆] {hypixel_data.get('player', {}).get('displayname', '---')}"
             base_player_data = {
-                "username": username, "gamemode": "bw", "gamemode_specific_data": hypixel_data["player"]["stats"]["Bedwars"],
+                "username": username, "gamemode": "bw", "gamemode_specific_data": hypixel_data.get("player", {}).get("stats", {}).get("Bedwars", {}),
                 "first_and_last_login": first_and_last_login, "player_rank": player_rank, "user_avatar_url": user_avatar_url
             }
             bw_stats_message = await message.channel.send(embed=modules.minecraft.stats.bedwars_stats.embed_bedwars_stats(base_player_data, 0))
@@ -108,12 +110,12 @@ async def hypixel_command_handler(message):
 
     elif game == "sw" or game == "skywars":
         try:
-            skywars_data = hypixel_data["player"]["stats"]["SkyWars"]
-            level = skywars_data['levelFormatted']
+            skywars_data = hypixel_data.get("player", {}).get("stats", {}).get("SkyWars", {})
+            level = skywars_data.get('levelFormatted', 0)
             # kinda complicated but all it does is make sure it shows up correctly in discord
             level = "".join([character for index, character in enumerate(level) if level[index-1] != "§" and character != "§"])
             level = level[:len(level)-1] + "\\" + level[-1]
-            username = f"[{level}] {hypixel_data['player']['displayname']}"
+            username = f"[{level}] {hypixel_data.get('player', {}).get('displayname', '---')}"
             base_player_data = {
                 "username": username, "gamemode": "sw", "gamemode_specific_data": skywars_data,
                 "first_and_last_login": first_and_last_login, "player_rank": player_rank, "user_avatar_url": user_avatar_url
