@@ -30,7 +30,7 @@ class Cache:
             del self.cached_objects[next(iter(self.cached_objects))]
             print("too many cached items")
 
-        # if item added more than 15 minutes ago, delete
+        # if item added more than seconds_before_deletion seconds ago, delete
         for object_name in self.cached_objects.keys():
             if self.cached_objects[object_name].time_created - time.time() > self.seconds_before_deletion:
                 del self.cached_objects[object_name]
